@@ -13,7 +13,7 @@ type selectionPicker[T any] struct {
 	menu                  sidebarModel
 	termWidth, termHeight int
 	onSelect              func(*character.Character, T) tea.Cmd
-	formatContent         func(*character.Character, T) string
+	formatContent         func(*character.Character, T, int) string
 }
 
 func newSelectionPicker[T any](
@@ -23,7 +23,7 @@ func newSelectionPicker[T any](
 	items SidebarItemList,
 	showDesc bool,
 	onSelect func(*character.Character, T) tea.Cmd,
-	formatContent func(*character.Character, T) string,
+	formatContent func(*character.Character, T, int) string,
 ) selectionPicker[T] {
 	sidebar := newSidebar(sidebarTitle, items, 32, showDesc)
 
@@ -72,7 +72,7 @@ func (m selectionPicker[T]) View() string {
 
 	var content string
 	if val, ok := GetItemData[T](m.menu); ok {
-		content = m.formatContent(m.c, val)
+		content = m.formatContent(m.c, val, contentWidth)
 	} else {
 		content = "No selection"
 	}

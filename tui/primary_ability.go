@@ -34,7 +34,7 @@ func NewPrimaryAbilityModel(c *character.Character) tea.Model {
 	)
 }
 
-func displayPrimaryAbilityInfo(c *character.Character, a character.Ability) string {
+func displayPrimaryAbilityInfo(c *character.Character, a character.Ability, contentWidth int) string {
 	abi := character.GetAbility(a)
 
 	title := titleStyle.Render(abi.Name)
@@ -46,7 +46,7 @@ func displayPrimaryAbilityInfo(c *character.Character, a character.Ability) stri
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
 		title,
-		renderDivider(40),
+		renderDivider(contentWidth-2),
 		desc,
 	)
 }

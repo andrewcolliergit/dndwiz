@@ -33,21 +33,19 @@ func NewAlignmentModel(c *character.Character) tea.Model {
 	)
 }
 
-func displayAlignmentInfo(c *character.Character, a character.Alignment) string {
+func displayAlignmentInfo(c *character.Character, a character.Alignment, contentWidth int) string {
 	aln := character.GetAlignment(a)
 
 	// Header & Accents
 	title := titleStyle.Render(aln.Name)
 
 	// Body content
-	desc := lipgloss.NewStyle().
-		Foreground(lipgloss.Color("252")).
-		Render(aln.Desc)
+	desc := descStyle.Render(aln.Desc)
 
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
 		title,
-		renderDivider(40),
+		// renderDivider(contentWidth-2),
 		desc,
 	)
 }

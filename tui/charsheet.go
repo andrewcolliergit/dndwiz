@@ -264,16 +264,31 @@ func displayCharacterOverview(c *character.Character) string {
 	)
 }
 
+func blankCharacterGreeter() string {
+	header := titleStyle.Inherit(titleStyle).Align(lipgloss.Center).Render("NEW CHARACTER")
+	text := lipgloss.NewStyle().Align(lipgloss.Center).Render("As you fill in the details of your new character, this character sheet will reflect the traits and choises you have selected.")
+	return lipgloss.JoinVertical(lipgloss.Center, header, text)
+}
+
 func (m charsheetModel) View() string {
 	if m.termWidth == 0 || m.termHeight <= 2 {
 		return "Initializing..."
 	}
+	// Blank character placeholder text
+	blankCharacter := m.c.Class == character.ClassNone &&
+		m.c.Species == character.SpeciesNone &&
+		m.c.Background == character.BackgroundNone &&
+		m.c.Alignment == character.AlignmentNone &&
+		!hasAbilityScores(m.c)
 
 	sidebarWidth := m.menu.width
 	contentWidth := m.termWidth - sidebarWidth - 4
 
 	content := displayCharacterOverview(m.c)
 
+	if blankCharacter {
+		content = blankCharacterGreeter()
+	}
 	contentStyle := lipgloss.NewStyle().
 		Width(contentWidth).
 		Height(m.termHeight - 2).
@@ -297,6 +312,7 @@ func (m charsheetModel) View() string {
 		"",
 		lipgloss.NewStyle().Foreground(lipgloss.Color("240")).Render("press enter to save • esc to cancel"),
 	)
+
 	return lipgloss.Place(
 		m.termWidth,
 		m.termHeight,

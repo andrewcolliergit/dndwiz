@@ -34,7 +34,7 @@ func NewDraconicAncestryModel(c *character.Character) tea.Model {
 	)
 }
 
-func displayDraconicAncestryInfo(c *character.Character, d character.DraconicAncestry) string {
+func displayDraconicAncestryInfo(c *character.Character, d character.DraconicAncestry, contentWidth int) string {
 	dai := character.GetDraconicAncestry(d)
 
 	title := titleStyle.Render(dai.Name)
@@ -43,7 +43,7 @@ func displayDraconicAncestryInfo(c *character.Character, d character.DraconicAnc
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
 		title,
-		renderDivider(40),
+		renderDivider(contentWidth-2),
 		dmgType,
 	)
 }

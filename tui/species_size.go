@@ -33,6 +33,6 @@ func NewSpeciesSizeModel(c *character.Character) tea.Model {
 	)
 }
 
-func displaySpeciesSizeInfo(c *character.Character, s string) string {
+func displaySpeciesSizeInfo(c *character.Character, s string, contentWidth int) string {
 	return titleStyle.Render(s)
 }

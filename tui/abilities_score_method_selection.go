@@ -58,7 +58,7 @@ func NewAbilityScoresMethodSelectionModel(c *character.Character) tea.Model {
 	)
 }
 
-func displayAbilityScoreMethodInfo(c *character.Character, view currentView) string {
+func displayAbilityScoreMethodInfo(c *character.Character, view currentView, contentWidth int) string {
 	var title, desc string
 
 	switch view {

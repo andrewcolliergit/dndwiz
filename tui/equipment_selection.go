@@ -40,7 +40,7 @@ func NewEquipmentSelectionModel(c *character.Character) tea.Model {
 	)
 }
 
-func displayEquipmentInfo(c *character.Character, class character.Class) string {
+func displayEquipmentInfo(c *character.Character, class character.Class, contentWidth int) string {
 	cls := character.GetClass(class)
 
 	// Header & Accents
@@ -68,7 +68,7 @@ func displayEquipmentInfo(c *character.Character, class character.Class) string 
 		weaponProficiencies,
 		armorTraining,
 		startingEquipment,
-		renderDivider(40),
+		renderDivider(contentWidth-2),
 		desc,
 	)
 }

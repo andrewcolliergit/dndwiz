@@ -1,6 +1,9 @@
 package tui
 
 import (
+	"fmt"
+	"strings"
+
 	"dndwiz/character"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -40,35 +43,56 @@ func NewClassesModel(c *character.Character) tea.Model {
 	)
 }
 
-func displayClassInfo(c *character.Character, class character.Class) string {
+func skillProficienciesStr(class character.Class) string {
+	sp := character.GetClass(class).SkillProficiency
+
+	var skillsList []string
+	for _, skill := range sp.From {
+		skillName := character.GetSkill(skill).Name
+		skillsList = append(skillsList, skillStyle.Render(skillName))
+	}
+
+	skills := strings.Join(skillsList, " ")
+
+	header := fmt.Sprintf("Skill Proficiencies (%d)", sp.Has)
+
+	return labelStyle.Render(header) + " " + skills
+}
+
+func savingThrowStr(st character.ClassSavingThrow) string {
+	var stList []string
+	for _, throw := range st {
+		t := character.GetAbility(throw).Abbr
+		stList = append(stList, badgeStyle.Render(t))
+	}
+	info := strings.Join(stList, " ")
+	return labelStyle.Render("Saving Throw") + " " + info
+}
+
+func displayClassInfo(c *character.Character, class character.Class, contentWidth int) string {
 	cls := character.GetClass(class)
 
 	// Header & Accents
 	title := titleStyle.Render(cls.Name)
 	primaryAbilities := labelStyle.Render("Primary Ability: ") + badgeStyle.Render(cls.PrimaryAbility.String())
 	hitPointDie := labelStyle.Render("Hit Point Die: ") + character.GetHitPointDieString(class)
-	savingThrow := labelStyle.Render("Saving Throw Proficiency: ") + cls.SavingThrow.String()
-	skillProficiencies := labelStyle.Render("Skill Proficiences: ") + cls.SkillProficiency.String()
 	weaponProficiencies := labelStyle.Render("Weapon Proficiencies: ") + cls.WeaponProficiencies
 	armorTraining := labelStyle.Render("Armor Training: ") + cls.ArmorTraining
 	startingEquipment := labelStyle.Render("Starting Equipment: ") + cls.StartingEquipment.String()
 
 	// Body content
-	desc := lipgloss.NewStyle().
-		Foreground(lipgloss.Color("252")).
-		Render(cls.Desc)
+	desc := descStyle.Render(cls.Desc)
 
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
-		title,
+		renderTitle(title, desc),
+		renderDivider(contentWidth-2),
 		primaryAbilities,
 		hitPointDie,
-		savingThrow,
-		skillProficiencies,
+		savingThrowStr(character.GetClass(class).SavingThrow),
+		skillProficienciesStr(class),
 		weaponProficiencies,
 		armorTraining,
 		startingEquipment,
-		renderDivider(40),
-		desc,
 	)
 }

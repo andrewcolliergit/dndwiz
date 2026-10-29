@@ -41,7 +41,7 @@ func NewSpeciesModel(c *character.Character) tea.Model {
 	)
 }
 
-func displaySpeciesInfo(c *character.Character, species character.Species) string {
+func displaySpeciesInfo(c *character.Character, species character.Species, contentWidth int) string {
 	spec := character.GetSpecies(species)
 
 	// Header
@@ -61,24 +61,21 @@ func displaySpeciesInfo(c *character.Character, species character.Species) strin
 	)
 
 	// Special traits section
-	traitsLabel := subheaderStyle.Render("Traits:")
 	traits := lipgloss.NewStyle().
 		Italic(true).
 		Foreground(lipgloss.Color("248")).
 		Render(spec.Traits)
 
 	// Main flavor description
-	desc := lipgloss.NewStyle().
-		Foreground(lipgloss.Color("252")).
-		Render(spec.Desc)
+	desc := descStyle.Render(spec.Desc)
 
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
 		title,
-		statsGroup,
-		traitsLabel,
-		traits,
-		renderDivider(40),
 		desc,
+		renderDivider(contentWidth-2),
+		statsGroup,
+		subheaderStyle.Render("Traits"),
+		traits,
 	)
 }

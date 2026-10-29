@@ -34,7 +34,7 @@ func NewElvenLineageModel(c *character.Character) tea.Model {
 	)
 }
 
-func displayElvenLineageInfo(c *character.Character, e character.ElvenLineage) string {
+func displayElvenLineageInfo(c *character.Character, e character.ElvenLineage, contentWidth int) string {
 	el := character.GetElvenLineage(e)
 
 	title := titleStyle.Render(el.Name)
@@ -46,7 +46,7 @@ func displayElvenLineageInfo(c *character.Character, e character.ElvenLineage) s
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
 		title,
-		renderDivider(40),
+		renderDivider(contentWidth-2),
 		lvl1,
 		lvl3,
 		lvl5,

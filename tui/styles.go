@@ -9,24 +9,39 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
+const (
+	colorSkill  = "6"
+	colorTitle  = "86"
+	colorLabel  = "205"
+	colorDesc   = "246"
+	colorHeader = "202"
+)
+
 var (
 	// Panel Header
 	titleStyle = lipgloss.NewStyle().
 			Bold(true).
-			Foreground(lipgloss.Color("86")). // Cyan/Teal accent
+			Foreground(lipgloss.Color(colorTitle)).
 			MarginBottom(1)
 
 	// Subheaders
 	subheaderStyle = lipgloss.NewStyle().
 			Bold(true).
-			Foreground(lipgloss.Color("202")).
+			Foreground(lipgloss.Color(colorHeader)).
 			Underline(true).
 			MarginTop(1)
 
 	// Section Labels (e.g., "Primary Abilities:")
 	labelStyle = lipgloss.NewStyle().
 			Bold(true).
-			Foreground(lipgloss.Color("205")) // Hot Pink / Accent color
+			Foreground(lipgloss.Color(colorLabel))
+
+	// Descriptions
+	descStyle = lipgloss.NewStyle().
+			Italic(true).
+			Foreground(lipgloss.Color(colorDesc))
+
+	subtitleStyle = descStyle.Inherit(descStyle).MarginBottom(1)
 
 	// Sub-details / Badges
 	badgeStyle = lipgloss.NewStyle().
@@ -34,6 +49,12 @@ var (
 			Foreground(lipgloss.Color("255")).
 			Padding(0, 1)
 
+	// Skills
+	skillStyle = lipgloss.NewStyle().
+			Background(lipgloss.Color("238")).
+			Foreground(lipgloss.Color(colorSkill)).
+			Italic(true).
+			Padding(0, 1)
 	// Divider Line
 	dividerStyle = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("240")).
@@ -107,6 +128,14 @@ func renderAbilityScoresRow(c *character.Character, selected character.Ability, 
 	}
 
 	return outerBorderStyle.Render(row)
+}
+
+func renderTitle(title string, subtitle string) string {
+	return lipgloss.JoinVertical(
+		lipgloss.Left,
+		titleStyle.Render(title),
+		descStyle.Render(subtitle),
+	)
 }
 
 func renderAbilityRollsRow(scores *[6]int, selected int, focused bool) string {

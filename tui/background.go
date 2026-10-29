@@ -35,7 +35,7 @@ func NewBackgroundModel(c *character.Character) tea.Model {
 	)
 }
 
-func displayBackgroundInfo(c *character.Character, bg character.Background) string {
+func displayBackgroundInfo(c *character.Character, bg character.Background, contentWidth int) string {
 	var abilitiesArr []string
 	for _, ability := range character.GetBackground(bg).Abilities {
 		abilityAbbr := character.GetAbility(ability).Abbr
@@ -45,24 +45,26 @@ func displayBackgroundInfo(c *character.Character, bg character.Background) stri
 	bgi := character.GetBackground(bg)
 
 	title := titleStyle.Render(bgi.Name)
-	desc := lipgloss.NewStyle().Italic(true).Foreground(lipgloss.Color("246")).Render(bgi.Desc)
+	desc := descStyle.Render(bgi.Desc)
 
 	abilities := labelStyle.Render("Ability Scores: ") + abilitiesStr
 	feat := labelStyle.Render("Feat: ") + badgeStyle.Render(bgi.Feat.String())
 	skills := labelStyle.Render("Skills: ") + character.GetBackgroundSkills(bg)
 	tools := labelStyle.Render("Tools: ") + bgi.Tool
-	equip := labelStyle.Render("Equipment Options:\n") + character.GetBackgroundEquipmentOptions(bg)
+	equip := character.GetBackgroundEquipmentOptions(bg)
+
+	divWidth := contentWidth - 2
 
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
 		title,
 		desc,
-		renderDivider(40),
+		renderDivider(divWidth),
 		abilities,
 		feat,
 		skills,
 		tools,
-		renderDivider(40),
+		subheaderStyle.Render("Equipment Options"),
 		equip,
 	)
 }
