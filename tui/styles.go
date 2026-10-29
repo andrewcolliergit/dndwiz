@@ -2,6 +2,7 @@ package tui
 
 import (
 	"fmt"
+	"strings"
 
 	"dndwiz/character"
 
@@ -14,6 +15,13 @@ var (
 			Bold(true).
 			Foreground(lipgloss.Color("86")). // Cyan/Teal accent
 			MarginBottom(1)
+
+	// Subheaders
+	subheaderStyle = lipgloss.NewStyle().
+			Bold(true).
+			Foreground(lipgloss.Color("202")).
+			Underline(true).
+			MarginTop(1)
 
 	// Section Labels (e.g., "Primary Abilities:")
 	labelStyle = lipgloss.NewStyle().
@@ -30,13 +38,32 @@ var (
 	dividerStyle = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("240")).
 			Margin(1, 0)
+
+	// Tagline
+	taglineStyle = lipgloss.NewStyle().
+			Italic(true).
+			Foreground(lipgloss.Color("246"))
+
+	// Tooltip with key binds
+	tooltipStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("240")).
+			Italic(true).
+			Align(lipgloss.Center)
+
+	// Popup
+	popupStyle = lipgloss.NewStyle().
+			Border(lipgloss.RoundedBorder()).
+			BorderForeground(lipgloss.Color("62")).
+			Padding(1, 2).
+			Width(36).
+			Align(lipgloss.Left)
 )
 
 func renderDivider(width int) string {
 	if width <= 0 {
 		width = 20
 	}
-	return dividerStyle.Render(lipgloss.NewStyle().Width(width).SetString("─").String())
+	return dividerStyle.Render(strings.Repeat("─", width))
 }
 
 func renderAbilityScoresRow(c *character.Character, selected character.Ability, focused bool) string {

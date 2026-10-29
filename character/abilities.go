@@ -81,7 +81,7 @@ func GetAllAbilities() []AbilityInfo {
 func (p Abilities) String() string {
 	var str []string
 	for _, a := range p {
-		str = append(str, GetAbility(a).Name)
+		str = append(str, GetAbility(a).Abbr)
 	}
 	return strings.Join(str, ", ")
 }

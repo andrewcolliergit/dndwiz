@@ -27,6 +27,7 @@ func NewSpeciesModel(c *character.Character) tea.Model {
 		false,
 		func(c *character.Character, val character.Species) tea.Cmd {
 			c.Species = val
+			c.Size = character.GetSpecies(val).Size[0]
 			if character.GetSpecies(c.Species).Size.RequiresChoice() {
 				return switchToView(viewSpeciesSizeSelection)
 			} else if c.Species == character.SpeciesDragonborn {
@@ -60,7 +61,7 @@ func displaySpeciesInfo(c *character.Character, species character.Species) strin
 	)
 
 	// Special traits section
-	traitsLabel := labelStyle.Render("Traits:")
+	traitsLabel := subheaderStyle.Render("Traits:")
 	traits := lipgloss.NewStyle().
 		Italic(true).
 		Foreground(lipgloss.Color("248")).
@@ -75,7 +76,6 @@ func displaySpeciesInfo(c *character.Character, species character.Species) strin
 		lipgloss.Left,
 		title,
 		statsGroup,
-		renderDivider(40),
 		traitsLabel,
 		traits,
 		renderDivider(40),

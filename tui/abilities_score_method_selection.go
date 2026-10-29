@@ -64,16 +64,16 @@ func displayAbilityScoreMethodInfo(c *character.Character, view currentView) str
 	switch view {
 	case viewAbilityScoresRoll:
 		title = "Roll"
-		desc = "Roll description"
+		desc = "You may opt to roll for your skill points. Using this method, 6 scores will be rolled and you may assign them to the abilities of your choice.\nNote that once you have rolled, you will not have the option to roll again. You may, however, elect to Point Buy or take the standard array after rolling."
 	case viewAbilityScoresBuy:
 		title = "Point Buy"
-		desc = "Point buy description"
+		desc = "You may elect to customize your skill points as you see fit using Point Buy. With this method, you will be given a budget of 27 points to spend on skill point levels, where each level purchased becomes increasingly expensive."
 	case viewCharsheet: // Standard Array
 		tmpCharacter := character.NewCharacter()
 		tmpCharacter.AbilityScore = character.GetClass(c.Class).StdArray
 		box := renderAbilityScoresRow(&tmpCharacter, -1, false)
 		title = "Standard Array"
-		desc = box
+		desc = "Rather than customizing your ability scores, you may elect to take the standard score array for your chosen class. The standard skill point array for the " + character.GetClass(c.Class).Name + " class is:\n\n" + box
 	}
 
 	// Header & Accents

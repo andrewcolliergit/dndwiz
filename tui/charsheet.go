@@ -2,6 +2,7 @@ package tui
 
 import (
 	"fmt"
+	"strings"
 
 	"dndwiz/character"
 
@@ -125,14 +126,17 @@ func (m charsheetModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func displayCharacterOverview(c *character.Character) string {
+func headerDisplay(c *character.Character) string {
+	return titleStyle.Render(c.Name)
+}
+
+func taglineDisplay(c *character.Character) string {
 	cls := character.GetClass(c.Class)
 	spec := character.GetSpecies(c.Species)
 	bg := character.GetBackground(c.Background)
-	aln := character.GetAlignment(c.Alignment)
 
-	// Ancestry included in species
 	var species string
+
 	switch c.Species {
 	case character.SpeciesDragonborn:
 		species = character.GetDraconicAncestry(c.DraconicAncestry).Name + " " + spec.Name
@@ -142,50 +146,121 @@ func displayCharacterOverview(c *character.Character) string {
 		species = spec.Name
 	}
 
-	// Header block
-	nameStr := titleStyle.Render(c.Name)
-	tagline := lipgloss.NewStyle().
-		Italic(true).
-		Foreground(lipgloss.Color("246")).
-		Render(fmt.Sprintf("%s • %s %s", bg.Name, species, cls.Name))
+	var output string
 
-	// Class Details Block
-	primaryAbilities := labelStyle.Render("Primary Abilities: ") + badgeStyle.Render(c.PrimaryAbilities.String())
+	if c.Background != character.BackgroundNone {
+		output = bg.Name
+		if c.Species != character.SpeciesNone && c.Class != character.ClassNone {
+			output += " • "
+		}
+	}
+	if c.Species != character.SpeciesNone {
+		output += species + " "
+	}
+	if c.Class != character.ClassNone {
+		output += cls.Name
+	}
 
-	abilityScores := renderAbilityScoresRow(c, character.AbilityNone, false)
+	return taglineStyle.Render(output)
+}
 
-	// Species Traits Block
-	speciesDetails := fmt.Sprintf(
-		"%s %s  │  %s %s  │  %s %s",
+func hasAbilityScores(c *character.Character) bool {
+	for _, score := range c.AbilityScore {
+		if score > 8 {
+			return true
+		}
+	}
+	return false
+}
+
+func abilityScoresDisplay(c *character.Character) string {
+	if !hasAbilityScores(c) {
+		return ""
+	}
+	return renderAbilityScoresRow(c, character.AbilityNone, false)
+}
+
+func primaryAbilitiesDisplay(c *character.Character) string {
+	if len(c.PrimaryAbilities) == 0 {
+		return ""
+	}
+	return labelStyle.Render("Primary Abilities: ") + badgeStyle.Render(c.PrimaryAbilities.String())
+}
+
+func speciesAttributesDisplay(c *character.Character) string {
+	if c.Species == character.SpeciesNone {
+		return ""
+	}
+
+	spec := character.GetSpecies(c.Species)
+
+	header := subheaderStyle.Render("Species Attributes")
+	info := fmt.Sprintf(
+		"%s %s\n%s %s\n%s %s",
 		labelStyle.Render("Type:"), spec.CreatureType,
 		labelStyle.Render("Size:"), c.Size,
 		labelStyle.Render("Speed:"), spec.Speed.String(),
 	)
 
-	// Background Summary Block
-	bgDetails := fmt.Sprintf(
-		"%s %s\n%s %s\n%s %s\n%s %s",
-		labelStyle.Render("Feat:"), bg.Feat.String(),
-		labelStyle.Render("Tool:"), bg.Tool,
-		labelStyle.Render("Abilities:"), character.GetBackgroundAbilities(c.Background),
-		labelStyle.Render("Alignment:"), aln.Name,
+	return lipgloss.JoinVertical(lipgloss.Left, header, info)
+}
+
+func backgroundDisplay(c *character.Character) string {
+	hasBg := c.Background > character.BackgroundNone
+	hasAln := c.Alignment > character.AlignmentNone
+
+	if !hasBg && !hasAln {
+		return ""
+	}
+
+	header := subheaderStyle.Render("Background Highlights")
+
+	var (
+		bgStr  string
+		alnStr string
 	)
 
-	divwidth := 44
+	if hasBg {
+		bg := character.GetBackground(c.Background)
+		var bgAbilities []string
+		for _, ability := range character.GetBackground(c.Background).Abilities {
+			bgAbilities = append(bgAbilities, badgeStyle.Render(character.GetAbility(ability).Abbr))
+		}
 
+		bgAbilitiesStr := strings.Join(bgAbilities, " ")
+
+		bgStr = fmt.Sprintf(
+			"%s %s\n%s %s\n%s %s",
+			labelStyle.Render("Feat:"), bg.Feat.String(),
+			labelStyle.Render("Tool:"), bg.Tool,
+			labelStyle.Render("Abilities:"), bgAbilitiesStr,
+		)
+	}
+
+	if hasAln {
+		aln := character.GetAlignment(c.Alignment)
+		alnStr = labelStyle.Render("Alignment:") + " " + aln.Name
+	}
+
+	if hasBg && !hasAln {
+		return lipgloss.JoinVertical(lipgloss.Left, header, bgStr)
+	}
+	if !hasBg && hasAln {
+		return lipgloss.JoinVertical(lipgloss.Left, header, alnStr)
+	} else {
+		return lipgloss.JoinVertical(lipgloss.Left, header, bgStr, alnStr)
+	}
+}
+
+func displayCharacterOverview(c *character.Character) string {
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
-		nameStr,
-		tagline,
-		abilityScores,
-		renderDivider(divwidth),
-		primaryAbilities,
-		renderDivider(divwidth),
-		labelStyle.Render("Species Attributes:"),
-		speciesDetails,
-		renderDivider(divwidth),
-		labelStyle.Render("Background Highlights:"),
-		bgDetails,
+		headerDisplay(c),
+		taglineDisplay(c),
+		abilityScoresDisplay(c),
+		primaryAbilitiesDisplay(c),
+		speciesAttributesDisplay(c),
+		backgroundDisplay(c),
 	)
 }
 
@@ -213,13 +288,6 @@ func (m charsheetModel) View() string {
 	if !m.isEditingName {
 		return baseView
 	}
-
-	popupStyle := lipgloss.NewStyle().
-		Border(lipgloss.RoundedBorder()).
-		BorderForeground(lipgloss.Color("62")).
-		Padding(1, 2).
-		Width(36).
-		Align(lipgloss.Left)
 
 	modalContent := lipgloss.JoinVertical(
 		lipgloss.Center,
