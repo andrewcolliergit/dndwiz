@@ -14,7 +14,7 @@ import (
 type charsheetModel struct {
 	c                     *character.Character
 	title                 string
-	menu                  sidebarModel
+	menu                  Menu
 	textInput             textinput.Model
 	isEditingName         bool
 	termWidth, termHeight int
@@ -24,8 +24,8 @@ func (m charsheetModel) Init() tea.Cmd {
 	return nil
 }
 
-func MakeCharsheetSidebarItems(c *character.Character) SidebarItemList {
-	return SidebarItemList{
+func MakeCharsheetSidebarItems(c *character.Character) MenuItemList {
+	return MenuItemList{
 		{
 			title: "Name",
 			desc:  c.Name,
@@ -66,7 +66,7 @@ func NewCharsheetModel(c *character.Character) charsheetModel {
 	ti.Width = 24
 
 	items := MakeCharsheetSidebarItems(c)
-	sidebar := newSidebar("Edit Character", items, 32, true)
+	sidebar := newMenu(menuStyleSidebar, "Edit Character", items, 32, true)
 
 	return charsheetModel{
 		c:         c,

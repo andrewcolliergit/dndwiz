@@ -10,7 +10,7 @@ import (
 type selectionPicker[T any] struct {
 	c                     *character.Character
 	title                 string
-	menu                  sidebarModel
+	menu                  Menu
 	termWidth, termHeight int
 	onSelect              func(*character.Character, T) tea.Cmd
 	formatContent         func(*character.Character, T, int) string
@@ -20,12 +20,12 @@ func newSelectionPicker[T any](
 	c *character.Character,
 	title string,
 	sidebarTitle string,
-	items SidebarItemList,
+	items MenuItemList,
 	showDesc bool,
 	onSelect func(*character.Character, T) tea.Cmd,
 	formatContent func(*character.Character, T, int) string,
 ) selectionPicker[T] {
-	sidebar := newSidebar(sidebarTitle, items, 32, showDesc)
+	sidebar := newMenu(menuStyleSidebar, sidebarTitle, items, 32, showDesc)
 
 	return selectionPicker[T]{
 		c:             c,

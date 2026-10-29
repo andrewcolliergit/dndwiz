@@ -17,6 +17,7 @@ const (
 	colorHeader = "202"
 )
 
+// Text formatting styles
 var (
 	// Panel Header
 	titleStyle = lipgloss.NewStyle().
@@ -79,6 +80,15 @@ var (
 			Width(36).
 			Align(lipgloss.Left)
 )
+
+// Menu Styles
+
+func getSidebarMenuStyle(width int) lipgloss.Style {
+	return lipgloss.NewStyle().
+		Width(width).
+		Border(lipgloss.RoundedBorder(), true, true, true, true).
+		BorderForeground(lipgloss.Color("62"))
+}
 
 func renderDivider(width int) string {
 	if width <= 0 {

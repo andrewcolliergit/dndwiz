@@ -9,10 +9,10 @@ import (
 
 func NewSpeciesModel(c *character.Character) tea.Model {
 	species := character.GetAllSpecies()
-	items := make(SidebarItemList, 0, len(species))
+	items := make(MenuItemList, 0, len(species))
 
 	for i, specInfo := range species {
-		items = append(items, SidebarItem{
+		items = append(items, MenuItem{
 			title: specInfo.Name,
 			desc:  specInfo.Traits,
 			data:  character.Species(i + 1),

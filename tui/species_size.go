@@ -8,10 +8,10 @@ import (
 
 func NewSpeciesSizeModel(c *character.Character) tea.Model {
 	sizes := character.GetSpecies(c.Species).Size
-	items := make(SidebarItemList, 0, len(sizes))
+	items := make(MenuItemList, 0, len(sizes))
 
 	for _, s := range sizes {
-		items = append(items, SidebarItem{
+		items = append(items, MenuItem{
 			title: s,
 			desc:  "",
 			data:  s,

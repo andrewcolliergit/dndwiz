@@ -9,10 +9,10 @@ import (
 
 func NewDraconicAncestryModel(c *character.Character) tea.Model {
 	ancestries := character.GetAllDraconicAncestries()
-	items := make(SidebarItemList, 0, len(ancestries))
+	items := make(MenuItemList, 0, len(ancestries))
 
 	for i, a := range ancestries {
-		items = append(items, SidebarItem{
+		items = append(items, MenuItem{
 			title: a.Name,
 			desc:  a.DamageType,
 			data:  character.DraconicAncestry(i + 1),

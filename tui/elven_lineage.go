@@ -9,10 +9,10 @@ import (
 
 func NewElvenLineageModel(c *character.Character) tea.Model {
 	lineages := character.GetAllElvenLineages()
-	items := make(SidebarItemList, 0, len(lineages))
+	items := make(MenuItemList, 0, len(lineages))
 
 	for i, l := range lineages {
-		items = append(items, SidebarItem{
+		items = append(items, MenuItem{
 			title: l.Name,
 			desc:  "",
 			data:  character.ElvenLineage(i + 1),

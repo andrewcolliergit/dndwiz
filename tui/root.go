@@ -11,7 +11,9 @@ import (
 type currentView int
 
 const (
-	viewCharsheet currentView = iota
+	viewQuit currentView = iota
+	viewTitleScreen
+	viewCharsheet
 	viewClassSelection
 	viewPrimaryAbilitiesSelection
 	viewSpeciesSizeSelection
@@ -39,6 +41,7 @@ type (
 		config                       *Config
 		state                        currentView
 		history                      []currentView
+		titleScreen                  tea.Model
 		charsheet                    charsheetModel
 		classes                      tea.Model
 		species                      tea.Model
@@ -64,6 +67,9 @@ func switchToView(v currentView) tea.Cmd {
 func (m rootModel) Init() tea.Cmd { return nil }
 
 func (m *rootModel) propagateSize(msg tea.WindowSizeMsg) {
+	if m.titleScreen != nil {
+		m.titleScreen, _ = m.titleScreen.Update(msg)
+	}
 	if m.charsheet.c != nil {
 		updated, _ := m.charsheet.Update(msg)
 		m.charsheet = updated.(charsheetModel)
@@ -107,6 +113,8 @@ func (m *rootModel) propagateSize(msg tea.WindowSizeMsg) {
 func (m *rootModel) initView(v currentView) {
 	m.state = v
 	switch v {
+	case viewTitleScreen:
+		m.titleScreen = NewTitleScreenModel()
 	case viewCharsheet:
 		m.charsheet.RefreshSidebar()
 	case viewPrimaryAbilitiesSelection:
@@ -176,6 +184,9 @@ func (m rootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	switch m.state {
+	case viewTitleScreen:
+		m.titleScreen, cmd = m.titleScreen.Update(msg)
+
 	case viewCharsheet:
 		var updatedModel tea.Model
 		updatedModel, cmd = m.charsheet.Update(msg)
@@ -217,6 +228,8 @@ func (m rootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m rootModel) View() string {
 	switch m.state {
+	case viewTitleScreen:
+		return m.titleScreen.View()
 	case viewCharsheet:
 		return m.charsheet.View()
 	case viewClassSelection:
@@ -249,6 +262,8 @@ func (m rootModel) View() string {
 func NewProgram(cfg *Config) *tea.Program {
 	m := rootModel{
 		config:                       cfg,
+		state:                        viewTitleScreen,
+		titleScreen:                  NewTitleScreenModel(),
 		charsheet:                    NewCharsheetModel(cfg.Character),
 		classes:                      NewClassesModel(cfg.Character),
 		species:                      NewSpeciesModel(cfg.Character),

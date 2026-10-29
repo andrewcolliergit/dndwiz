@@ -9,10 +9,10 @@ import (
 
 func NewPrimaryAbilityModel(c *character.Character) tea.Model {
 	abilities := character.GetClass(c.Class).PrimaryAbility.From
-	items := make(SidebarItemList, 0, len(abilities))
+	items := make(MenuItemList, 0, len(abilities))
 
 	for _, a := range abilities {
-		items = append(items, SidebarItem{
+		items = append(items, MenuItem{
 			title: character.GetAbility(a).Name,
 			desc:  "",
 			data:  a,

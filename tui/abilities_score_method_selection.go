@@ -8,7 +8,7 @@ import (
 )
 
 func NewAbilityScoresMethodSelectionModel(c *character.Character) tea.Model {
-	items := SidebarItemList{
+	items := MenuItemList{
 		{
 			title: "Point Buy",
 			desc:  "",
@@ -19,7 +19,7 @@ func NewAbilityScoresMethodSelectionModel(c *character.Character) tea.Model {
 	if c.Class != character.ClassNone {
 		stdarray := character.GetClass(c.Class).StdArray
 
-		items = append(items, SidebarItem{
+		items = append(items, MenuItem{
 			title: "Standard Array",
 			desc:  stdarray.String(),
 			data:  viewCharsheet,
@@ -27,7 +27,7 @@ func NewAbilityScoresMethodSelectionModel(c *character.Character) tea.Model {
 	}
 
 	if !c.HasRolledAbilityScores {
-		items = append(items, SidebarItem{
+		items = append(items, MenuItem{
 			title: "Roll",
 			desc:  "",
 			data:  viewAbilityScoresRoll,

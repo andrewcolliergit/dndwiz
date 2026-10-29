@@ -9,10 +9,10 @@ import (
 
 func NewAlignmentModel(c *character.Character) tea.Model {
 	alignments := character.GetAllAlignments()
-	items := make(SidebarItemList, 0, len(alignments))
+	items := make(MenuItemList, 0, len(alignments))
 
 	for i, alnInfo := range alignments {
-		items = append(items, SidebarItem{
+		items = append(items, MenuItem{
 			title: alnInfo.Name,
 			desc:  alnInfo.Desc,
 			data:  character.Alignment(i + 1),

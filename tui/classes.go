@@ -12,10 +12,10 @@ import (
 
 func NewClassesModel(c *character.Character) tea.Model {
 	classes := character.GetAllClasses()
-	items := make(SidebarItemList, 0, len(classes))
+	items := make(MenuItemList, 0, len(classes))
 
 	for i, clsInfo := range classes {
-		items = append(items, SidebarItem{
+		items = append(items, MenuItem{
 			title: clsInfo.Name,
 			desc:  clsInfo.Desc,
 			data:  character.Class(i + 1),

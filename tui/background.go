@@ -11,10 +11,10 @@ import (
 
 func NewBackgroundModel(c *character.Character) tea.Model {
 	backgrounds := character.GetAllBackgrounds()
-	items := make(SidebarItemList, 0, len(backgrounds))
+	items := make(MenuItemList, 0, len(backgrounds))
 
 	for i, bgInfo := range backgrounds {
-		items = append(items, SidebarItem{
+		items = append(items, MenuItem{
 			title: bgInfo.Name,
 			desc:  "",
 			data:  character.Background(i + 1),
