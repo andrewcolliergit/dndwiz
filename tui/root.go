@@ -39,6 +39,25 @@ func (m *model) propagateSize(msg tea.WindowSizeMsg) {
 	}
 }
 
+func (m model) back() (tea.Model, tea.Cmd) {
+	if len(m.history) == 0 {
+		return m, nil
+	}
+	prevState := m.history[len(m.history)-1]
+	m.history = m.history[:len(m.history)-1]
+	m.initView(prevState)
+	return m, nil
+}
+
+func (m model) switchView(page pager.CurrentView) (tea.Model, tea.Cmd) {
+	if m.state != page {
+		m.history = append(m.history, m.state)
+	}
+
+	m.initView(page)
+	return m, nil
+}
+
 // Helper to initialize/refresh views based on state
 func (m *model) initView(v pager.CurrentView) {
 	m.state = v
@@ -95,22 +114,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.propagateSize(msg)
 
 	case goBackMsg:
-		if len(m.history) == 0 {
-			return m, nil
-		}
-		prevState := m.history[len(m.history)-1]
-		m.history = m.history[:len(m.history)-1]
-		m.initView(prevState)
-		return m, nil
+		m.back()
 
 	case pager.SwitchViewMsg:
-		target := pager.CurrentView(msg)
-		if m.state != target {
-			m.history = append(m.history, m.state)
-		}
-
-		m.initView(target)
-		return m, nil
+		return m.switchView(pager.CurrentView(msg))
 	}
 
 	if m.currentModel != nil {
