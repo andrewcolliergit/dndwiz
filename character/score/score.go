@@ -1,42 +1,45 @@
-package character
+// Package abilityscores
+package score
 
 import (
 	"errors"
 	"strconv"
 	"strings"
+
+	"dndwiz/character/ability"
 )
 
 type (
-	AbilityScores               [6]int // Str, Dex, Con, Int, Wis, Cha
-	AbilityScoreSelectionMethod int
+	Ability [6]int // Str, Dex, Con, Int, Wis, Cha
+	Method  int
 )
 
 const (
-	AbilityScoreMethodNone = iota
-	AbilityScoreMethodStdArray
-	AbilityScoreMethodPointBuy
-	AbilityScoreMethodRoll
+	None = iota
+	StdArray
+	PointBuy
+	Roll
 )
 
-func (sm AbilityScoreSelectionMethod) String() string {
+func (sm Method) String() string {
 	switch sm {
-	case AbilityScoreMethodNone:
+	case None:
 		return "None"
-	case AbilityScoreMethodPointBuy:
+	case PointBuy:
 		return "Point Buy"
-	case AbilityScoreMethodStdArray:
+	case StdArray:
 		return "Standard Array"
-	case AbilityScoreMethodRoll:
+	case Roll:
 		return "Rolled"
 	default:
 		return "Invalid Ability Score Method"
 	}
 }
 
-func (as AbilityScores) String() string {
+func (as Ability) String() string {
 	var arr []string
 
-	for i, a := range GetAllAbilities() {
+	for i, a := range ability.GetAll() {
 		score := strconv.Itoa(as[i])
 		arr = append(arr, a.Abbr+" "+score)
 	}
@@ -44,7 +47,7 @@ func (as AbilityScores) String() string {
 	return "[" + result + "]"
 }
 
-func AbilityScorePointCost(score int) (int, error) {
+func Cost(score int) (int, error) {
 	if score < 9 {
 		return 0, errors.New("invalid score")
 	} else if score > 14 {
@@ -54,7 +57,7 @@ func AbilityScorePointCost(score int) (int, error) {
 	}
 }
 
-func AbilityModifier(score int) (int, error) {
+func Modifier(score int) (int, error) {
 	if score < 3 || score > 20 {
 		return 0, errors.New("invalid score")
 	}

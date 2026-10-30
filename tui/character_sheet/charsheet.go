@@ -6,6 +6,13 @@ import (
 	"strings"
 
 	"dndwiz/character"
+	"dndwiz/character/ability"
+	"dndwiz/character/alignment"
+	"dndwiz/character/background"
+	"dndwiz/character/class"
+	"dndwiz/character/species"
+	draconic "dndwiz/character/species/draconic_ancestry"
+	elven "dndwiz/character/species/elven_lineage"
 	"dndwiz/tui/menu"
 	"dndwiz/tui/pager"
 	"dndwiz/tui/style"
@@ -37,17 +44,17 @@ func MakeCharsheetSidebarItems(c *character.Character) menu.List {
 		},
 		{
 			Header: "Class",
-			Desc:   character.GetClass(c.Class).Name,
+			Desc:   class.Get(c.Class).Name,
 			Data:   pager.ViewClassSelection,
 		},
 		{
 			Header: "Species",
-			Desc:   character.GetSpecies(c.Species).Name,
+			Desc:   species.Get(c.Species).Name,
 			Data:   pager.ViewSpeciesSelection,
 		},
 		{
 			Header: "Background",
-			Desc:   character.GetBackground(c.Background).Name,
+			Desc:   background.Get(c.Background).Name,
 			Data:   pager.ViewBackgroundSelection,
 		},
 		{
@@ -57,7 +64,7 @@ func MakeCharsheetSidebarItems(c *character.Character) menu.List {
 		},
 		{
 			Header: "Alignment",
-			Desc:   character.GetAlignment(c.Alignment).Name,
+			Desc:   alignment.Get(c.Alignment).Name,
 			Data:   pager.ViewAlignmentSelection,
 		},
 	}
@@ -135,33 +142,33 @@ func headerDisplay(c *character.Character) string {
 }
 
 func taglineDisplay(c *character.Character) string {
-	cls := character.GetClass(c.Class)
-	spec := character.GetSpecies(c.Species)
-	bg := character.GetBackground(c.Background)
+	cls := class.Get(c.Class)
+	spec := species.Get(c.Species)
+	bg := background.Get(c.Background)
 
-	var species string
+	var s string
 
 	switch c.Species {
-	case character.SpeciesDragonborn:
-		species = character.GetDraconicAncestry(c.DraconicAncestry).Name + " " + spec.Name
-	case character.SpeciesElf:
-		species = character.GetElvenLineage(c.ElvenLineage).Name
+	case species.Dragonborn:
+		s = draconic.Get(c.DraconicAncestry).Name + " " + spec.Name
+	case species.Elf:
+		s = elven.Get(c.ElvenLineage).Name
 	default:
-		species = spec.Name
+		s = spec.Name
 	}
 
 	var output string
 
-	if c.Background != character.BackgroundNone {
+	if c.Background != background.None {
 		output = bg.Name
-		if c.Species != character.SpeciesNone && c.Class != character.ClassNone {
+		if c.Species != species.None && c.Class != class.None {
 			output += " • "
 		}
 	}
-	if c.Species != character.SpeciesNone {
-		output += species + " "
+	if c.Species != species.None {
+		output += s + " "
 	}
-	if c.Class != character.ClassNone {
+	if c.Class != class.None {
 		output += cls.Name
 	}
 
@@ -181,7 +188,7 @@ func abilityScoresDisplay(c *character.Character) string {
 	if !hasAbilityScores(c) {
 		return ""
 	}
-	return style.RenderAbilityScoresRow(c, character.AbilityNone, false)
+	return style.RenderAbilityScoresRow(c, ability.None, false)
 }
 
 func primaryAbilitiesDisplay(c *character.Character) string {
@@ -192,11 +199,11 @@ func primaryAbilitiesDisplay(c *character.Character) string {
 }
 
 func speciesAttributesDisplay(c *character.Character) string {
-	if c.Species == character.SpeciesNone {
+	if c.Species == species.None {
 		return ""
 	}
 
-	spec := character.GetSpecies(c.Species)
+	spec := species.Get(c.Species)
 
 	header := style.Header.Render("Species Attributes")
 	info := fmt.Sprintf(
@@ -210,8 +217,8 @@ func speciesAttributesDisplay(c *character.Character) string {
 }
 
 func backgroundDisplay(c *character.Character) string {
-	hasBg := c.Background > character.BackgroundNone
-	hasAln := c.Alignment > character.AlignmentNone
+	hasBg := c.Background > background.None
+	hasAln := c.Alignment > alignment.None
 
 	if !hasBg && !hasAln {
 		return ""
@@ -225,10 +232,10 @@ func backgroundDisplay(c *character.Character) string {
 	)
 
 	if hasBg {
-		bg := character.GetBackground(c.Background)
+		bg := background.Get(c.Background)
 		var bgAbilities []string
-		for _, ability := range character.GetBackground(c.Background).Abilities {
-			bgAbilities = append(bgAbilities, style.Badge.Render(character.GetAbility(ability).Abbr))
+		for _, a := range background.Get(c.Background).Abilities {
+			bgAbilities = append(bgAbilities, style.Badge.Render(ability.Get(a).Abbr))
 		}
 
 		bgAbilitiesStr := strings.Join(bgAbilities, " ")
@@ -242,7 +249,7 @@ func backgroundDisplay(c *character.Character) string {
 	}
 
 	if hasAln {
-		aln := character.GetAlignment(c.Alignment)
+		aln := alignment.Get(c.Alignment)
 		alnStr = style.Label.Render("Alignment:") + " " + aln.Name
 	}
 
@@ -279,10 +286,10 @@ func (m Model) View() string {
 		return "Initializing..."
 	}
 	// Blank character placeholder text
-	blankCharacter := m.c.Class == character.ClassNone &&
-		m.c.Species == character.SpeciesNone &&
-		m.c.Background == character.BackgroundNone &&
-		m.c.Alignment == character.AlignmentNone &&
+	blankCharacter := m.c.Class == class.None &&
+		m.c.Species == species.None &&
+		m.c.Background == background.None &&
+		m.c.Alignment == alignment.None &&
 		!hasAbilityScores(m.c)
 
 	sidebarWidth := m.menu.Width

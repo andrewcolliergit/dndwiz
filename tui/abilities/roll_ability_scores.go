@@ -2,6 +2,8 @@ package abilities
 
 import (
 	"dndwiz/character"
+	"dndwiz/character/ability"
+	"dndwiz/character/score"
 	"dndwiz/tui/pager"
 	"dndwiz/tui/style"
 	"dndwiz/utils"
@@ -31,7 +33,7 @@ type rollModel struct {
 	c               *character.Character
 	rolled          [6]int
 	rolledCache     [6]int
-	selectedAbility character.Ability
+	selectedAbility ability.Ability
 	selectedRoll    int
 	rollBoxVisible  bool
 	focus           window
@@ -83,13 +85,13 @@ func (m rollModel) leftAvailableRoll() int {
 }
 
 func NewRollModel(c *character.Character) tea.Model {
-	c.AbilityScore = character.AbilityScores{}
+	c.AbilityScore = score.Ability{}
 	rolled := utils.RollAllAbilityScores()
 	return rollModel{
 		c:               c,
 		rolled:          rolled,
 		rolledCache:     rolled,
-		selectedAbility: character.AbilityStrength,
+		selectedAbility: ability.Strength,
 		selectedRoll:    -1,
 		rollBoxVisible:  true,
 		confIndex:       confConfirm,
@@ -99,13 +101,13 @@ func NewRollModel(c *character.Character) tea.Model {
 // Navigation: Ability box
 
 func (m *rollModel) abilityNavRight() {
-	if m.selectedAbility < character.AbilityCharisma {
+	if m.selectedAbility < ability.Charisma {
 		m.selectedAbility++
 	}
 }
 
 func (m *rollModel) abilityNavLeft() {
-	if m.selectedAbility > character.AbilityStrength {
+	if m.selectedAbility > ability.Strength {
 		m.selectedAbility--
 	}
 }
@@ -148,7 +150,7 @@ func (m rollModel) Init() tea.Cmd {
 // Navigation: Confirmation menu
 
 func (m *rollModel) confReset() {
-	m.c.AbilityScore = character.AbilityScores{}
+	m.c.AbilityScore = score.Ability{}
 	m.rolled = m.rolledCache
 	m.focus = winAbilitiesBox
 	m.rollBoxVisible = true

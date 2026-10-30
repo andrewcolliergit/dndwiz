@@ -3,6 +3,7 @@ package species
 
 import (
 	"dndwiz/character"
+	"dndwiz/character/species"
 	"dndwiz/tui/menu"
 	"dndwiz/tui/pager"
 	"dndwiz/tui/style"
@@ -12,14 +13,13 @@ import (
 )
 
 func NewModel(c *character.Character) tea.Model {
-	species := character.GetAllSpecies()
-	items := make(menu.List, 0, len(species))
+	items := make(menu.List, 0, len(species.GetAll()))
 
-	for i, specInfo := range species {
+	for i, specInfo := range species.GetAll() {
 		items = append(items, menu.Item{
 			Header: specInfo.Name,
 			Desc:   specInfo.Traits,
-			Data:   character.Species(i + 1),
+			Data:   species.Species(i + 1),
 		})
 	}
 
@@ -29,14 +29,14 @@ func NewModel(c *character.Character) tea.Model {
 		"Select Species",
 		items,
 		false,
-		func(c *character.Character, val character.Species) tea.Cmd {
+		func(c *character.Character, val species.Species) tea.Cmd {
 			c.Species = val
-			c.Size = character.GetSpecies(val).Size[0]
-			if character.GetSpecies(c.Species).Size.RequiresChoice() {
+			c.Size = species.Get(val).Size[0]
+			if species.Get(c.Species).Size.RequiresChoice() {
 				return pager.SwitchTo(pager.ViewSpeciesSizeSelection)
-			} else if c.Species == character.SpeciesDragonborn {
+			} else if c.Species == species.Dragonborn {
 				return pager.SwitchTo(pager.ViewDraconicAncestrySelection)
-			} else if c.Species == character.SpeciesElf {
+			} else if c.Species == species.Elf {
 				return pager.SwitchTo(pager.ViewElvenLineageSelection)
 			}
 			return pager.SwitchTo(pager.ViewCharsheet)
@@ -45,16 +45,16 @@ func NewModel(c *character.Character) tea.Model {
 	)
 }
 
-func displaySpeciesInfo(c *character.Character, species character.Species, contentWidth int) string {
-	spec := character.GetSpecies(species)
+func displaySpeciesInfo(c *character.Character, s species.Species, contentWidth int) string {
+	info := species.Get(s)
 
 	// Header
-	title := style.Title.Render(spec.Name)
+	title := style.Title.Render(info.Name)
 
 	// Stat Grid / Key-Value Blocks
-	creatureType := style.Label.Render("Creature Type: ") + spec.CreatureType
-	size := style.Label.Render("Size: ") + spec.Size.GetAll()
-	speed := style.Label.Render("Speed: ") + style.Badge.Render(spec.Speed.String())
+	creatureType := style.Label.Render("Creature Type: ") + info.CreatureType
+	size := style.Label.Render("Size: ") + info.Size.GetAll()
+	speed := style.Label.Render("Speed: ") + style.Badge.Render(info.Speed.String())
 
 	// Combine stats into a neat horizontal/vertical block
 	statsGroup := lipgloss.JoinVertical(
@@ -68,10 +68,10 @@ func displaySpeciesInfo(c *character.Character, species character.Species, conte
 	traits := lipgloss.NewStyle().
 		Italic(true).
 		Foreground(lipgloss.Color("248")).
-		Render(spec.Traits)
+		Render(info.Traits)
 
 	// Main flavor description
-	desc := style.Desc.Render(spec.Desc)
+	desc := style.Desc.Render(info.Desc)
 
 	return lipgloss.JoinVertical(
 		lipgloss.Left,

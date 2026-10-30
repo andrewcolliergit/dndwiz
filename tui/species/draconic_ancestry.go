@@ -2,6 +2,7 @@ package species
 
 import (
 	"dndwiz/character"
+	draconic "dndwiz/character/species/draconic_ancestry"
 	"dndwiz/tui/menu"
 	"dndwiz/tui/pager"
 	"dndwiz/tui/style"
@@ -11,14 +12,14 @@ import (
 )
 
 func NewDragonModel(c *character.Character) tea.Model {
-	ancestries := character.GetAllDraconicAncestries()
+	ancestries := draconic.GetAll()
 	items := make(menu.List, 0, len(ancestries))
 
 	for i, a := range ancestries {
 		items = append(items, menu.Item{
 			Header: a.Name,
 			Desc:   a.DamageType,
-			Data:   character.DraconicAncestry(i + 1),
+			Data:   draconic.Ancestry(i + 1),
 		})
 	}
 
@@ -28,7 +29,7 @@ func NewDragonModel(c *character.Character) tea.Model {
 		"Select Draconic Ancestry",
 		items,
 		true,
-		func(c *character.Character, selectedDraconicAncestry character.DraconicAncestry) tea.Cmd {
+		func(c *character.Character, selectedDraconicAncestry draconic.Ancestry) tea.Cmd {
 			// Update the character's primary ability selection
 			c.DraconicAncestry = selectedDraconicAncestry
 			return pager.SwitchTo(pager.ViewCharsheet)
@@ -37,8 +38,8 @@ func NewDragonModel(c *character.Character) tea.Model {
 	)
 }
 
-func displayDraconicAncestryInfo(c *character.Character, d character.DraconicAncestry, contentWidth int) string {
-	dai := character.GetDraconicAncestry(d)
+func displayDraconicAncestryInfo(c *character.Character, d draconic.Ancestry, contentWidth int) string {
+	dai := draconic.Get(d)
 
 	title := style.Title.Render(dai.Name)
 	dmgType := style.Label.Render("Damage Type: ") + style.Badge.Render(dai.DamageType)

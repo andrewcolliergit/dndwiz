@@ -3,6 +3,7 @@ package equipmentselection
 
 import (
 	"dndwiz/character"
+	"dndwiz/character/class"
 	"dndwiz/tui/menu"
 	"dndwiz/tui/pager"
 	"dndwiz/tui/style"
@@ -12,14 +13,14 @@ import (
 )
 
 func NewModel(c *character.Character) tea.Model {
-	classes := character.GetAllClasses()
+	classes := class.GetAll()
 	items := make(menu.List, 0, len(classes))
 
 	for i, clsInfo := range classes {
 		items = append(items, menu.Item{
 			Header: clsInfo.Name,
 			Desc:   clsInfo.Desc,
-			Data:   character.Class(i + 1),
+			Data:   class.Class(i + 1),
 		})
 	}
 
@@ -29,9 +30,9 @@ func NewModel(c *character.Character) tea.Model {
 		"Select Class",
 		items,
 		false,
-		func(c *character.Character, val character.Class) tea.Cmd {
+		func(c *character.Character, val class.Class) tea.Cmd {
 			c.Class = val
-			cls := character.GetClass(val)
+			cls := class.Get(val)
 			if cls.PrimaryAbility.RequiresChoice() {
 				return pager.SwitchTo(pager.ViewPrimaryAbilitiesSelection)
 			} else {
@@ -44,23 +45,23 @@ func NewModel(c *character.Character) tea.Model {
 	)
 }
 
-func displayEquipmentInfo(c *character.Character, class character.Class, contentWidth int) string {
-	cls := character.GetClass(class)
+func displayEquipmentInfo(c *character.Character, cls class.Class, contentWidth int) string {
+	info := class.Get(cls)
 
 	// Header & Accents
-	title := style.Title.Render(cls.Name)
-	primaryAbilities := style.Label.Render("Primary Ability: ") + style.Badge.Render(cls.PrimaryAbility.String())
-	hitPointDie := style.Label.Render("Hit Point Die: ") + character.GetHitPointDieString(class)
-	savingThrow := style.Label.Render("Saving Throw Proficiency: ") + cls.SavingThrow.String()
-	skillProficiencies := style.Label.Render("Skill Proficiences: ") + cls.SkillProficiency.String()
-	weaponProficiencies := style.Label.Render("Weapon Proficiencies: ") + cls.WeaponProficiencies
-	armorTraining := style.Label.Render("Armor Training: ") + cls.ArmorTraining
-	startingEquipment := style.Label.Render("Starting Equipment: ") + cls.StartingEquipment.String()
+	title := style.Title.Render(info.Name)
+	primaryAbilities := style.Label.Render("Primary Ability: ") + style.Badge.Render(info.PrimaryAbility.String())
+	hitPointDie := style.Label.Render("Hit Point Die: ") + class.GetHitPointDieString(cls)
+	savingThrow := style.Label.Render("Saving Throw Proficiency: ") + info.SavingThrow.String()
+	skillProficiencies := style.Label.Render("Skill Proficiences: ") + info.SkillProficiency.String()
+	weaponProficiencies := style.Label.Render("Weapon Proficiencies: ") + info.WeaponProficiencies
+	armorTraining := style.Label.Render("Armor Training: ") + info.ArmorTraining
+	startingEquipment := style.Label.Render("Starting Equipment: ") + info.StartingEquipment.String()
 
 	// Body content
 	desc := lipgloss.NewStyle().
 		Foreground(lipgloss.Color("252")).
-		Render(cls.Desc)
+		Render(info.Desc)
 
 	return lipgloss.JoinVertical(
 		lipgloss.Left,

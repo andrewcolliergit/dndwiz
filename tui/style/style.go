@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"dndwiz/character"
+	"dndwiz/character/ability"
 
 	"github.com/charmbracelet/lipgloss"
 )
@@ -90,7 +91,7 @@ func Divider(width int) string {
 	return divider.Render(strings.Repeat("─", width))
 }
 
-func RenderAbilityScoresRow(c *character.Character, selected character.Ability, focused bool) string {
+func RenderAbilityScoresRow(c *character.Character, selected ability.Ability, focused bool) string {
 	selectedAbility := int(selected) - 1
 	boxStyle := lipgloss.NewStyle().
 		Width(5).
@@ -112,7 +113,7 @@ func RenderAbilityScoresRow(c *character.Character, selected character.Ability, 
 
 		content := lipgloss.JoinVertical(
 			lipgloss.Left,
-			character.GetAbility(character.Ability(i+1)).Abbr,
+			ability.Get(ability.Ability(i+1)).Abbr,
 			scorestr,
 		)
 

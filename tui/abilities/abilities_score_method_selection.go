@@ -3,6 +3,8 @@ package abilities
 
 import (
 	"dndwiz/character"
+	"dndwiz/character/class"
+	"dndwiz/character/score"
 	"dndwiz/tui/menu"
 	"dndwiz/tui/pager"
 	"dndwiz/tui/style"
@@ -20,8 +22,8 @@ func NewOptionModel(c *character.Character) tea.Model {
 		},
 	}
 
-	if c.Class != character.ClassNone {
-		stdarray := character.GetClass(c.Class).StdArray
+	if c.Class != class.None {
+		stdarray := class.Get(c.Class).StdArray
 
 		items = append(items, menu.Item{
 			Header: "Standard Array",
@@ -47,14 +49,14 @@ func NewOptionModel(c *character.Character) tea.Model {
 		func(c *character.Character, val pager.CurrentView) tea.Cmd {
 			switch val {
 			case pager.ViewCharsheet:
-				cls := character.GetClass(c.Class)
+				cls := class.Get(c.Class)
 				c.AbilityScore = cls.StdArray
-				c.AbilityScoreMethod = character.AbilityScoreMethodStdArray
+				c.AbilityScoreMethod = score.StdArray
 			case pager.ViewAbilityScoresRoll:
 				c.HasRolledAbilityScores = true
-				c.AbilityScoreMethod = character.AbilityScoreMethodRoll
+				c.AbilityScoreMethod = score.Roll
 			case pager.ViewAbilityScoresBuy:
-				c.AbilityScoreMethod = character.AbilityScoreMethodPointBuy
+				c.AbilityScoreMethod = score.PointBuy
 			}
 			return pager.SwitchTo(val)
 		},
@@ -74,10 +76,10 @@ func displayAbilityScoreMethodInfo(c *character.Character, view pager.CurrentVie
 		desc = "You may elect to customize your skill points as you see fit using Point Buy. With this method, you will be given a budget of 27 points to spend on skill point levels, where each level purchased becomes increasingly expensive."
 	case pager.ViewCharsheet: // Standard Array
 		tmpCharacter := character.NewCharacter()
-		tmpCharacter.AbilityScore = character.GetClass(c.Class).StdArray
+		tmpCharacter.AbilityScore = class.Get(c.Class).StdArray
 		box := style.RenderAbilityScoresRow(&tmpCharacter, -1, false)
 		title = "Standard Array"
-		desc = "Rather than customizing your ability scores, you may elect to take the standard score array for your chosen class. The standard skill point array for the " + character.GetClass(c.Class).Name + " class is:\n\n" + box
+		desc = "Rather than customizing your ability scores, you may elect to take the standard score array for your chosen class. The standard skill point array for the " + class.Get(c.Class).Name + " class is:\n\n" + box
 	}
 
 	// Header & Accents

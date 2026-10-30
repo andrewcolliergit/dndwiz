@@ -4,6 +4,8 @@ import (
 	"fmt"
 
 	"dndwiz/character"
+	"dndwiz/character/ability"
+	"dndwiz/character/score"
 	"dndwiz/tui/pager"
 	"dndwiz/tui/style"
 
@@ -11,8 +13,8 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-func getMinAbilityPoints() character.AbilityScores {
-	return character.AbilityScores{8, 8, 8, 8, 8, 8}
+func getMinAbilityPoints() score.Ability {
+	return score.Ability{8, 8, 8, 8, 8, 8}
 }
 
 const abilityPointBuyBudget = 27
@@ -20,7 +22,7 @@ const abilityPointBuyBudget = 27
 type buyModel struct {
 	c               *character.Character
 	points          int
-	selectedAbility character.Ability
+	selectedAbility ability.Ability
 	confVisible     bool
 	confIndex       confSel
 	width           int
@@ -32,7 +34,7 @@ func NewBuyModel(c *character.Character) tea.Model {
 	return buyModel{
 		c:               c,
 		points:          abilityPointBuyBudget,
-		selectedAbility: character.AbilityStrength,
+		selectedAbility: ability.Strength,
 		confVisible:     false,
 		confIndex:       confConfirm,
 	}
@@ -106,11 +108,11 @@ func (m buyModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "left", "h":
-			if m.selectedAbility > character.AbilityStrength {
+			if m.selectedAbility > ability.Strength {
 				m.selectedAbility--
 			}
 		case "right", "l":
-			if m.selectedAbility < character.AbilityCharisma {
+			if m.selectedAbility < ability.Charisma {
 				m.selectedAbility++
 			}
 		case "up", "+", "k":

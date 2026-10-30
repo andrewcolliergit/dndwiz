@@ -5,6 +5,15 @@ import (
 	cryptoRand "crypto/rand"
 	"encoding/hex"
 	"slices"
+
+	"dndwiz/character/ability"
+	"dndwiz/character/alignment"
+	"dndwiz/character/background"
+	"dndwiz/character/class"
+	"dndwiz/character/score"
+	"dndwiz/character/species"
+	draconic "dndwiz/character/species/draconic_ancestry"
+	elven "dndwiz/character/species/elven_lineage"
 )
 
 type CharacterID string
@@ -12,17 +21,17 @@ type CharacterID string
 type Character struct {
 	ID                     CharacterID
 	Name                   string
-	Class                  Class
-	Species                Species
-	DraconicAncestry       DraconicAncestry
-	ElvenLineage           ElvenLineage
+	Class                  class.Class
+	Species                species.Species
+	DraconicAncestry       draconic.Ancestry
+	ElvenLineage           elven.Lineage
 	Size                   string
-	Background             Background
-	PrimaryAbilities       Abilities
-	AbilityScore           AbilityScores
+	Background             background.Background
+	PrimaryAbilities       ability.Abilities
+	AbilityScore           score.Ability
 	HasRolledAbilityScores bool
-	AbilityScoreMethod     AbilityScoreSelectionMethod
-	Alignment              Alignment
+	AbilityScoreMethod     score.Method
+	Alignment              alignment.Alignment
 }
 
 func generateRandomID() CharacterID {
@@ -38,12 +47,12 @@ func NewCharacter() Character {
 	}
 }
 
-func (c *Character) HasPrimaryAbility(a Ability) bool {
+func (c *Character) HasPrimaryAbility(a ability.Ability) bool {
 	return slices.Contains(c.PrimaryAbilities, a)
 }
 
-func (c *Character) SetSpecies(s Species) {
+func (c *Character) SetSpecies(s species.Species) {
 	c.Species = s
-	c.DraconicAncestry = DraconicAncestryNone
-	c.ElvenLineage = ElvenLineageNone
+	c.DraconicAncestry = draconic.None
+	c.ElvenLineage = elven.None
 }

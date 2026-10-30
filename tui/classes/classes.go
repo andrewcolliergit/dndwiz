@@ -6,6 +6,9 @@ import (
 	"strings"
 
 	"dndwiz/character"
+	"dndwiz/character/ability"
+	"dndwiz/character/class"
+	"dndwiz/character/skill"
 	"dndwiz/tui/menu"
 	"dndwiz/tui/pager"
 	"dndwiz/tui/style"
@@ -15,14 +18,14 @@ import (
 )
 
 func NewModel(c *character.Character) tea.Model {
-	classes := character.GetAllClasses()
+	classes := class.GetAll()
 	items := make(menu.List, 0, len(classes))
 
 	for i, clsInfo := range classes {
 		items = append(items, menu.Item{
 			Header: clsInfo.Name,
 			Desc:   clsInfo.Desc,
-			Data:   character.Class(i + 1),
+			Data:   class.Class(i + 1),
 		})
 	}
 
@@ -32,9 +35,9 @@ func NewModel(c *character.Character) tea.Model {
 		"Select Class",
 		items,
 		false,
-		func(c *character.Character, val character.Class) tea.Cmd {
+		func(c *character.Character, val class.Class) tea.Cmd {
 			c.Class = val
-			cls := character.GetClass(val)
+			cls := class.Get(val)
 			if cls.PrimaryAbility.RequiresChoice() {
 				return pager.SwitchTo(pager.ViewPrimaryAbilitiesSelection)
 			} else {
@@ -47,12 +50,12 @@ func NewModel(c *character.Character) tea.Model {
 	)
 }
 
-func skillProficienciesStr(class character.Class) string {
-	sp := character.GetClass(class).SkillProficiency
+func skillProficienciesStr(c class.Class) string {
+	sp := class.Get(c).SkillProficiency
 
 	var skillsList []string
-	for _, skill := range sp.From {
-		skillName := character.GetSkill(skill).Name
+	for _, s := range sp.From {
+		skillName := skill.Get(s).Name
 		skillsList = append(skillsList, style.Skill.Render(skillName))
 	}
 
@@ -63,29 +66,29 @@ func skillProficienciesStr(class character.Class) string {
 	return style.Label.Render(header) + " " + skills
 }
 
-func savingThrowStr(st character.ClassSavingThrow) string {
+func savingThrowStr(st class.SavingThrow) string {
 	var stList []string
 	for _, throw := range st {
-		t := character.GetAbility(throw).Abbr
+		t := ability.Get(throw).Abbr
 		stList = append(stList, style.Badge.Render(t))
 	}
 	info := strings.Join(stList, " ")
 	return style.Label.Render("Saving Throw") + " " + info
 }
 
-func displayClassInfo(c *character.Character, class character.Class, contentWidth int) string {
-	cls := character.GetClass(class)
+func displayClassInfo(c *character.Character, cls class.Class, contentWidth int) string {
+	info := class.Get(cls)
 
 	// Header & Accents
-	title := style.Title.Render(cls.Name)
-	primaryAbilities := style.Label.Render("Primary Ability: ") + style.Badge.Render(cls.PrimaryAbility.String())
-	hitPointDie := style.Label.Render("Hit Point Die: ") + character.GetHitPointDieString(class)
-	weaponProficiencies := style.Label.Render("Weapon Proficiencies: ") + cls.WeaponProficiencies
-	armorTraining := style.Label.Render("Armor Training: ") + cls.ArmorTraining
-	startingEquipment := style.Label.Render("Starting Equipment: ") + cls.StartingEquipment.String()
+	title := style.Title.Render(info.Name)
+	primaryAbilities := style.Label.Render("Primary Ability: ") + style.Badge.Render(info.PrimaryAbility.String())
+	hitPointDie := style.Label.Render("Hit Point Die: ") + class.GetHitPointDieString(cls)
+	weaponProficiencies := style.Label.Render("Weapon Proficiencies: ") + info.WeaponProficiencies
+	armorTraining := style.Label.Render("Armor Training: ") + info.ArmorTraining
+	startingEquipment := style.Label.Render("Starting Equipment: ") + info.StartingEquipment.String()
 
 	// Body content
-	desc := style.Desc.Render(cls.Desc)
+	desc := style.Desc.Render(info.Desc)
 
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
@@ -93,8 +96,8 @@ func displayClassInfo(c *character.Character, class character.Class, contentWidt
 		style.Divider(contentWidth-2),
 		primaryAbilities,
 		hitPointDie,
-		savingThrowStr(character.GetClass(class).SavingThrow),
-		skillProficienciesStr(class),
+		savingThrowStr(class.Get(cls).SavingThrow),
+		skillProficienciesStr(cls),
 		weaponProficiencies,
 		armorTraining,
 		startingEquipment,

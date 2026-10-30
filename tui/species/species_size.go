@@ -2,6 +2,7 @@ package species
 
 import (
 	"dndwiz/character"
+	"dndwiz/character/species"
 	"dndwiz/tui/menu"
 	"dndwiz/tui/pager"
 	"dndwiz/tui/style"
@@ -10,7 +11,7 @@ import (
 )
 
 func NewSizeModel(c *character.Character) tea.Model {
-	sizes := character.GetSpecies(c.Species).Size
+	sizes := species.Get(c.Species).Size
 	items := make(menu.List, 0, len(sizes))
 
 	for _, s := range sizes {

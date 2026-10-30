@@ -2,6 +2,8 @@ package classes
 
 import (
 	"dndwiz/character"
+	"dndwiz/character/ability"
+	"dndwiz/character/class"
 	"dndwiz/tui/menu"
 	"dndwiz/tui/pager"
 	"dndwiz/tui/style"
@@ -11,12 +13,12 @@ import (
 )
 
 func NewPrimaryAbilityModel(c *character.Character) tea.Model {
-	abilities := character.GetClass(c.Class).PrimaryAbility.From
+	abilities := class.Get(c.Class).PrimaryAbility.From
 	items := make(menu.List, 0, len(abilities))
 
 	for _, a := range abilities {
 		items = append(items, menu.Item{
-			Header: character.GetAbility(a).Name,
+			Header: ability.Get(a).Name,
 			Desc:   "",
 			Data:   a,
 		})
@@ -28,17 +30,17 @@ func NewPrimaryAbilityModel(c *character.Character) tea.Model {
 		"Select Primary Ability",
 		items,
 		false,
-		func(c *character.Character, selectedAbility character.Ability) tea.Cmd {
+		func(c *character.Character, selectedAbility ability.Ability) tea.Cmd {
 			// Update the character's primary ability selection
-			c.PrimaryAbilities = character.Abilities{selectedAbility}
+			c.PrimaryAbilities = ability.Abilities{selectedAbility}
 			return pager.SwitchTo(pager.ViewCharsheet)
 		},
 		displayPrimaryAbilityInfo,
 	)
 }
 
-func displayPrimaryAbilityInfo(c *character.Character, a character.Ability, contentWidth int) string {
-	abi := character.GetAbility(a)
+func displayPrimaryAbilityInfo(c *character.Character, a ability.Ability, contentWidth int) string {
+	abi := ability.Get(a)
 
 	title := style.Title.Render(abi.Name)
 

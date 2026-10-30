@@ -2,6 +2,7 @@ package species
 
 import (
 	"dndwiz/character"
+	elven "dndwiz/character/species/elven_lineage"
 	"dndwiz/tui/menu"
 	"dndwiz/tui/pager"
 	"dndwiz/tui/style"
@@ -11,14 +12,14 @@ import (
 )
 
 func NewElfModel(c *character.Character) tea.Model {
-	lineages := character.GetAllElvenLineages()
+	lineages := elven.GetAll()
 	items := make(menu.List, 0, len(lineages))
 
 	for i, l := range lineages {
 		items = append(items, menu.Item{
 			Header: l.Name,
 			Desc:   "",
-			Data:   character.ElvenLineage(i + 1),
+			Data:   elven.Lineage(i + 1),
 		})
 	}
 
@@ -28,7 +29,7 @@ func NewElfModel(c *character.Character) tea.Model {
 		"Select Elven Lineage",
 		items,
 		false,
-		func(c *character.Character, selectedElvenLineage character.ElvenLineage) tea.Cmd {
+		func(c *character.Character, selectedElvenLineage elven.Lineage) tea.Cmd {
 			// Update the character's primary ability selection
 			c.ElvenLineage = selectedElvenLineage
 			return pager.SwitchTo(pager.ViewCharsheet)
@@ -37,8 +38,8 @@ func NewElfModel(c *character.Character) tea.Model {
 	)
 }
 
-func displayElvenLineageInfo(c *character.Character, e character.ElvenLineage, contentWidth int) string {
-	el := character.GetElvenLineage(e)
+func displayElvenLineageInfo(c *character.Character, e elven.Lineage, contentWidth int) string {
+	el := elven.Get(e)
 
 	title := style.Title.Render(el.Name)
 

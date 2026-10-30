@@ -3,6 +3,7 @@ package alignment
 
 import (
 	"dndwiz/character"
+	"dndwiz/character/alignment"
 	"dndwiz/tui/menu"
 	"dndwiz/tui/pager"
 	"dndwiz/tui/style"
@@ -12,14 +13,14 @@ import (
 )
 
 func NewModel(c *character.Character) tea.Model {
-	alignments := character.GetAllAlignments()
+	alignments := alignment.GetAll()
 	items := make(menu.List, 0, len(alignments))
 
 	for i, alnInfo := range alignments {
 		items = append(items, menu.Item{
 			Header: alnInfo.Name,
 			Desc:   alnInfo.Desc,
-			Data:   character.Alignment(i + 1),
+			Data:   alignment.Alignment(i + 1),
 		})
 	}
 
@@ -29,7 +30,7 @@ func NewModel(c *character.Character) tea.Model {
 		"Select Alignment",
 		items,
 		false,
-		func(c *character.Character, val character.Alignment) tea.Cmd {
+		func(c *character.Character, val alignment.Alignment) tea.Cmd {
 			c.Alignment = val
 			return pager.SwitchTo(pager.ViewCharsheet)
 		},
@@ -37,8 +38,8 @@ func NewModel(c *character.Character) tea.Model {
 	)
 }
 
-func displayAlignmentInfo(c *character.Character, a character.Alignment, contentWidth int) string {
-	aln := character.GetAlignment(a)
+func displayAlignmentInfo(c *character.Character, a alignment.Alignment, contentWidth int) string {
+	aln := alignment.Get(a)
 
 	// Header & Accents
 	title := style.Title.Render(aln.Name)
