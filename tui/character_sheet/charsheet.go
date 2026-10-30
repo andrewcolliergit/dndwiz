@@ -40,32 +40,32 @@ func MakeCharsheetSidebarItems(c *character.Character) menu.List {
 		{
 			Header: "Name",
 			Desc:   c.Name,
-			Data:   pager.ViewNameTextbox,
+			Data:   pager.NameTextbox,
 		},
 		{
 			Header: "Class",
 			Desc:   class.Get(c.Class).Name,
-			Data:   pager.ViewClassSelection,
+			Data:   pager.ClassSelection,
 		},
 		{
 			Header: "Species",
 			Desc:   species.Get(c.Species).Name,
-			Data:   pager.ViewSpeciesSelection,
+			Data:   pager.SpeciesSelection,
 		},
 		{
 			Header: "Background",
 			Desc:   background.Get(c.Background).Name,
-			Data:   pager.ViewBackgroundSelection,
+			Data:   pager.BackgroundSelection,
 		},
 		{
 			Header: "Ability Scores",
 			Desc:   c.AbilityScoreMethod.String(),
-			Data:   pager.ViewAbilityScoresMethodSelection,
+			Data:   pager.AbilityScoresMethodSelection,
 		},
 		{
 			Header: "Alignment",
 			Desc:   alignment.Get(c.Alignment).Name,
-			Data:   pager.ViewAlignmentSelection,
+			Data:   pager.AlignmentSelection,
 		},
 	}
 }
@@ -123,7 +123,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "enter", " ":
 			if v, ok := menu.GetItemData[pager.CurrentView](m.menu); ok {
-				if v == pager.ViewNameTextbox {
+				if v == pager.NameTextbox {
 					m.isEditingName = true
 					m.textInput.SetValue(m.c.Name)
 					m.textInput.Focus()

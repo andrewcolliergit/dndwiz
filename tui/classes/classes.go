@@ -39,12 +39,12 @@ func NewModel(c *character.Character) tea.Model {
 			c.Class = val
 			cls := class.Get(val)
 			if cls.PrimaryAbility.RequiresChoice() {
-				return pager.SwitchTo(pager.ViewPrimaryAbilitiesSelection)
+				return pager.SwitchTo(pager.ClassAbilitiesSelection)
 			} else {
 				c.PrimaryAbilities = cls.PrimaryAbility.From
 			}
 
-			return pager.SwitchTo(pager.ViewCharsheet)
+			return pager.SwitchTo(pager.Charsheet)
 		},
 		displayClassInfo,
 	)

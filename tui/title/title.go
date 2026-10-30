@@ -22,17 +22,17 @@ func (m titleScreenModel) Init() tea.Cmd {
 func makeTitleScreenMenuItems() menu.List {
 	newCharacter := menu.Item{
 		Header: "New Character",
-		Data:   pager.ViewCharsheet,
+		Data:   pager.Charsheet,
 	}
 
 	loadCharacter := menu.Item{
 		Header: "Load Character",
-		Data:   pager.ViewCharsheet,
+		Data:   pager.Charsheet,
 	}
 
 	quit := menu.Item{
 		Header: "Quit",
-		Data:   pager.ViewQuit,
+		Data:   pager.Quit,
 	}
 
 	var items menu.List
@@ -62,7 +62,7 @@ func (m titleScreenModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "enter", " ":
 			if v, ok := menu.GetItemData[pager.CurrentView](m.menu); ok {
-				if v == pager.ViewQuit {
+				if v == pager.Quit {
 					return m, tea.Quit
 				}
 				return m, pager.SwitchTo(v)

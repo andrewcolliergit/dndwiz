@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"dndwiz/character"
-	"dndwiz/tui/root"
+	root "dndwiz/tui"
 )
 
 func main() {

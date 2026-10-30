@@ -33,7 +33,7 @@ func NewPrimaryAbilityModel(c *character.Character) tea.Model {
 		func(c *character.Character, selectedAbility ability.Ability) tea.Cmd {
 			// Update the character's primary ability selection
 			c.PrimaryAbilities = ability.Abilities{selectedAbility}
-			return pager.SwitchTo(pager.ViewCharsheet)
+			return pager.SwitchTo(pager.Charsheet)
 		},
 		displayPrimaryAbilityInfo,
 	)

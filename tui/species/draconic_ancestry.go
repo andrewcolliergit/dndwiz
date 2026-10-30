@@ -32,7 +32,7 @@ func NewDragonModel(c *character.Character) tea.Model {
 		func(c *character.Character, selectedDraconicAncestry draconic.Ancestry) tea.Cmd {
 			// Update the character's primary ability selection
 			c.DraconicAncestry = selectedDraconicAncestry
-			return pager.SwitchTo(pager.ViewCharsheet)
+			return pager.SwitchTo(pager.Charsheet)
 		},
 		displayDraconicAncestryInfo,
 	)

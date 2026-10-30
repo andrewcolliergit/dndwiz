@@ -10,22 +10,22 @@ type (
 )
 
 const (
-	ViewQuit CurrentView = iota
-	ViewTitleScreen
-	ViewCharsheet
-	ViewClassSelection
-	ViewPrimaryAbilitiesSelection
-	ViewSpeciesSizeSelection
-	ViewSpeciesSelection
-	ViewBackgroundSelection
-	ViewNameTextbox
-	ViewAlignmentSelection
-	ViewDraconicAncestrySelection
-	ViewElvenLineageSelection
-	ViewEquipmentSelection
-	ViewAbilityScoresMethodSelection
-	ViewAbilityScoresRoll
-	ViewAbilityScoresBuy
+	Quit CurrentView = iota
+	Title
+	Charsheet
+	ClassSelection
+	ClassAbilitiesSelection
+	SpeciesSizeSelection
+	SpeciesSelection
+	BackgroundSelection
+	NameTextbox
+	AlignmentSelection
+	SpeciesAncestrySelection
+	SpeciesLineageSelection
+	EquipmentSelection
+	AbilityScoresMethodSelection
+	AbilityScoresRoll
+	AbilityScoresBuy
 )
 
 func SwitchTo(v CurrentView) tea.Cmd {

@@ -33,13 +33,13 @@ func NewModel(c *character.Character) tea.Model {
 			c.Species = val
 			c.Size = species.Get(val).Size[0]
 			if species.Get(c.Species).Size.RequiresChoice() {
-				return pager.SwitchTo(pager.ViewSpeciesSizeSelection)
+				return pager.SwitchTo(pager.SpeciesSizeSelection)
 			} else if c.Species == species.Dragonborn {
-				return pager.SwitchTo(pager.ViewDraconicAncestrySelection)
+				return pager.SwitchTo(pager.SpeciesAncestrySelection)
 			} else if c.Species == species.Elf {
-				return pager.SwitchTo(pager.ViewElvenLineageSelection)
+				return pager.SwitchTo(pager.SpeciesLineageSelection)
 			}
-			return pager.SwitchTo(pager.ViewCharsheet)
+			return pager.SwitchTo(pager.Charsheet)
 		},
 		displaySpeciesInfo,
 	)

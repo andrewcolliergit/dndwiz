@@ -18,7 +18,7 @@ func NewOptionModel(c *character.Character) tea.Model {
 		{
 			Header: "Point Buy",
 			Desc:   "",
-			Data:   pager.ViewAbilityScoresBuy,
+			Data:   pager.AbilityScoresBuy,
 		},
 	}
 
@@ -28,7 +28,7 @@ func NewOptionModel(c *character.Character) tea.Model {
 		items = append(items, menu.Item{
 			Header: "Standard Array",
 			Desc:   stdarray.String(),
-			Data:   pager.ViewCharsheet,
+			Data:   pager.Charsheet,
 		})
 	}
 
@@ -36,7 +36,7 @@ func NewOptionModel(c *character.Character) tea.Model {
 		items = append(items, menu.Item{
 			Header: "Roll",
 			Desc:   "",
-			Data:   pager.ViewAbilityScoresRoll,
+			Data:   pager.AbilityScoresRoll,
 		})
 	}
 
@@ -48,14 +48,14 @@ func NewOptionModel(c *character.Character) tea.Model {
 		false,
 		func(c *character.Character, val pager.CurrentView) tea.Cmd {
 			switch val {
-			case pager.ViewCharsheet:
+			case pager.Charsheet:
 				cls := class.Get(c.Class)
 				c.AbilityScore = cls.StdArray
 				c.AbilityScoreMethod = score.StdArray
-			case pager.ViewAbilityScoresRoll:
+			case pager.AbilityScoresRoll:
 				c.HasRolledAbilityScores = true
 				c.AbilityScoreMethod = score.Roll
-			case pager.ViewAbilityScoresBuy:
+			case pager.AbilityScoresBuy:
 				c.AbilityScoreMethod = score.PointBuy
 			}
 			return pager.SwitchTo(val)
@@ -68,13 +68,13 @@ func displayAbilityScoreMethodInfo(c *character.Character, view pager.CurrentVie
 	var title, desc string
 
 	switch view {
-	case pager.ViewAbilityScoresRoll:
+	case pager.AbilityScoresRoll:
 		title = "Roll"
 		desc = "You may opt to roll for your skill points. Using this method, 6 scores will be rolled and you may assign them to the abilities of your choice.\nNote that once you have rolled, you will not have the option to roll again. You may, however, elect to Point Buy or take the standard array after rolling."
-	case pager.ViewAbilityScoresBuy:
+	case pager.AbilityScoresBuy:
 		title = "Point Buy"
 		desc = "You may elect to customize your skill points as you see fit using Point Buy. With this method, you will be given a budget of 27 points to spend on skill point levels, where each level purchased becomes increasingly expensive."
-	case pager.ViewCharsheet: // Standard Array
+	case pager.Charsheet: // Standard Array
 		tmpCharacter := character.NewCharacter()
 		tmpCharacter.AbilityScore = class.Get(c.Class).StdArray
 		box := style.RenderAbilityScoresRow(&tmpCharacter, -1, false)

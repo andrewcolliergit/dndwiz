@@ -32,7 +32,7 @@ func NewModel(c *character.Character) tea.Model {
 		false,
 		func(c *character.Character, val alignment.Alignment) tea.Cmd {
 			c.Alignment = val
-			return pager.SwitchTo(pager.ViewCharsheet)
+			return pager.SwitchTo(pager.Charsheet)
 		},
 		displayAlignmentInfo,
 	)

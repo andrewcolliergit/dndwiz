@@ -32,7 +32,7 @@ func NewElfModel(c *character.Character) tea.Model {
 		func(c *character.Character, selectedElvenLineage elven.Lineage) tea.Cmd {
 			// Update the character's primary ability selection
 			c.ElvenLineage = selectedElvenLineage
-			return pager.SwitchTo(pager.ViewCharsheet)
+			return pager.SwitchTo(pager.Charsheet)
 		},
 		displayElvenLineageInfo,
 	)

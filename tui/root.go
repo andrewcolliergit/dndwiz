@@ -1,5 +1,5 @@
-// Package root/root.go
-package root
+// Package tui
+package tui
 
 import (
 	"dndwiz/character"
@@ -91,32 +91,32 @@ func (m *model) propagateSize(msg tea.WindowSizeMsg) {
 func (m *model) initView(v pager.CurrentView) {
 	m.state = v
 	switch v {
-	case pager.ViewTitleScreen:
+	case pager.Title:
 		m.titleScreen = title.NewTitleScreenModel()
-	case pager.ViewCharsheet:
+	case pager.Charsheet:
 		//m.charsheet.RefreshSidebar()
 		m.charsheet = charactersheet.NewCharsheetModel(m.config.Character)
-	case pager.ViewPrimaryAbilitiesSelection:
+	case pager.ClassAbilitiesSelection:
 		m.primaryAbilities = classes.NewPrimaryAbilityModel(m.config.Character)
-	case pager.ViewClassSelection:
+	case pager.ClassSelection:
 		m.classes = classes.NewModel(m.config.Character)
-	case pager.ViewSpeciesSelection:
+	case pager.SpeciesSelection:
 		m.species = species.NewModel(m.config.Character)
-	case pager.ViewSpeciesSizeSelection:
+	case pager.SpeciesSizeSelection:
 		m.speciesSize = species.NewSizeModel(m.config.Character)
-	case pager.ViewDraconicAncestrySelection:
+	case pager.SpeciesAncestrySelection:
 		m.draconicAncestry = species.NewDragonModel(m.config.Character)
-	case pager.ViewElvenLineageSelection:
+	case pager.SpeciesLineageSelection:
 		m.elvenLineage = species.NewElfModel(m.config.Character)
-	case pager.ViewBackgroundSelection:
+	case pager.BackgroundSelection:
 		m.background = background.NewModel(m.config.Character)
-	case pager.ViewAlignmentSelection:
+	case pager.AlignmentSelection:
 		m.alignment = alignment.NewModel(m.config.Character)
-	case pager.ViewAbilityScoresMethodSelection:
+	case pager.AbilityScoresMethodSelection:
 		m.abilityScoresMethodSelection = abilities.NewOptionModel(m.config.Character)
-	case pager.ViewAbilityScoresRoll:
+	case pager.AbilityScoresRoll:
 		m.abilityScoresRoll = abilities.NewRollModel(m.config.Character)
-	case pager.ViewAbilityScoresBuy:
+	case pager.AbilityScoresBuy:
 		m.abilityScoresBuy = abilities.NewBuyModel(m.config.Character)
 	}
 
@@ -163,43 +163,40 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	switch m.state {
-	case pager.ViewTitleScreen:
+	case pager.Title:
 		m.titleScreen, cmd = m.titleScreen.Update(msg)
 
-	case pager.ViewCharsheet:
-		//var updatedModel tea.Model
-		//updatedModel, cmd = m.charsheet.Update(msg)
-		//m.charsheet = updatedModel.(charsheetModel)
+	case pager.Charsheet:
 		m.charsheet, cmd = m.charsheet.Update(msg)
 
-	case pager.ViewClassSelection:
+	case pager.ClassSelection:
 		m.classes, cmd = m.classes.Update(msg)
 
-	case pager.ViewSpeciesSelection:
+	case pager.SpeciesSelection:
 		m.species, cmd = m.species.Update(msg)
 
-	case pager.ViewBackgroundSelection:
+	case pager.BackgroundSelection:
 		m.background, cmd = m.background.Update(msg)
 
-	case pager.ViewAlignmentSelection:
+	case pager.AlignmentSelection:
 		m.alignment, cmd = m.alignment.Update(msg)
 
-	case pager.ViewPrimaryAbilitiesSelection:
+	case pager.ClassAbilitiesSelection:
 		m.primaryAbilities, cmd = m.primaryAbilities.Update(msg)
 
-	case pager.ViewSpeciesSizeSelection:
+	case pager.SpeciesSizeSelection:
 		m.speciesSize, cmd = m.speciesSize.Update(msg)
 
-	case pager.ViewDraconicAncestrySelection:
+	case pager.SpeciesAncestrySelection:
 		m.draconicAncestry, cmd = m.draconicAncestry.Update(msg)
 
-	case pager.ViewElvenLineageSelection:
+	case pager.SpeciesLineageSelection:
 		m.elvenLineage, cmd = m.elvenLineage.Update(msg)
-	case pager.ViewAbilityScoresMethodSelection:
+	case pager.AbilityScoresMethodSelection:
 		m.abilityScoresMethodSelection, cmd = m.abilityScoresMethodSelection.Update(msg)
-	case pager.ViewAbilityScoresRoll:
+	case pager.AbilityScoresRoll:
 		m.abilityScoresRoll, cmd = m.abilityScoresRoll.Update(msg)
-	case pager.ViewAbilityScoresBuy:
+	case pager.AbilityScoresBuy:
 		m.abilityScoresBuy, cmd = m.abilityScoresBuy.Update(msg)
 	}
 
@@ -208,31 +205,31 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m model) View() string {
 	switch m.state {
-	case pager.ViewTitleScreen:
+	case pager.Title:
 		return m.titleScreen.View()
-	case pager.ViewCharsheet:
+	case pager.Charsheet:
 		return m.charsheet.View()
-	case pager.ViewClassSelection:
+	case pager.ClassSelection:
 		return m.classes.View()
-	case pager.ViewSpeciesSelection:
+	case pager.SpeciesSelection:
 		return m.species.View()
-	case pager.ViewBackgroundSelection:
+	case pager.BackgroundSelection:
 		return m.background.View()
-	case pager.ViewAlignmentSelection:
+	case pager.AlignmentSelection:
 		return m.alignment.View()
-	case pager.ViewPrimaryAbilitiesSelection:
+	case pager.ClassAbilitiesSelection:
 		return m.primaryAbilities.View()
-	case pager.ViewSpeciesSizeSelection:
+	case pager.SpeciesSizeSelection:
 		return m.speciesSize.View()
-	case pager.ViewDraconicAncestrySelection:
+	case pager.SpeciesAncestrySelection:
 		return m.draconicAncestry.View()
-	case pager.ViewElvenLineageSelection:
+	case pager.SpeciesLineageSelection:
 		return m.elvenLineage.View()
-	case pager.ViewAbilityScoresMethodSelection:
+	case pager.AbilityScoresMethodSelection:
 		return m.abilityScoresMethodSelection.View()
-	case pager.ViewAbilityScoresRoll:
+	case pager.AbilityScoresRoll:
 		return m.abilityScoresRoll.View()
-	case pager.ViewAbilityScoresBuy:
+	case pager.AbilityScoresBuy:
 		return m.abilityScoresBuy.View()
 	default:
 		return "UNKNOWN VIEW"
@@ -242,7 +239,7 @@ func (m model) View() string {
 func NewProgram(cfg *Config) *tea.Program {
 	m := model{
 		config:                       cfg,
-		state:                        pager.ViewTitleScreen,
+		state:                        pager.Title,
 		titleScreen:                  title.NewTitleScreenModel(),
 		charsheet:                    charactersheet.NewCharsheetModel(cfg.Character),
 		classes:                      classes.NewModel(cfg.Character),

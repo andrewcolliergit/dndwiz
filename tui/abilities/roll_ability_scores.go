@@ -199,7 +199,7 @@ func (m rollModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			switch msg.String() {
 			case "enter":
 				if m.confIndex == confConfirm {
-					return m, pager.SwitchTo(pager.ViewCharsheet)
+					return m, pager.SwitchTo(pager.Charsheet)
 				}
 				m.confReset()
 			case "l", "right":

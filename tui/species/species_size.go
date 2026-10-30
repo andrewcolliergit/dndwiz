@@ -31,7 +31,7 @@ func NewSizeModel(c *character.Character) tea.Model {
 		func(c *character.Character, selectedSize string) tea.Cmd {
 			// Update the character's primary ability selection
 			c.Size = selectedSize
-			return pager.SwitchTo(pager.ViewCharsheet)
+			return pager.SwitchTo(pager.Charsheet)
 		},
 		displaySpeciesSizeInfo,
 	)

@@ -121,7 +121,7 @@ func (m buyModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.abilityDecrease()
 		case "enter":
 			if m.points == 0 {
-				return m, pager.SwitchTo(pager.ViewCharsheet)
+				return m, pager.SwitchTo(pager.Charsheet)
 			}
 		}
 	}
