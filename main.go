@@ -5,16 +5,16 @@ import (
 	"os"
 
 	"dndwiz/character"
-	"dndwiz/tui"
+	"dndwiz/tui/root"
 )
 
 func main() {
 	c := character.NewCharacter()
-	cfg := tui.Config{
+	cfg := root.Config{
 		Character: &c,
 	}
 
-	p := tui.NewProgram(&cfg)
+	p := root.NewProgram(&cfg)
 
 	if _, err := p.Run(); err != nil {
 		fmt.Printf("Error running program: %v\n", err)

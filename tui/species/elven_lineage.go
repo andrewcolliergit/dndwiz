@@ -1,25 +1,28 @@
-package tui
+package species
 
 import (
 	"dndwiz/character"
+	"dndwiz/tui/menu"
+	"dndwiz/tui/pager"
+	"dndwiz/tui/style"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
 
-func NewElvenLineageModel(c *character.Character) tea.Model {
+func NewElfModel(c *character.Character) tea.Model {
 	lineages := character.GetAllElvenLineages()
-	items := make(MenuItemList, 0, len(lineages))
+	items := make(menu.List, 0, len(lineages))
 
 	for i, l := range lineages {
-		items = append(items, MenuItem{
-			title: l.Name,
-			desc:  "",
-			data:  character.ElvenLineage(i + 1),
+		items = append(items, menu.Item{
+			Header: l.Name,
+			Desc:   "",
+			Data:   character.ElvenLineage(i + 1),
 		})
 	}
 
-	return newSelectionPicker(
+	return menu.NewPicker(
 		c,
 		"Elven Lineage",
 		"Select Elven Lineage",
@@ -28,7 +31,7 @@ func NewElvenLineageModel(c *character.Character) tea.Model {
 		func(c *character.Character, selectedElvenLineage character.ElvenLineage) tea.Cmd {
 			// Update the character's primary ability selection
 			c.ElvenLineage = selectedElvenLineage
-			return switchToView(viewCharsheet)
+			return pager.SwitchTo(pager.ViewCharsheet)
 		},
 		displayElvenLineageInfo,
 	)
@@ -37,16 +40,16 @@ func NewElvenLineageModel(c *character.Character) tea.Model {
 func displayElvenLineageInfo(c *character.Character, e character.ElvenLineage, contentWidth int) string {
 	el := character.GetElvenLineage(e)
 
-	title := titleStyle.Render(el.Name)
+	title := style.Title.Render(el.Name)
 
-	lvl1 := labelStyle.Render("Level 1: ") + el.Lvl1
-	lvl3 := labelStyle.Render("Level 3: ") + el.Lvl3
-	lvl5 := labelStyle.Render("Level 5: ") + el.Lvl5
+	lvl1 := style.Label.Render("Level 1: ") + el.Lvl1
+	lvl3 := style.Label.Render("Level 3: ") + el.Lvl3
+	lvl5 := style.Label.Render("Level 5: ") + el.Lvl5
 
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
 		title,
-		renderDivider(contentWidth-2),
+		style.Divider(contentWidth-2),
 		lvl1,
 		lvl3,
 		lvl5,

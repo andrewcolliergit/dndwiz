@@ -1,25 +1,28 @@
-package tui
+package species
 
 import (
 	"dndwiz/character"
+	"dndwiz/tui/menu"
+	"dndwiz/tui/pager"
+	"dndwiz/tui/style"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
 
-func NewDraconicAncestryModel(c *character.Character) tea.Model {
+func NewDragonModel(c *character.Character) tea.Model {
 	ancestries := character.GetAllDraconicAncestries()
-	items := make(MenuItemList, 0, len(ancestries))
+	items := make(menu.List, 0, len(ancestries))
 
 	for i, a := range ancestries {
-		items = append(items, MenuItem{
-			title: a.Name,
-			desc:  a.DamageType,
-			data:  character.DraconicAncestry(i + 1),
+		items = append(items, menu.Item{
+			Header: a.Name,
+			Desc:   a.DamageType,
+			Data:   character.DraconicAncestry(i + 1),
 		})
 	}
 
-	return newSelectionPicker(
+	return menu.NewPicker(
 		c,
 		"Draconic Ancestry",
 		"Select Draconic Ancestry",
@@ -28,7 +31,7 @@ func NewDraconicAncestryModel(c *character.Character) tea.Model {
 		func(c *character.Character, selectedDraconicAncestry character.DraconicAncestry) tea.Cmd {
 			// Update the character's primary ability selection
 			c.DraconicAncestry = selectedDraconicAncestry
-			return switchToView(viewCharsheet)
+			return pager.SwitchTo(pager.ViewCharsheet)
 		},
 		displayDraconicAncestryInfo,
 	)
@@ -37,13 +40,13 @@ func NewDraconicAncestryModel(c *character.Character) tea.Model {
 func displayDraconicAncestryInfo(c *character.Character, d character.DraconicAncestry, contentWidth int) string {
 	dai := character.GetDraconicAncestry(d)
 
-	title := titleStyle.Render(dai.Name)
-	dmgType := labelStyle.Render("Damage Type: ") + badgeStyle.Render(dai.DamageType)
+	title := style.Title.Render(dai.Name)
+	dmgType := style.Label.Render("Damage Type: ") + style.Badge.Render(dai.DamageType)
 
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
 		title,
-		renderDivider(contentWidth-2),
+		style.Divider(contentWidth-2),
 		dmgType,
 	)
 }

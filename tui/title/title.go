@@ -1,13 +1,17 @@
-package tui
+// Package title
+package title
 
 import (
+	"dndwiz/tui/menu"
+	"dndwiz/tui/pager"
+
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
 
 type titleScreenModel struct {
 	termWidth, termHeight int
-	menu                  Menu
+	menu                  menu.Menu
 	title                 string
 }
 
@@ -15,30 +19,29 @@ func (m titleScreenModel) Init() tea.Cmd {
 	return nil
 }
 
-func makeTitleScreenMenuItems() MenuItemList {
-	newCharacter := MenuItem{
-		title: "New Character",
-		data:  viewCharsheet,
+func makeTitleScreenMenuItems() menu.List {
+	newCharacter := menu.Item{
+		Header: "New Character",
+		Data:   pager.ViewCharsheet,
 	}
 
-	loadCharacter := MenuItem{
-		title: "Load Character",
-		data:  viewCharsheet,
+	loadCharacter := menu.Item{
+		Header: "Load Character",
+		Data:   pager.ViewCharsheet,
 	}
 
-	quit := MenuItem{
-		title: "Quit",
-		data:  viewQuit,
+	quit := menu.Item{
+		Header: "Quit",
+		Data:   pager.ViewQuit,
 	}
 
-	var items MenuItemList
+	var items menu.List
 	return append(items, newCharacter, loadCharacter, quit)
 }
 
 func NewTitleScreenModel() titleScreenModel {
 	return titleScreenModel{
-		menu: newMenu(
-			menuStyleSimple,
+		menu: menu.New(
 			"D&D Wizard",
 			makeTitleScreenMenuItems(),
 			18,
@@ -58,11 +61,11 @@ func (m titleScreenModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "enter", " ":
-			if v, ok := GetItemData[currentView](m.menu); ok {
-				if v == viewQuit {
+			if v, ok := menu.GetItemData[pager.CurrentView](m.menu); ok {
+				if v == pager.ViewQuit {
 					return m, tea.Quit
 				}
-				return m, switchToView(v)
+				return m, pager.SwitchTo(v)
 			}
 		}
 	}

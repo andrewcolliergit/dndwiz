@@ -1,25 +1,29 @@
-package tui
+// Package species/species.go
+package species
 
 import (
 	"dndwiz/character"
+	"dndwiz/tui/menu"
+	"dndwiz/tui/pager"
+	"dndwiz/tui/style"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
 
-func NewSpeciesModel(c *character.Character) tea.Model {
+func NewModel(c *character.Character) tea.Model {
 	species := character.GetAllSpecies()
-	items := make(MenuItemList, 0, len(species))
+	items := make(menu.List, 0, len(species))
 
 	for i, specInfo := range species {
-		items = append(items, MenuItem{
-			title: specInfo.Name,
-			desc:  specInfo.Traits,
-			data:  character.Species(i + 1),
+		items = append(items, menu.Item{
+			Header: specInfo.Name,
+			Desc:   specInfo.Traits,
+			Data:   character.Species(i + 1),
 		})
 	}
 
-	return newSelectionPicker(
+	return menu.NewPicker(
 		c,
 		"Species",
 		"Select Species",
@@ -29,13 +33,13 @@ func NewSpeciesModel(c *character.Character) tea.Model {
 			c.Species = val
 			c.Size = character.GetSpecies(val).Size[0]
 			if character.GetSpecies(c.Species).Size.RequiresChoice() {
-				return switchToView(viewSpeciesSizeSelection)
+				return pager.SwitchTo(pager.ViewSpeciesSizeSelection)
 			} else if c.Species == character.SpeciesDragonborn {
-				return switchToView(viewDraconicAncestrySelection)
+				return pager.SwitchTo(pager.ViewDraconicAncestrySelection)
 			} else if c.Species == character.SpeciesElf {
-				return switchToView(viewElvenLineageSelection)
+				return pager.SwitchTo(pager.ViewElvenLineageSelection)
 			}
-			return switchToView(viewCharsheet)
+			return pager.SwitchTo(pager.ViewCharsheet)
 		},
 		displaySpeciesInfo,
 	)
@@ -45,12 +49,12 @@ func displaySpeciesInfo(c *character.Character, species character.Species, conte
 	spec := character.GetSpecies(species)
 
 	// Header
-	title := titleStyle.Render(spec.Name)
+	title := style.Title.Render(spec.Name)
 
 	// Stat Grid / Key-Value Blocks
-	creatureType := labelStyle.Render("Creature Type: ") + spec.CreatureType
-	size := labelStyle.Render("Size: ") + spec.Size.GetAll()
-	speed := labelStyle.Render("Speed: ") + badgeStyle.Render(spec.Speed.String())
+	creatureType := style.Label.Render("Creature Type: ") + spec.CreatureType
+	size := style.Label.Render("Size: ") + spec.Size.GetAll()
+	speed := style.Label.Render("Speed: ") + style.Badge.Render(spec.Speed.String())
 
 	// Combine stats into a neat horizontal/vertical block
 	statsGroup := lipgloss.JoinVertical(
@@ -67,15 +71,15 @@ func displaySpeciesInfo(c *character.Character, species character.Species, conte
 		Render(spec.Traits)
 
 	// Main flavor description
-	desc := descStyle.Render(spec.Desc)
+	desc := style.Desc.Render(spec.Desc)
 
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
 		title,
 		desc,
-		renderDivider(contentWidth-2),
+		style.Divider(contentWidth-2),
 		statsGroup,
-		subheaderStyle.Render("Traits"),
+		style.Header.Render("Traits"),
 		traits,
 	)
 }

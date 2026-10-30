@@ -1,7 +1,9 @@
-package tui
+package abilities
 
 import (
 	"dndwiz/character"
+	"dndwiz/tui/pager"
+	"dndwiz/tui/style"
 	"dndwiz/utils"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -25,7 +27,7 @@ const (
 	numConf
 )
 
-type abilityScoresRollModel struct {
+type rollModel struct {
 	c               *character.Character
 	rolled          [6]int
 	rolledCache     [6]int
@@ -38,7 +40,7 @@ type abilityScoresRollModel struct {
 	height          int
 }
 
-func (m abilityScoresRollModel) firstEmptyRoll() int {
+func (m rollModel) firstEmptyRoll() int {
 	for i, roll := range m.rolled {
 		if roll == 0 {
 			return i
@@ -47,7 +49,7 @@ func (m abilityScoresRollModel) firstEmptyRoll() int {
 	return -1
 }
 
-func (m abilityScoresRollModel) firstAvailableRoll() int {
+func (m rollModel) firstAvailableRoll() int {
 	for i, roll := range m.rolled {
 		if roll > 0 {
 			return i
@@ -56,7 +58,7 @@ func (m abilityScoresRollModel) firstAvailableRoll() int {
 	return -1
 }
 
-func (m abilityScoresRollModel) rightAvailableRoll() int {
+func (m rollModel) rightAvailableRoll() int {
 	if m.selectedRoll < 0 {
 		return m.firstAvailableRoll()
 	}
@@ -68,7 +70,7 @@ func (m abilityScoresRollModel) rightAvailableRoll() int {
 	return m.selectedRoll
 }
 
-func (m abilityScoresRollModel) leftAvailableRoll() int {
+func (m rollModel) leftAvailableRoll() int {
 	if m.selectedRoll < 0 {
 		return m.firstAvailableRoll()
 	}
@@ -80,10 +82,10 @@ func (m abilityScoresRollModel) leftAvailableRoll() int {
 	return m.selectedRoll
 }
 
-func NewAbilityScoresRollModel(c *character.Character) tea.Model {
+func NewRollModel(c *character.Character) tea.Model {
 	c.AbilityScore = character.AbilityScores{}
 	rolled := utils.RollAllAbilityScores()
-	return abilityScoresRollModel{
+	return rollModel{
 		c:               c,
 		rolled:          rolled,
 		rolledCache:     rolled,
@@ -96,26 +98,26 @@ func NewAbilityScoresRollModel(c *character.Character) tea.Model {
 
 // Navigation: Ability box
 
-func (m *abilityScoresRollModel) abilityNavRight() {
+func (m *rollModel) abilityNavRight() {
 	if m.selectedAbility < character.AbilityCharisma {
 		m.selectedAbility++
 	}
 }
 
-func (m *abilityScoresRollModel) abilityNavLeft() {
+func (m *rollModel) abilityNavLeft() {
 	if m.selectedAbility > character.AbilityStrength {
 		m.selectedAbility--
 	}
 }
 
-func (m *abilityScoresRollModel) abilitySelect() {
+func (m *rollModel) abilitySelect() {
 	m.focus = winRollBox
 	m.selectedRoll = m.firstAvailableRoll()
 }
 
 // Navigation: Roll box
 
-func (m *abilityScoresRollModel) rollSelect() {
+func (m *rollModel) rollSelect() {
 	m.focus = winAbilitiesBox
 
 	if m.c.AbilityScore[m.selectedAbility-1] > 0 {
@@ -131,21 +133,21 @@ func (m *abilityScoresRollModel) rollSelect() {
 	}
 }
 
-func (m *abilityScoresRollModel) rollNavRight() {
+func (m *rollModel) rollNavRight() {
 	m.selectedRoll = m.rightAvailableRoll()
 }
 
-func (m *abilityScoresRollModel) rollNavLeft() {
+func (m *rollModel) rollNavLeft() {
 	m.selectedRoll = m.leftAvailableRoll()
 }
 
-func (m abilityScoresRollModel) Init() tea.Cmd {
+func (m rollModel) Init() tea.Cmd {
 	return nil
 }
 
 // Navigation: Confirmation menu
 
-func (m *abilityScoresRollModel) confReset() {
+func (m *rollModel) confReset() {
 	m.c.AbilityScore = character.AbilityScores{}
 	m.rolled = m.rolledCache
 	m.focus = winAbilitiesBox
@@ -153,19 +155,19 @@ func (m *abilityScoresRollModel) confReset() {
 	m.confIndex = 0
 }
 
-func (m *abilityScoresRollModel) confNavLeft() {
+func (m *rollModel) confNavLeft() {
 	if m.confIndex < numConf {
 		m.confIndex++
 	}
 }
 
-func (m *abilityScoresRollModel) confNavRight() {
+func (m *rollModel) confNavRight() {
 	if m.confIndex > 0 {
 		m.confIndex--
 	}
 }
 
-func (m abilityScoresRollModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m rollModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
@@ -195,7 +197,7 @@ func (m abilityScoresRollModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			switch msg.String() {
 			case "enter":
 				if m.confIndex == confConfirm {
-					return m, switchToView(viewCharsheet)
+					return m, pager.SwitchTo(pager.ViewCharsheet)
 				}
 				m.confReset()
 			case "l", "right":
@@ -208,12 +210,12 @@ func (m abilityScoresRollModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m abilityScoresRollModel) View() string {
-	title := titleStyle.Width(m.width).Align(lipgloss.Center).Render("Ability Points")
+func (m rollModel) View() string {
+	title := style.Title.Width(m.width).Align(lipgloss.Center).Render("Ability Points")
 
 	abilityBox := lipgloss.NewStyle().
 		Width(m.width).
-		Align(lipgloss.Center).Render(renderAbilityScoresRow(m.c, m.selectedAbility, m.focus == winAbilitiesBox))
+		Align(lipgloss.Center).Render(style.RenderAbilityScoresRow(m.c, m.selectedAbility, m.focus == winAbilitiesBox))
 
 	var bottomSection string
 	if m.focus == winConf {
@@ -222,9 +224,9 @@ func (m abilityScoresRollModel) View() string {
 		confirmStyle := lipgloss.NewStyle().Padding(0, 2)
 
 		if m.confIndex == 0 {
-			clearStyle = clearStyle.Inherit(labelStyle)
+			clearStyle = clearStyle.Inherit(style.Label)
 		} else {
-			confirmStyle = confirmStyle.Inherit(labelStyle)
+			confirmStyle = confirmStyle.Inherit(style.Label)
 		}
 
 		menuRow := lipgloss.JoinHorizontal(
@@ -241,7 +243,7 @@ func (m abilityScoresRollModel) View() string {
 	} else {
 		bottomSection = lipgloss.NewStyle().
 			Width(m.width).
-			Align(lipgloss.Center).Render(renderAbilityRollsRow(&m.rolled, m.selectedRoll, m.focus == winRollBox))
+			Align(lipgloss.Center).Render(style.RenderAbilityRollsRow(&m.rolled, m.selectedRoll, m.focus == winRollBox))
 	}
 
 	return lipgloss.JoinVertical(lipgloss.Center, title, " ", abilityBox, "", bottomSection)

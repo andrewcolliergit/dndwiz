@@ -1,9 +1,11 @@
-package tui
+package abilities
 
 import (
 	"fmt"
 
 	"dndwiz/character"
+	"dndwiz/tui/pager"
+	"dndwiz/tui/style"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -15,7 +17,7 @@ func getMinAbilityPoints() character.AbilityScores {
 
 const abilityPointBuyBudget = 27
 
-type abilityScoresBuyModel struct {
+type buyModel struct {
 	c               *character.Character
 	points          int
 	selectedAbility character.Ability
@@ -25,9 +27,9 @@ type abilityScoresBuyModel struct {
 	height          int
 }
 
-func NewAbilityScoresBuyModel(c *character.Character) tea.Model {
+func NewBuyModel(c *character.Character) tea.Model {
 	c.AbilityScore = getMinAbilityPoints()
-	return abilityScoresBuyModel{
+	return buyModel{
 		c:               c,
 		points:          abilityPointBuyBudget,
 		selectedAbility: character.AbilityStrength,
@@ -58,7 +60,7 @@ func pointCost(score int) int {
 	return 0
 }
 
-func (m *abilityScoresBuyModel) abilityIncrease() {
+func (m *buyModel) abilityIncrease() {
 	score := m.c.AbilityScore[m.selectedAbility-1]
 	if score >= 15 {
 		return
@@ -76,7 +78,7 @@ func (m *abilityScoresBuyModel) abilityIncrease() {
 	}
 }
 
-func (m *abilityScoresBuyModel) abilityDecrease() {
+func (m *buyModel) abilityDecrease() {
 	score := m.c.AbilityScore[m.selectedAbility-1]
 	if score <= 8 {
 		return
@@ -91,11 +93,11 @@ func (m *abilityScoresBuyModel) abilityDecrease() {
 	}
 }
 
-func (m abilityScoresBuyModel) Init() tea.Cmd {
+func (m buyModel) Init() tea.Cmd {
 	return nil
 }
 
-func (m abilityScoresBuyModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m buyModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
@@ -117,23 +119,23 @@ func (m abilityScoresBuyModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.abilityDecrease()
 		case "enter":
 			if m.points == 0 {
-				return m, switchToView(viewCharsheet)
+				return m, pager.SwitchTo(pager.ViewCharsheet)
 			}
 		}
 	}
 	return m, nil
 }
 
-func (m abilityScoresBuyModel) View() string {
-	title := titleStyle.Width(m.width).Align(lipgloss.Center).Render("Ability Points")
+func (m buyModel) View() string {
+	title := style.Title.Width(m.width).Align(lipgloss.Center).Render("Ability Points")
 	points := fmt.Sprintf("Points: %d", m.points)
 	abilityBox := lipgloss.NewStyle().
 		Width(m.width).
-		Align(lipgloss.Center).Render(renderAbilityScoresRow(m.c, m.selectedAbility, m.points > 0))
+		Align(lipgloss.Center).Render(style.RenderAbilityScoresRow(m.c, m.selectedAbility, m.points > 0))
 
 	var bottomSection string
 	if m.points == 0 {
-		bottomSection = labelStyle.Render("Press enter to continue")
+		bottomSection = style.Label.Render("Press enter to continue")
 	}
 	return lipgloss.JoinVertical(lipgloss.Center, title, " ", points, abilityBox, "", bottomSection)
 }

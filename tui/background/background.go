@@ -1,27 +1,31 @@
-package tui
+// Package background
+package background
 
 import (
 	"strings"
 
 	"dndwiz/character"
+	"dndwiz/tui/menu"
+	"dndwiz/tui/pager"
+	"dndwiz/tui/style"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
 
-func NewBackgroundModel(c *character.Character) tea.Model {
+func NewModel(c *character.Character) tea.Model {
 	backgrounds := character.GetAllBackgrounds()
-	items := make(MenuItemList, 0, len(backgrounds))
+	items := make(menu.List, 0, len(backgrounds))
 
 	for i, bgInfo := range backgrounds {
-		items = append(items, MenuItem{
-			title: bgInfo.Name,
-			desc:  "",
-			data:  character.Background(i + 1),
+		items = append(items, menu.Item{
+			Header: bgInfo.Name,
+			Desc:   "",
+			Data:   character.Background(i + 1),
 		})
 	}
 
-	return newSelectionPicker(
+	return menu.NewPicker(
 		c,
 		"Backgrounds",
 		"Select Background",
@@ -29,7 +33,7 @@ func NewBackgroundModel(c *character.Character) tea.Model {
 		false,
 		func(c *character.Character, val character.Background) tea.Cmd {
 			c.Background = val
-			return switchToView(viewCharsheet)
+			return pager.SwitchTo(pager.ViewCharsheet)
 		},
 		displayBackgroundInfo,
 	)
@@ -39,18 +43,18 @@ func displayBackgroundInfo(c *character.Character, bg character.Background, cont
 	var abilitiesArr []string
 	for _, ability := range character.GetBackground(bg).Abilities {
 		abilityAbbr := character.GetAbility(ability).Abbr
-		abilitiesArr = append(abilitiesArr, badgeStyle.Render(abilityAbbr))
+		abilitiesArr = append(abilitiesArr, style.Badge.Render(abilityAbbr))
 	}
 	abilitiesStr := strings.Join(abilitiesArr, " ")
 	bgi := character.GetBackground(bg)
 
-	title := titleStyle.Render(bgi.Name)
-	desc := descStyle.Render(bgi.Desc)
+	title := style.Title.Render(bgi.Name)
+	desc := style.Desc.Render(bgi.Desc)
 
-	abilities := labelStyle.Render("Ability Scores: ") + abilitiesStr
-	feat := labelStyle.Render("Feat: ") + badgeStyle.Render(bgi.Feat.String())
-	skills := labelStyle.Render("Skills: ") + character.GetBackgroundSkills(bg)
-	tools := labelStyle.Render("Tools: ") + bgi.Tool
+	abilities := style.Label.Render("Ability Scores: ") + abilitiesStr
+	feat := style.Label.Render("Feat: ") + style.Badge.Render(bgi.Feat.String())
+	skills := style.Label.Render("Skills: ") + character.GetBackgroundSkills(bg)
+	tools := style.Label.Render("Tools: ") + bgi.Tool
 	equip := character.GetBackgroundEquipmentOptions(bg)
 
 	divWidth := contentWidth - 2
@@ -59,12 +63,12 @@ func displayBackgroundInfo(c *character.Character, bg character.Background, cont
 		lipgloss.Left,
 		title,
 		desc,
-		renderDivider(divWidth),
+		style.Divider(divWidth),
 		abilities,
 		feat,
 		skills,
 		tools,
-		subheaderStyle.Render("Equipment Options"),
+		style.Header.Render("Equipment Options"),
 		equip,
 	)
 }

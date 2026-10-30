@@ -1,7 +1,10 @@
-package tui
+package classes
 
 import (
 	"dndwiz/character"
+	"dndwiz/tui/menu"
+	"dndwiz/tui/pager"
+	"dndwiz/tui/style"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -9,17 +12,17 @@ import (
 
 func NewPrimaryAbilityModel(c *character.Character) tea.Model {
 	abilities := character.GetClass(c.Class).PrimaryAbility.From
-	items := make(MenuItemList, 0, len(abilities))
+	items := make(menu.List, 0, len(abilities))
 
 	for _, a := range abilities {
-		items = append(items, MenuItem{
-			title: character.GetAbility(a).Name,
-			desc:  "",
-			data:  a,
+		items = append(items, menu.Item{
+			Header: character.GetAbility(a).Name,
+			Desc:   "",
+			Data:   a,
 		})
 	}
 
-	return newSelectionPicker(
+	return menu.NewPicker(
 		c,
 		"Primary Ability",
 		"Select Primary Ability",
@@ -28,7 +31,7 @@ func NewPrimaryAbilityModel(c *character.Character) tea.Model {
 		func(c *character.Character, selectedAbility character.Ability) tea.Cmd {
 			// Update the character's primary ability selection
 			c.PrimaryAbilities = character.Abilities{selectedAbility}
-			return switchToView(viewCharsheet)
+			return pager.SwitchTo(pager.ViewCharsheet)
 		},
 		displayPrimaryAbilityInfo,
 	)
@@ -37,7 +40,7 @@ func NewPrimaryAbilityModel(c *character.Character) tea.Model {
 func displayPrimaryAbilityInfo(c *character.Character, a character.Ability, contentWidth int) string {
 	abi := character.GetAbility(a)
 
-	title := titleStyle.Render(abi.Name)
+	title := style.Title.Render(abi.Name)
 
 	desc := lipgloss.NewStyle().
 		Foreground(lipgloss.Color("252")).
@@ -46,7 +49,7 @@ func displayPrimaryAbilityInfo(c *character.Character, a character.Ability, cont
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
 		title,
-		renderDivider(contentWidth-2),
+		style.Divider(contentWidth-2),
 		desc,
 	)
 }

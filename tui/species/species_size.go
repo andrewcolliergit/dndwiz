@@ -1,24 +1,27 @@
-package tui
+package species
 
 import (
 	"dndwiz/character"
+	"dndwiz/tui/menu"
+	"dndwiz/tui/pager"
+	"dndwiz/tui/style"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-func NewSpeciesSizeModel(c *character.Character) tea.Model {
+func NewSizeModel(c *character.Character) tea.Model {
 	sizes := character.GetSpecies(c.Species).Size
-	items := make(MenuItemList, 0, len(sizes))
+	items := make(menu.List, 0, len(sizes))
 
 	for _, s := range sizes {
-		items = append(items, MenuItem{
-			title: s,
-			desc:  "",
-			data:  s,
+		items = append(items, menu.Item{
+			Header: s,
+			Desc:   "",
+			Data:   s,
 		})
 	}
 
-	return newSelectionPicker(
+	return menu.NewPicker(
 		c,
 		"Species Size",
 		"Select Species Size",
@@ -27,12 +30,12 @@ func NewSpeciesSizeModel(c *character.Character) tea.Model {
 		func(c *character.Character, selectedSize string) tea.Cmd {
 			// Update the character's primary ability selection
 			c.Size = selectedSize
-			return switchToView(viewCharsheet)
+			return pager.SwitchTo(pager.ViewCharsheet)
 		},
 		displaySpeciesSizeInfo,
 	)
 }
 
 func displaySpeciesSizeInfo(c *character.Character, s string, contentWidth int) string {
-	return titleStyle.Render(s)
+	return style.Title.Render(s)
 }

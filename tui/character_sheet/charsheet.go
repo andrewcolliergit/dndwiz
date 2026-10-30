@@ -1,74 +1,78 @@
-package tui
+// Package charactersheet
+package charactersheet
 
 import (
 	"fmt"
 	"strings"
 
 	"dndwiz/character"
+	"dndwiz/tui/menu"
+	"dndwiz/tui/pager"
+	"dndwiz/tui/style"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
 
-type charsheetModel struct {
+type Model struct {
 	c                     *character.Character
 	title                 string
-	menu                  Menu
+	menu                  menu.Menu
 	textInput             textinput.Model
 	isEditingName         bool
 	termWidth, termHeight int
 }
 
-func (m charsheetModel) Init() tea.Cmd {
+func (m Model) Init() tea.Cmd {
 	return nil
 }
 
-func MakeCharsheetSidebarItems(c *character.Character) MenuItemList {
-	return MenuItemList{
+func MakeCharsheetSidebarItems(c *character.Character) menu.List {
+	return menu.List{
 		{
-			title: "Name",
-			desc:  c.Name,
-			data:  viewNameTextbox,
+			Header: "Name",
+			Desc:   c.Name,
+			Data:   pager.ViewNameTextbox,
 		},
 		{
-			title: "Class",
-			desc:  character.GetClass(c.Class).Name,
-			data:  viewClassSelection,
+			Header: "Class",
+			Desc:   character.GetClass(c.Class).Name,
+			Data:   pager.ViewClassSelection,
 		},
 		{
-			title: "Species",
-			desc:  character.GetSpecies(c.Species).Name,
-			data:  viewSpeciesSelection,
+			Header: "Species",
+			Desc:   character.GetSpecies(c.Species).Name,
+			Data:   pager.ViewSpeciesSelection,
 		},
 		{
-			title: "Background",
-			desc:  character.GetBackground(c.Background).Name,
-			data:  viewBackgroundSelection,
+			Header: "Background",
+			Desc:   character.GetBackground(c.Background).Name,
+			Data:   pager.ViewBackgroundSelection,
 		},
 		{
-			title: "Ability Scores",
-			desc:  c.AbilityScoreMethod.String(),
-			data:  viewAbilityScoresMethodSelection,
+			Header: "Ability Scores",
+			Desc:   c.AbilityScoreMethod.String(),
+			Data:   pager.ViewAbilityScoresMethodSelection,
 		},
 		{
-			title: "Alignment",
-			desc:  character.GetAlignment(c.Alignment).Name,
-			data:  viewAlignmentSelection,
+			Header: "Alignment",
+			Desc:   character.GetAlignment(c.Alignment).Name,
+			Data:   pager.ViewAlignmentSelection,
 		},
 	}
 }
 
-func NewCharsheetModel(c *character.Character) charsheetModel {
+func NewCharsheetModel(c *character.Character) Model {
 	ti := textinput.New()
 	ti.Placeholder = c.Name
 	ti.CharLimit = 32
 	ti.Width = 24
 
 	items := MakeCharsheetSidebarItems(c)
-	sidebar := newMenu(menuStyleSidebar, "Edit Character", items, 32, true)
+	sidebar := menu.New("Edit Character", items, 32, true)
 
-	return charsheetModel{
+	return Model{
 		c:         c,
 		title:     "Character Sheet",
 		menu:      sidebar,
@@ -76,7 +80,7 @@ func NewCharsheetModel(c *character.Character) charsheetModel {
 	}
 }
 
-func (m charsheetModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
 	// When in text editor
@@ -111,14 +115,14 @@ func (m charsheetModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "enter", " ":
-			if v, ok := GetItemData[currentView](m.menu); ok {
-				if v == viewNameTextbox {
+			if v, ok := menu.GetItemData[pager.CurrentView](m.menu); ok {
+				if v == pager.ViewNameTextbox {
 					m.isEditingName = true
 					m.textInput.SetValue(m.c.Name)
 					m.textInput.Focus()
 					return m, textinput.Blink
 				}
-				return m, switchToView(v)
+				return m, pager.SwitchTo(v)
 			}
 		}
 	}
@@ -127,7 +131,7 @@ func (m charsheetModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func headerDisplay(c *character.Character) string {
-	return titleStyle.Render(c.Name)
+	return style.Title.Render(c.Name)
 }
 
 func taglineDisplay(c *character.Character) string {
@@ -161,7 +165,7 @@ func taglineDisplay(c *character.Character) string {
 		output += cls.Name
 	}
 
-	return taglineStyle.Render(output)
+	return style.Tagline.Render(output)
 }
 
 func hasAbilityScores(c *character.Character) bool {
@@ -177,14 +181,14 @@ func abilityScoresDisplay(c *character.Character) string {
 	if !hasAbilityScores(c) {
 		return ""
 	}
-	return renderAbilityScoresRow(c, character.AbilityNone, false)
+	return style.RenderAbilityScoresRow(c, character.AbilityNone, false)
 }
 
 func primaryAbilitiesDisplay(c *character.Character) string {
 	if len(c.PrimaryAbilities) == 0 {
 		return ""
 	}
-	return labelStyle.Render("Primary Abilities: ") + badgeStyle.Render(c.PrimaryAbilities.String())
+	return style.Label.Render("Primary Abilities: ") + style.Badge.Render(c.PrimaryAbilities.String())
 }
 
 func speciesAttributesDisplay(c *character.Character) string {
@@ -194,12 +198,12 @@ func speciesAttributesDisplay(c *character.Character) string {
 
 	spec := character.GetSpecies(c.Species)
 
-	header := subheaderStyle.Render("Species Attributes")
+	header := style.Header.Render("Species Attributes")
 	info := fmt.Sprintf(
 		"%s %s\n%s %s\n%s %s",
-		labelStyle.Render("Type:"), spec.CreatureType,
-		labelStyle.Render("Size:"), c.Size,
-		labelStyle.Render("Speed:"), spec.Speed.String(),
+		style.Label.Render("Type:"), spec.CreatureType,
+		style.Label.Render("Size:"), c.Size,
+		style.Label.Render("Speed:"), spec.Speed.String(),
 	)
 
 	return lipgloss.JoinVertical(lipgloss.Left, header, info)
@@ -213,7 +217,7 @@ func backgroundDisplay(c *character.Character) string {
 		return ""
 	}
 
-	header := subheaderStyle.Render("Background Highlights")
+	header := style.Header.Render("Background Highlights")
 
 	var (
 		bgStr  string
@@ -224,22 +228,22 @@ func backgroundDisplay(c *character.Character) string {
 		bg := character.GetBackground(c.Background)
 		var bgAbilities []string
 		for _, ability := range character.GetBackground(c.Background).Abilities {
-			bgAbilities = append(bgAbilities, badgeStyle.Render(character.GetAbility(ability).Abbr))
+			bgAbilities = append(bgAbilities, style.Badge.Render(character.GetAbility(ability).Abbr))
 		}
 
 		bgAbilitiesStr := strings.Join(bgAbilities, " ")
 
 		bgStr = fmt.Sprintf(
 			"%s %s\n%s %s\n%s %s",
-			labelStyle.Render("Feat:"), bg.Feat.String(),
-			labelStyle.Render("Tool:"), bg.Tool,
-			labelStyle.Render("Abilities:"), bgAbilitiesStr,
+			style.Label.Render("Feat:"), bg.Feat.String(),
+			style.Label.Render("Tool:"), bg.Tool,
+			style.Label.Render("Abilities:"), bgAbilitiesStr,
 		)
 	}
 
 	if hasAln {
 		aln := character.GetAlignment(c.Alignment)
-		alnStr = labelStyle.Render("Alignment:") + " " + aln.Name
+		alnStr = style.Label.Render("Alignment:") + " " + aln.Name
 	}
 
 	if hasBg && !hasAln {
@@ -265,12 +269,12 @@ func displayCharacterOverview(c *character.Character) string {
 }
 
 func blankCharacterGreeter() string {
-	header := titleStyle.Inherit(titleStyle).Align(lipgloss.Center).Render("NEW CHARACTER")
+	header := style.Title.Inherit(style.Title).Align(lipgloss.Center).Render("NEW CHARACTER")
 	text := lipgloss.NewStyle().Align(lipgloss.Center).Render("As you fill in the details of your new character, this character sheet will reflect the traits and choises you have selected.")
 	return lipgloss.JoinVertical(lipgloss.Center, header, text)
 }
 
-func (m charsheetModel) View() string {
+func (m Model) View() string {
 	if m.termWidth == 0 || m.termHeight <= 2 {
 		return "Initializing..."
 	}
@@ -281,7 +285,7 @@ func (m charsheetModel) View() string {
 		m.c.Alignment == character.AlignmentNone &&
 		!hasAbilityScores(m.c)
 
-	sidebarWidth := m.menu.width
+	sidebarWidth := m.menu.Width
 	contentWidth := m.termWidth - sidebarWidth - 4
 
 	content := displayCharacterOverview(m.c)
@@ -306,7 +310,7 @@ func (m charsheetModel) View() string {
 
 	modalContent := lipgloss.JoinVertical(
 		lipgloss.Center,
-		titleStyle.Render("Edit Name"),
+		style.Title.Render("Edit Name"),
 		"",
 		m.textInput.View(),
 		"",
@@ -318,11 +322,11 @@ func (m charsheetModel) View() string {
 		m.termHeight,
 		lipgloss.Center,
 		lipgloss.Center,
-		popupStyle.Render(modalContent),
+		style.Popup.Render(modalContent),
 	)
 }
 
-func (m *charsheetModel) RefreshSidebar() {
+func (m *Model) RefreshSidebar() {
 	items := MakeCharsheetSidebarItems(m.c)
 	m.menu.SetItems(items)
 }

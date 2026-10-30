@@ -1,4 +1,4 @@
-package tui
+package menu
 
 import (
 	"dndwiz/character"
@@ -16,16 +16,16 @@ type selectionPicker[T any] struct {
 	formatContent         func(*character.Character, T, int) string
 }
 
-func newSelectionPicker[T any](
+func NewPicker[T any](
 	c *character.Character,
 	title string,
 	sidebarTitle string,
-	items MenuItemList,
+	items List,
 	showDesc bool,
 	onSelect func(*character.Character, T) tea.Cmd,
 	formatContent func(*character.Character, T, int) string,
 ) selectionPicker[T] {
-	sidebar := newMenu(menuStyleSidebar, sidebarTitle, items, 32, showDesc)
+	sidebar := New(sidebarTitle, items, 32, showDesc)
 
 	return selectionPicker[T]{
 		c:             c,
@@ -51,9 +51,9 @@ func (m selectionPicker[T]) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter", " ":
 			if val, ok := GetItemData[T](m.menu); ok {
 				cmd = m.onSelect(m.c, val)
-				if cmd == nil {
-					cmd = switchToView(viewCharsheet)
-				}
+				//if cmd == nil {
+				//	cmd = root.SwitchToView(root.ViewCharsheet)
+				//}
 				return m, cmd
 			}
 		}
@@ -67,7 +67,7 @@ func (m selectionPicker[T]) View() string {
 		return "Initializing..."
 	}
 
-	sidebarWidth := m.menu.width
+	sidebarWidth := m.menu.Width
 	contentWidth := m.termWidth - sidebarWidth - 4
 
 	var content string
