@@ -54,9 +54,35 @@ var ClassSelectionConfig = shell.ShellConfig[class.Class]{
 	},
 
 	Content: func(c *character.Character, selected class.Class, contentWidth int) string {
-		return displayClassInfo(c, selected, contentWidth)
+		info := class.Get(selected)
+
+		// Header & Accents
+		title := style.Title.Render(info.Name)
+		primaryAbilities := style.Label.Render("Primary Ability: ") + style.Badge.Render(info.PrimaryAbility.String())
+		hitPointDie := style.Label.Render("Hit Point Die: ") + class.GetHitPointDieString(selected)
+		weaponProficiencies := style.Label.Render("Weapon Proficiencies: ") + info.WeaponProficiencies
+		armorTraining := style.Label.Render("Armor Training: ") + info.ArmorTraining
+		startingEquipment := style.Label.Render("Starting Equipment: ") + info.StartingEquipment.String()
+
+		// Body content
+		desc := style.Desc.Render(info.Desc)
+
+		return lipgloss.JoinVertical(
+			lipgloss.Left,
+			style.RenderTitle(title, desc),
+			style.Divider(contentWidth-2),
+			primaryAbilities,
+			hitPointDie,
+			savingThrowStr(class.Get(selected).SavingThrow),
+			skillProficienciesStr(selected),
+			weaponProficiencies,
+			armorTraining,
+			startingEquipment,
+		)
 	},
 }
+
+// --- Helper Methods ---
 
 func skillProficienciesStr(c class.Class) string {
 	sp := class.Get(c).SkillProficiency
@@ -81,32 +107,4 @@ func savingThrowStr(st class.SavingThrow) string {
 	}
 	info := strings.Join(stList, " ")
 	return style.Label.Render("Saving Throw") + " " + info
-}
-
-func displayClassInfo(c *character.Character, cls class.Class, contentWidth int) string {
-	info := class.Get(cls)
-
-	// Header & Accents
-	title := style.Title.Render(info.Name)
-	primaryAbilities := style.Label.Render("Primary Ability: ") + style.Badge.Render(info.PrimaryAbility.String())
-	hitPointDie := style.Label.Render("Hit Point Die: ") + class.GetHitPointDieString(cls)
-	weaponProficiencies := style.Label.Render("Weapon Proficiencies: ") + info.WeaponProficiencies
-	armorTraining := style.Label.Render("Armor Training: ") + info.ArmorTraining
-	startingEquipment := style.Label.Render("Starting Equipment: ") + info.StartingEquipment.String()
-
-	// Body content
-	desc := style.Desc.Render(info.Desc)
-
-	return lipgloss.JoinVertical(
-		lipgloss.Left,
-		style.RenderTitle(title, desc),
-		style.Divider(contentWidth-2),
-		primaryAbilities,
-		hitPointDie,
-		savingThrowStr(class.Get(cls).SavingThrow),
-		skillProficienciesStr(cls),
-		weaponProficiencies,
-		armorTraining,
-		startingEquipment,
-	)
 }

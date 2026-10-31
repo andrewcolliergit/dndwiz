@@ -18,6 +18,7 @@ var NameConfig = shell.ShellConfig[string]{
 		if name != "" {
 			c.Name = name
 		}
+
 		// Return to the character sheet after saving
 		return func() tea.Msg {
 			return pager.SwitchViewMsg(pager.Charsheet)

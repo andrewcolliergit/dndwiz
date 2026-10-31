@@ -15,7 +15,6 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-// BackgroundSelectionConfig is the declarative blueprint for selecting a background.
 var BackgroundSelectionConfig = shell.ShellConfig[background.Background]{
 	Title:     "Backgrounds",
 	MenuTitle: "Select Background",
@@ -23,7 +22,6 @@ var BackgroundSelectionConfig = shell.ShellConfig[background.Background]{
 	Width:     32,
 	ShowDesc:  false,
 
-	// 1. Populate background choices dynamically
 	GetItems: func(c *character.Character) shell.MenuItemList {
 		backgrounds := background.GetAll()
 		items := make(shell.MenuItemList, 0, len(backgrounds))
@@ -38,7 +36,6 @@ var BackgroundSelectionConfig = shell.ShellConfig[background.Background]{
 		return items
 	},
 
-	// 2. Handle background selection and navigation back to character sheet
 	OnSelect: func(c *character.Character, val background.Background) tea.Cmd {
 		c.Background = val
 		return func() tea.Msg {
@@ -46,44 +43,37 @@ var BackgroundSelectionConfig = shell.ShellConfig[background.Background]{
 		}
 	},
 
-	// 3. Render background detail pane
 	Content: func(c *character.Character, bg background.Background, contentWidth int) string {
-		return displayBackgroundInfo(bg, contentWidth)
+		var abilitiesArr []string
+		for _, a := range background.Get(bg).Abilities {
+			abilityAbbr := ability.Get(a).Abbr
+			abilitiesArr = append(abilitiesArr, style.Badge.Render(abilityAbbr))
+		}
+		abilitiesStr := strings.Join(abilitiesArr, " ")
+		bgi := background.Get(bg)
+
+		title := style.Title.Render(bgi.Name)
+		desc := style.Desc.Width(contentWidth).Render(bgi.Desc)
+
+		abilities := style.Label.Render("Ability Scores: ") + abilitiesStr
+		feat := style.Label.Render("Feat: ") + style.Badge.Render(bgi.Feat.String())
+		skills := style.Label.Render("Skills: ") + background.GetSkills(bg)
+		tools := style.Label.Render("Tools: ") + bgi.Tool
+		equip := background.EquipmentOptions(bg)
+
+		divWidth := contentWidth - 2
+
+		return lipgloss.JoinVertical(
+			lipgloss.Left,
+			title,
+			desc,
+			style.Divider(divWidth),
+			abilities,
+			feat,
+			skills,
+			tools,
+			style.Header.Render("Equipment Options"),
+			equip,
+		)
 	},
-}
-
-// --- Helper Formatting Functions ---
-
-func displayBackgroundInfo(bg background.Background, contentWidth int) string {
-	var abilitiesArr []string
-	for _, a := range background.Get(bg).Abilities {
-		abilityAbbr := ability.Get(a).Abbr
-		abilitiesArr = append(abilitiesArr, style.Badge.Render(abilityAbbr))
-	}
-	abilitiesStr := strings.Join(abilitiesArr, " ")
-	bgi := background.Get(bg)
-
-	title := style.Title.Render(bgi.Name)
-	desc := style.Desc.Render(bgi.Desc)
-
-	abilities := style.Label.Render("Ability Scores: ") + abilitiesStr
-	feat := style.Label.Render("Feat: ") + style.Badge.Render(bgi.Feat.String())
-	skills := style.Label.Render("Skills: ") + background.GetSkills(bg)
-	tools := style.Label.Render("Tools: ") + bgi.Tool
-	equip := background.EquipmentOptions(bg)
-
-	divWidth := contentWidth - 2
-
-	return lipgloss.JoinVertical(
-		lipgloss.Left,
-		title,
-		desc,
-		style.Divider(divWidth),
-		abilities,
-		feat,
-		skills,
-		tools,
-		style.Header.Render("Equipment Options"),
-		equip,
-	)
 }

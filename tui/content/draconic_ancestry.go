@@ -11,15 +11,13 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-// DraconicAncestryConfig is the declarative blueprint for selecting a draconic ancestry.
 var DraconicAncestryConfig = shell.ShellConfig[draconic.Ancestry]{
 	Title:     "Draconic Ancestry",
 	MenuTitle: "Select Draconic Ancestry",
 	Layout:    shell.LayoutSidebar,
 	Width:     32,
-	ShowDesc:  true, // Note: Set to true since the original passed `true` for ShowDesc in menu.NewPicker
+	ShowDesc:  true,
 
-	// 1. Populate draconic ancestries dynamically
 	GetItems: func(c *character.Character) shell.MenuItemList {
 		ancestries := draconic.GetAll()
 		items := make(shell.MenuItemList, 0, len(ancestries))
@@ -34,7 +32,6 @@ var DraconicAncestryConfig = shell.ShellConfig[draconic.Ancestry]{
 		return items
 	},
 
-	// 2. Handle selection and navigation back to character sheet
 	OnSelect: func(c *character.Character, selectedDraconicAncestry draconic.Ancestry) tea.Cmd {
 		c.DraconicAncestry = selectedDraconicAncestry
 		return func() tea.Msg {
@@ -42,24 +39,17 @@ var DraconicAncestryConfig = shell.ShellConfig[draconic.Ancestry]{
 		}
 	},
 
-	// 3. Render ancestry detail pane
 	Content: func(c *character.Character, d draconic.Ancestry, contentWidth int) string {
-		return displayDraconicAncestryInfo(d, contentWidth)
+		dai := draconic.Get(d)
+
+		title := style.Title.Render(dai.Name)
+		dmgType := style.Label.Render("Damage Type: ") + style.Badge.Render(dai.DamageType)
+
+		return lipgloss.JoinVertical(
+			lipgloss.Left,
+			title,
+			style.Divider(contentWidth-2),
+			dmgType,
+		)
 	},
-}
-
-// --- Helper Formatting Functions ---
-
-func displayDraconicAncestryInfo(d draconic.Ancestry, contentWidth int) string {
-	dai := draconic.Get(d)
-
-	title := style.Title.Render(dai.Name)
-	dmgType := style.Label.Render("Damage Type: ") + style.Badge.Render(dai.DamageType)
-
-	return lipgloss.JoinVertical(
-		lipgloss.Left,
-		title,
-		style.Divider(contentWidth-2),
-		dmgType,
-	)
 }

@@ -12,7 +12,6 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-// AlignmentSelectionConfig is the declarative blueprint for selecting an alignment.
 var AlignmentSelectionConfig = shell.ShellConfig[alignment.Alignment]{
 	Title:     "Alignments",
 	MenuTitle: "Select Alignment",
@@ -20,7 +19,6 @@ var AlignmentSelectionConfig = shell.ShellConfig[alignment.Alignment]{
 	Width:     32,
 	ShowDesc:  false,
 
-	// 1. Populate alignment options dynamically
 	GetItems: func(c *character.Character) shell.MenuItemList {
 		alignments := alignment.GetAll()
 		items := make(shell.MenuItemList, 0, len(alignments))
@@ -35,7 +33,6 @@ var AlignmentSelectionConfig = shell.ShellConfig[alignment.Alignment]{
 		return items
 	},
 
-	// 2. Handle alignment selection and navigation back to character sheet
 	OnSelect: func(c *character.Character, val alignment.Alignment) tea.Cmd {
 		c.Alignment = val
 		return func() tea.Msg {
@@ -43,26 +40,15 @@ var AlignmentSelectionConfig = shell.ShellConfig[alignment.Alignment]{
 		}
 	},
 
-	// 3. Render alignment detail pane
 	Content: func(c *character.Character, a alignment.Alignment, contentWidth int) string {
-		return displayAlignmentInfo(a)
+		aln := alignment.Get(a)
+		title := style.Title.Render(aln.Name)
+		desc := style.Desc.Render(aln.Desc)
+
+		return lipgloss.JoinVertical(
+			lipgloss.Left,
+			title,
+			desc,
+		)
 	},
-}
-
-// --- Helper Formatting Functions ---
-
-func displayAlignmentInfo(a alignment.Alignment) string {
-	aln := alignment.Get(a)
-
-	// Header & Accents
-	title := style.Title.Render(aln.Name)
-
-	// Body content
-	desc := style.Desc.Render(aln.Desc)
-
-	return lipgloss.JoinVertical(
-		lipgloss.Left,
-		title,
-		desc,
-	)
 }

@@ -10,7 +10,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-// SpeciesSizeConfig is the declarative blueprint for selecting a species size.
 var SpeciesSizeConfig = shell.ShellConfig[string]{
 	Title:     "Species Size",
 	MenuTitle: "Select Species Size",
@@ -18,7 +17,6 @@ var SpeciesSizeConfig = shell.ShellConfig[string]{
 	Width:     32,
 	ShowDesc:  false,
 
-	// 1. Populate available sizes based on the character's species
 	GetItems: func(c *character.Character) shell.MenuItemList {
 		sizes := species.Get(c.Species).Size
 		items := make(shell.MenuItemList, 0, len(sizes))
@@ -33,7 +31,6 @@ var SpeciesSizeConfig = shell.ShellConfig[string]{
 		return items
 	},
 
-	// 2. Handle selection and navigation back to character sheet
 	OnSelect: func(c *character.Character, selectedSize string) tea.Cmd {
 		c.Size = selectedSize
 		return func() tea.Msg {
@@ -41,14 +38,7 @@ var SpeciesSizeConfig = shell.ShellConfig[string]{
 		}
 	},
 
-	// 3. Render species size detail pane
 	Content: func(c *character.Character, selectedSize string, contentWidth int) string {
-		return displaySpeciesSizeInfo(selectedSize)
+		return style.Title.Render(selectedSize)
 	},
-}
-
-// --- Helper Formatting Functions ---
-
-func displaySpeciesSizeInfo(s string) string {
-	return style.Title.Render(s)
 }
