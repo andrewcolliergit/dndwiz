@@ -22,7 +22,6 @@ const (
 	AlignmentSelection
 	SpeciesAncestrySelection
 	SpeciesLineageSelection
-	EquipmentSelection
 	AbilityScoresMethodSelection
 	AbilityScoresRoll
 	AbilityScoresBuy

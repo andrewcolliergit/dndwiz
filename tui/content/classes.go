@@ -1,5 +1,4 @@
-// Package classes
-package classes
+package content
 
 import (
 	"fmt"
@@ -9,45 +8,54 @@ import (
 	"dndwiz/character/ability"
 	"dndwiz/character/class"
 	"dndwiz/character/skill"
-	"dndwiz/tui/menu"
 	"dndwiz/tui/pager"
+	"dndwiz/tui/shell"
 	"dndwiz/tui/style"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
 
-func NewModel(c *character.Character) tea.Model {
-	classes := class.GetAll()
-	items := make(menu.List, 0, len(classes))
+var ClassSelectionConfig = shell.ShellConfig[class.Class]{
+	Title:     "Classes",
+	MenuTitle: "Select Class",
+	Layout:    shell.LayoutSidebar,
+	Width:     32,
+	ShowDesc:  false,
 
-	for i, clsInfo := range classes {
-		items = append(items, menu.Item{
-			Header: clsInfo.Name,
-			Desc:   clsInfo.Desc,
-			Data:   class.Class(i + 1),
-		})
-	}
+	GetItems: func(c *character.Character) shell.MenuItemList {
+		classes := class.GetAll()
+		items := make(shell.MenuItemList, 0, len(classes))
 
-	return menu.NewPicker(
-		c,
-		"Classes",
-		"Select Class",
-		items,
-		false,
-		func(c *character.Character, val class.Class) tea.Cmd {
-			c.Class = val
-			cls := class.Get(val)
-			if cls.PrimaryAbility.RequiresChoice() {
-				return pager.SwitchTo(pager.ClassAbilitiesSelection)
-			} else {
-				c.PrimaryAbilities = cls.PrimaryAbility.From
+		for i, clsInfo := range classes {
+			items = append(items, shell.MenuItem{
+				Header: clsInfo.Name,
+				Desc:   clsInfo.Desc,
+				Data:   class.Class(i + 1),
+			})
+		}
+		return items
+	},
+
+	OnSelect: func(c *character.Character, selected class.Class) tea.Cmd {
+		c.Class = selected
+		cls := class.Get(selected)
+
+		if cls.PrimaryAbility.RequiresChoice() {
+			return func() tea.Msg {
+				return pager.SwitchViewMsg(pager.ClassAbilitiesSelection)
 			}
+		}
 
-			return pager.SwitchTo(pager.Charsheet)
-		},
-		displayClassInfo,
-	)
+		c.PrimaryAbilities = cls.PrimaryAbility.From
+		return func() tea.Msg {
+			return pager.SwitchViewMsg(pager.Charsheet)
+		}
+	},
+
+	Content: func(c *character.Character, selected class.Class, contentWidth int) string {
+		return displayClassInfo(c, selected, contentWidth)
+	},
 }
 
 func skillProficienciesStr(c class.Class) string {
@@ -60,7 +68,6 @@ func skillProficienciesStr(c class.Class) string {
 	}
 
 	skills := strings.Join(skillsList, " ")
-
 	header := fmt.Sprintf("Skill Proficiencies (%d)", sp.Has)
 
 	return style.Label.Render(header) + " " + skills

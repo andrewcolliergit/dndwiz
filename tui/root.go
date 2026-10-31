@@ -3,14 +3,9 @@ package tui
 
 import (
 	"dndwiz/character"
-	"dndwiz/tui/abilities"
-	"dndwiz/tui/alignment"
-	"dndwiz/tui/background"
-	charactersheet "dndwiz/tui/character_sheet"
-	"dndwiz/tui/classes"
+	"dndwiz/tui/content"
 	"dndwiz/tui/pager"
-	"dndwiz/tui/species"
-	"dndwiz/tui/title"
+	"dndwiz/tui/shell"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -27,68 +22,57 @@ type (
 		state                 pager.CurrentView
 		history               []pager.CurrentView
 		currentModel          tea.Model
+		viewCache             map[pager.CurrentView]tea.Model
 		termWidth, termHeight int
 	}
 )
 
 func (m model) Init() tea.Cmd { return nil }
 
-func (m *model) propagateSize(msg tea.WindowSizeMsg) {
-	if m.currentModel != nil {
-		m.currentModel, _ = m.currentModel.Update(msg)
-	}
-}
-
-func (m model) back() (tea.Model, tea.Cmd) {
-	if len(m.history) == 0 {
-		return m, nil
-	}
-	prevState := m.history[len(m.history)-1]
-	m.history = m.history[:len(m.history)-1]
-	m.initView(prevState)
-	return m, nil
-}
-
-func (m model) switchView(page pager.CurrentView) (tea.Model, tea.Cmd) {
-	if m.state != page {
-		m.history = append(m.history, m.state)
-	}
-
-	m.initView(page)
-	return m, nil
-}
-
 // Helper to initialize/refresh views based on state
 func (m *model) initView(v pager.CurrentView) {
 	m.state = v
-	switch v {
-	case pager.Title:
-		m.currentModel = title.NewTitleScreenModel()
-	case pager.Charsheet:
-		m.currentModel = charactersheet.NewCharsheetModel(m.config.Character)
-	case pager.ClassAbilitiesSelection:
-		m.currentModel = classes.NewPrimaryAbilityModel(m.config.Character)
-	case pager.ClassSelection:
-		m.currentModel = classes.NewModel(m.config.Character)
-	case pager.SpeciesSelection:
-		m.currentModel = species.NewModel(m.config.Character)
-	case pager.SpeciesSizeSelection:
-		m.currentModel = species.NewSizeModel(m.config.Character)
-	case pager.SpeciesAncestrySelection:
-		m.currentModel = species.NewDragonModel(m.config.Character)
-	case pager.SpeciesLineageSelection:
-		m.currentModel = species.NewElfModel(m.config.Character)
-	case pager.BackgroundSelection:
-		m.currentModel = background.NewModel(m.config.Character)
-	case pager.AlignmentSelection:
-		m.currentModel = alignment.NewModel(m.config.Character)
-	case pager.AbilityScoresMethodSelection:
-		m.currentModel = abilities.NewOptionModel(m.config.Character)
-	case pager.AbilityScoresRoll:
-		m.currentModel = abilities.NewRollModel(m.config.Character)
-	case pager.AbilityScoresBuy:
-		m.currentModel = abilities.NewBuyModel(m.config.Character)
+
+	if cachedModel, exists := m.viewCache[v]; exists {
+		m.currentModel = cachedModel
+	} else {
+		switch v {
+		case pager.Title:
+			m.currentModel = shell.NewShell(m.config.Character, content.TitleConfig)
+		case pager.Charsheet:
+			m.currentModel = shell.NewShell(m.config.Character, content.CharsheetConfig)
+		case pager.NameTextbox:
+			m.currentModel = shell.NewShell(m.config.Character, content.NameConfig)
+		case pager.ClassSelection:
+			m.currentModel = shell.NewShell(m.config.Character, content.ClassSelectionConfig)
+		case pager.ClassAbilitiesSelection:
+			m.currentModel = shell.NewShell(m.config.Character, content.PrimaryAbilityConfig)
+		case pager.SpeciesSelection:
+			m.currentModel = shell.NewShell(m.config.Character, content.SpeciesSelectionConfig)
+		case pager.SpeciesSizeSelection:
+			m.currentModel = shell.NewShell(m.config.Character, content.SpeciesSizeConfig)
+		case pager.SpeciesAncestrySelection:
+			m.currentModel = shell.NewShell(m.config.Character, content.DraconicAncestryConfig)
+		case pager.SpeciesLineageSelection:
+			m.currentModel = shell.NewShell(m.config.Character, content.ElvenLineageConfig)
+		case pager.BackgroundSelection:
+			m.currentModel = shell.NewShell(m.config.Character, content.BackgroundSelectionConfig)
+		case pager.AlignmentSelection:
+			m.currentModel = shell.NewShell(m.config.Character, content.AlignmentSelectionConfig)
+		case pager.AbilityScoresMethodSelection:
+			m.currentModel = shell.NewShell(m.config.Character, content.AbilityScoreMethodConfig)
+		case pager.AbilityScoresRoll:
+			m.currentModel = content.NewRollModel(m.config.Character)
+		case pager.AbilityScoresBuy:
+			m.currentModel = content.NewBuyModel(m.config.Character)
+		}
+
+		if m.viewCache == nil {
+			m.viewCache = make(map[pager.CurrentView]tea.Model)
+		}
 	}
+
+	m.viewCache[v] = m.currentModel
 
 	if m.termWidth > 0 && m.termHeight > 0 {
 		m.propagateSize(tea.WindowSizeMsg{Width: m.termWidth, Height: m.termHeight})
@@ -114,7 +98,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.propagateSize(msg)
 
 	case goBackMsg:
-		m.back()
+		return m.back()
 
 	case pager.SwitchViewMsg:
 		return m.switchView(pager.CurrentView(msg))
@@ -122,6 +106,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	if m.currentModel != nil {
 		m.currentModel, cmd = m.currentModel.Update(msg)
+
+		if m.viewCache != nil {
+			m.viewCache[m.state] = m.currentModel
+		}
 	}
 
 	return m, cmd
@@ -141,4 +129,31 @@ func NewProgram(cfg *Config) *tea.Program {
 	}
 	m.initView(pager.Title)
 	return tea.NewProgram(m, tea.WithAltScreen())
+}
+
+// -- Helper Methods --
+
+func (m *model) propagateSize(msg tea.WindowSizeMsg) {
+	if m.currentModel != nil {
+		m.currentModel, _ = m.currentModel.Update(msg)
+	}
+}
+
+func (m *model) back() (tea.Model, tea.Cmd) {
+	if len(m.history) == 0 {
+		return m, nil
+	}
+	prevState := m.history[len(m.history)-1]
+	m.history = m.history[:len(m.history)-1]
+	m.initView(prevState)
+	return m, nil
+}
+
+func (m *model) switchView(page pager.CurrentView) (tea.Model, tea.Cmd) {
+	if m.state != page {
+		m.history = append(m.history, m.state)
+	}
+
+	m.initView(page)
+	return m, nil
 }

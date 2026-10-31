@@ -1,4 +1,4 @@
-package abilities
+package content
 
 import (
 	"dndwiz/character"

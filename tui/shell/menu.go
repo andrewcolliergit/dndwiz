@@ -1,5 +1,5 @@
-// Package menu/menu.go
-package menu
+// Package shell/menu.go
+package shell
 
 import (
 	"dndwiz/tui/style"
@@ -8,17 +8,17 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-type Item struct {
+type MenuItem struct {
 	Header string
 	Desc   string
 	Data   any
 }
 
-type List []Item
+type MenuItemList []MenuItem
 
-func (i Item) Title() string       { return i.Header }
-func (i Item) Description() string { return i.Desc }
-func (i Item) FilterValue() string { return i.Header }
+func (i MenuItem) Title() string       { return i.Header }
+func (i MenuItem) Description() string { return i.Desc }
+func (i MenuItem) FilterValue() string { return i.Header }
 
 type Menu struct {
 	List  list.Model
@@ -27,7 +27,7 @@ type Menu struct {
 
 func (m Menu) SelectedData() any {
 	if selected := m.List.SelectedItem(); selected != nil {
-		if item, ok := selected.(Item); ok {
+		if item, ok := selected.(MenuItem); ok {
 			return item.Data
 		}
 	}
@@ -41,7 +41,7 @@ func GetItemData[T any](m Menu) (T, bool) {
 		return zero, false
 	}
 
-	item, ok := selected.(Item)
+	item, ok := selected.(MenuItem)
 	if !ok {
 		return zero, false
 	}
@@ -50,7 +50,7 @@ func GetItemData[T any](m Menu) (T, bool) {
 	return val, ok
 }
 
-func New(title string, items List, width int, showDesc bool) Menu {
+func NewMenu(title string, items MenuItemList, width int, showDesc bool) Menu {
 	listItems := make([]list.Item, len(items))
 	for i, item := range items {
 		listItems[i] = item
@@ -69,7 +69,7 @@ func New(title string, items List, width int, showDesc bool) Menu {
 	}
 }
 
-func (m *Menu) SetItems(items List) {
+func (m *Menu) SetItems(items MenuItemList) {
 	listItems := make([]list.Item, len(items))
 	for i, item := range items {
 		listItems[i] = item
