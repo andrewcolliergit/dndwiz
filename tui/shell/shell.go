@@ -41,7 +41,6 @@ type (
 )
 
 func NewShell[T any](c *character.Character, cfg ShellConfig[T]) Shell[T] {
-	println("DEBUG: NewShell called for title:", cfg.Title, "Layout:", cfg.Layout)
 	s := Shell[T]{
 		c:   c,
 		cfg: cfg,
