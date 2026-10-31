@@ -220,5 +220,8 @@ func displayCharacterOverview(c *character.Character) string {
 func blankCharacterGreeter() string {
 	title := "NEW CHARACTER"
 	body := "As you fill in the details of your new character, this character sheet will reflect the traits and choices you have selected."
-	return style.FullscreenMsg(title, body)
+	return lipgloss.JoinVertical(lipgloss.Left,
+		style.Title.Render(title),
+		style.Body.Render(body),
+	)
 }

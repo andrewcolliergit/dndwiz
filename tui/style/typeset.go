@@ -43,12 +43,6 @@ func TypesetDivider(width int) string {
 	return divider.Render(strings.Repeat("─", width))
 }
 
-func FullscreenMsg(title string, body string) string {
-	header := Title.Inherit(Title).Align(lipgloss.Center).Render(title)
-	text := Body.Inherit(Body).Align(lipgloss.Center).Render(body)
-	return lipgloss.JoinVertical(lipgloss.Center, header, text)
-}
-
 func TypesetScores(c *character.Character, selected ability.Ability, focused bool) string {
 	selectedAbility := int(selected) - 1
 	boxStyle := lipgloss.NewStyle().

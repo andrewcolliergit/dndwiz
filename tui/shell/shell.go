@@ -72,6 +72,24 @@ func (m Shell[T]) Init() tea.Cmd {
 	return nil
 }
 
+func (m *Shell[T]) syncContent() {
+	if m.cfg.Layout != LayoutSidebar {
+		return
+	}
+
+	menuWidth := lipgloss.Width(m.menu.View())
+	frameW, frameH := style.ContentBorder.GetFrameSize()
+	contentWidth := max(m.tX-menuWidth-frameW, 10)
+
+	m.content.Width = contentWidth
+	m.content.Height = max(m.tY-frameH, 1)
+
+	if val, ok := getItemData[T](m.menu); ok && m.cfg.Content != nil {
+		raw := m.cfg.Content(m.c, val, contentWidth)
+		m.content.SetContent(lipgloss.NewStyle().Width(contentWidth).Render(raw))
+	}
+}
+
 func (m Shell[T]) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
@@ -82,9 +100,9 @@ func (m Shell[T]) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.tY = msg.Height
 
 	case tea.KeyMsg:
+		// Text input layout: handle and return early
 		if m.cfg.Layout == LayoutInput {
-			switch msg.String() {
-			case "enter":
+			if msg.String() == "enter" {
 				if m.cfg.OnSubmit != nil {
 					return m, m.cfg.OnSubmit(m.c, m.textInput.Value())
 				}
@@ -94,20 +112,31 @@ func (m Shell[T]) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, cmd
 		}
 
+		// Menu layouts
 		switch msg.String() {
 		case "enter", " ":
 			if val, ok := getItemData[T](m.menu); ok && m.cfg.OnSelect != nil {
-				cmd := m.cfg.OnSelect(m.c, val)
-				return m, cmd
+				return m, m.cfg.OnSelect(m.c, val)
 			}
+			return m, nil
+		case "shift+up", "K":
+			m.syncContent()
+			m.content.ScrollUp(1)
+			return m, nil
+		case "shift+down", "J":
+			m.syncContent()
+			m.content.ScrollDown(1)
 			return m, nil
 		}
 	}
 
-	// Pass Key strokes to underlying menu model
+	// Pass keystrokes to the underlying menu model
 	if m.cfg.Layout != LayoutInput {
+		prev := m.menu.List.Index()
 		m.menu, cmd = m.menu.Update(msg, m.tY)
-		m.content.Update(msg)
+		if m.menu.List.Index() != prev {
+			m.content.GotoTop()
+		}
 	}
 
 	return m, cmd
@@ -130,28 +159,10 @@ func (m Shell[T]) View() string {
 		view = lipgloss.Place(m.tX, m.tY, lipgloss.Center, lipgloss.Center, ui)
 
 	case LayoutSidebar:
-
-		menuWidth := m.menu.GetWidth()
-		if menuWidth <= 0 {
-			menuWidth = minMenuWidth
-		}
-
-		_, contentFrameHeight := style.ContentBorder.GetFrameSize()
-		contentWidth := max(m.tX-menuWidth, 10)
-		contentHeight := m.tY - contentFrameHeight
-
-		m.content.Height = contentHeight
-		m.content.Width = contentWidth
-
-		if val, ok := getItemData[T](m.menu); ok && m.cfg.Content != nil {
-			rawContent := m.cfg.Content(m.c, val, contentWidth)
-			m.content.SetContent(rawContent)
-		}
-
+		m.syncContent()
+		menuView := m.menu.View()
 		contentView := style.ContentBorder.Render(m.content.View())
-
-		view = lipgloss.JoinHorizontal(lipgloss.Top, m.menu.View(), contentView)
-
+		view = lipgloss.JoinHorizontal(lipgloss.Top, menuView, contentView)
 	case LayoutCentered:
 		view = lipgloss.Place(
 			m.tX, m.tY,
