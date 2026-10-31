@@ -29,9 +29,9 @@ var ClassSelectionConfig = shell.ShellConfig[class.Class]{
 
 		for i, clsInfo := range classes {
 			items = append(items, shell.MenuItem{
-				Header: clsInfo.Name,
-				Desc:   clsInfo.Desc,
-				Data:   class.Class(i + 1),
+				Label: clsInfo.Name,
+				Desc:  clsInfo.Desc,
+				Data:  class.Class(i + 1),
 			})
 		}
 		return items

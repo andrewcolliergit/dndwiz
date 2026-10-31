@@ -31,34 +31,34 @@ var CharsheetConfig = shell.ShellConfig[pager.CurrentView]{
 	GetItems: func(c *character.Character) shell.MenuItemList {
 		return shell.MenuItemList{
 			{
-				Header: "Name",
-				Desc:   c.Name,
-				Data:   pager.NameTextbox,
+				Label: "Name",
+				Desc:  c.Name,
+				Data:  pager.NameTextbox,
 			},
 			{
-				Header: "Class",
-				Desc:   class.Get(c.Class).Name,
-				Data:   pager.ClassSelection,
+				Label: "Class",
+				Desc:  class.Get(c.Class).Name,
+				Data:  pager.ClassSelection,
 			},
 			{
-				Header: "Species",
-				Desc:   species.Get(c.Species).Name,
-				Data:   pager.SpeciesSelection,
+				Label: "Species",
+				Desc:  species.Get(c.Species).Name,
+				Data:  pager.SpeciesSelection,
 			},
 			{
-				Header: "Background",
-				Desc:   background.Get(c.Background).Name,
-				Data:   pager.BackgroundSelection,
+				Label: "Background",
+				Desc:  background.Get(c.Background).Name,
+				Data:  pager.BackgroundSelection,
 			},
 			{
-				Header: "Ability Scores",
-				Desc:   c.AbilityScoreMethod.String(),
-				Data:   pager.AbilityScoresMethodSelection,
+				Label: "Ability Scores",
+				Desc:  c.AbilityScoreMethod.String(),
+				Data:  pager.AbilityScoresMethodSelection,
 			},
 			{
-				Header: "Alignment",
-				Desc:   alignment.Get(c.Alignment).Name,
-				Data:   pager.AlignmentSelection,
+				Label: "Alignment",
+				Desc:  alignment.Get(c.Alignment).Name,
+				Data:  pager.AlignmentSelection,
 			},
 		}
 	},

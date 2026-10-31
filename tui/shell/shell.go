@@ -96,7 +96,7 @@ func (m Shell[T]) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		switch msg.String() {
 		case "enter", " ":
-			if val, ok := GetItemData[T](m.menu); ok && m.cfg.OnSelect != nil {
+			if val, ok := getItemData[T](m.menu); ok && m.cfg.OnSelect != nil {
 				cmd := m.cfg.OnSelect(m.c, val)
 				return m, cmd
 			}
@@ -114,7 +114,7 @@ func (m Shell[T]) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m Shell[T]) View() string {
 	if m.cfg.Layout != LayoutInput {
-		m.menu.SetItems(m.cfg.GetItems(m.c))
+		m.menu.setItems(m.cfg.GetItems(m.c))
 	}
 
 	switch m.cfg.Layout {
@@ -138,7 +138,7 @@ func (m Shell[T]) View() string {
 		contentWidth := max(m.tX-menuWidth-4, 10)
 
 		var content string
-		if val, ok := GetItemData[T](m.menu); ok && m.cfg.Content != nil {
+		if val, ok := getItemData[T](m.menu); ok && m.cfg.Content != nil {
 			content = m.cfg.Content(m.c, val, contentWidth)
 		}
 

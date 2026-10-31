@@ -26,9 +26,9 @@ var DraconicAncestryConfig = shell.ShellConfig[draconic.Ancestry]{
 
 		for i, a := range ancestries {
 			items = append(items, shell.MenuItem{
-				Header: a.Name,
-				Desc:   a.DamageType,
-				Data:   draconic.Ancestry(i + 1),
+				Label: a.Name,
+				Desc:  a.DamageType,
+				Data:  draconic.Ancestry(i + 1),
 			})
 		}
 		return items

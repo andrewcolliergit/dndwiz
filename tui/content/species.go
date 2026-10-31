@@ -26,9 +26,9 @@ var SpeciesSelectionConfig = shell.ShellConfig[species.Species]{
 
 		for i, specInfo := range allSpecies {
 			items = append(items, shell.MenuItem{
-				Header: specInfo.Name,
-				Desc:   specInfo.Traits,
-				Data:   species.Species(i + 1),
+				Label: specInfo.Name,
+				Desc:  specInfo.Traits,
+				Data:  species.Species(i + 1),
 			})
 		}
 		return items

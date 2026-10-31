@@ -25,9 +25,9 @@ var SpeciesSizeConfig = shell.ShellConfig[string]{
 
 		for _, s := range sizes {
 			items = append(items, shell.MenuItem{
-				Header: s,
-				Desc:   "",
-				Data:   s,
+				Label: s,
+				Desc:  "",
+				Data:  s,
 			})
 		}
 		return items

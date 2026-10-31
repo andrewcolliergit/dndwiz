@@ -24,9 +24,9 @@ var TitleConfig = shell.ShellConfig[TitleOption]{
 
 	GetItems: func(c *character.Character) shell.MenuItemList {
 		return shell.MenuItemList{
-			shell.MenuItem{Header: "New Character", Data: OptionNewGame},
-			shell.MenuItem{Header: "Load Character", Data: OptionLoadGame},
-			shell.MenuItem{Header: "Quit", Data: OptionQuit},
+			shell.MenuItem{Label: "New Character", Data: OptionNewGame},
+			shell.MenuItem{Label: "Load Character", Data: OptionLoadGame},
+			shell.MenuItem{Label: "Quit", Data: OptionQuit},
 		}
 	},
 

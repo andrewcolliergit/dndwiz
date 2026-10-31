@@ -26,9 +26,9 @@ var ElvenLineageConfig = shell.ShellConfig[elven.Lineage]{
 
 		for i, l := range lineages {
 			items = append(items, shell.MenuItem{
-				Header: l.Name,
-				Desc:   "",
-				Data:   elven.Lineage(i + 1),
+				Label: l.Name,
+				Desc:  "",
+				Data:  elven.Lineage(i + 1),
 			})
 		}
 		return items

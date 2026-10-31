@@ -27,9 +27,9 @@ var AlignmentSelectionConfig = shell.ShellConfig[alignment.Alignment]{
 
 		for i, alnInfo := range alignments {
 			items = append(items, shell.MenuItem{
-				Header: alnInfo.Name,
-				Desc:   alnInfo.Desc,
-				Data:   alignment.Alignment(i + 1),
+				Label: alnInfo.Name,
+				Desc:  alnInfo.Desc,
+				Data:  alignment.Alignment(i + 1),
 			})
 		}
 		return items

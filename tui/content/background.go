@@ -30,9 +30,9 @@ var BackgroundSelectionConfig = shell.ShellConfig[background.Background]{
 
 		for i, bgInfo := range backgrounds {
 			items = append(items, shell.MenuItem{
-				Header: bgInfo.Name,
-				Desc:   "",
-				Data:   background.Background(i + 1),
+				Label: bgInfo.Name,
+				Desc:  "",
+				Data:  background.Background(i + 1),
 			})
 		}
 		return items

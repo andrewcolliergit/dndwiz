@@ -27,9 +27,9 @@ var PrimaryAbilityConfig = shell.ShellConfig[ability.Ability]{
 
 		for _, a := range abilities {
 			items = append(items, shell.MenuItem{
-				Header: ability.Get(a).Name,
-				Desc:   "",
-				Data:   a,
+				Label: ability.Get(a).Name,
+				Desc:  "",
+				Data:  a,
 			})
 		}
 		return items

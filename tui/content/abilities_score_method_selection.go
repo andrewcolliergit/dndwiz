@@ -24,9 +24,9 @@ var AbilityScoreMethodConfig = shell.ShellConfig[pager.CurrentView]{
 	GetItems: func(c *character.Character) shell.MenuItemList {
 		items := shell.MenuItemList{
 			{
-				Header: "Point Buy",
-				Desc:   "",
-				Data:   pager.AbilityScoresBuy,
+				Label: "Point Buy",
+				Desc:  "",
+				Data:  pager.AbilityScoresBuy,
 			},
 		}
 
@@ -34,17 +34,17 @@ var AbilityScoreMethodConfig = shell.ShellConfig[pager.CurrentView]{
 			stdarray := class.Get(c.Class).StdArray
 
 			items = append(items, shell.MenuItem{
-				Header: "Standard Array",
-				Desc:   stdarray.String(),
-				Data:   pager.Charsheet,
+				Label: "Standard Array",
+				Desc:  stdarray.String(),
+				Data:  pager.Charsheet,
 			})
 		}
 
 		if !c.HasRolledAbilityScores {
 			items = append(items, shell.MenuItem{
-				Header: "Roll",
-				Desc:   "",
-				Data:   pager.AbilityScoresRoll,
+				Label: "Roll",
+				Desc:  "",
+				Data:  pager.AbilityScoresRoll,
 			})
 		}
 
