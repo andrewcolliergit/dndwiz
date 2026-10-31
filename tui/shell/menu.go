@@ -8,6 +8,12 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
+const (
+	minMenuHeight int = 4
+	minMenuWidth  int = 32
+	maxMenuWidth  int = 64
+)
+
 type MenuItem struct {
 	Label string
 	Desc  string
@@ -21,11 +27,12 @@ func (i MenuItem) Description() string { return i.Desc }
 func (i MenuItem) FilterValue() string { return i.Label }
 
 type Menu struct {
-	List  list.Model
-	Width int
+	List   list.Model
+	Width  int
+	Height int
 }
 
-func NewMenu(title string, items MenuItemList, width int, showDesc bool) Menu {
+func NewMenu(title string, items MenuItemList, width int, height int, showDesc bool) Menu {
 	listItems := make([]list.Item, len(items))
 	for i, item := range items {
 		listItems[i] = item
@@ -33,20 +40,30 @@ func NewMenu(title string, items MenuItemList, width int, showDesc bool) Menu {
 
 	delegate := list.NewDefaultDelegate()
 	delegate.ShowDescription = showDesc
-	l := list.New(listItems, delegate, width, 0)
+	l := list.New(listItems, delegate, width, height)
 	l.Title = title
 	l.SetShowHelp(false)
 	l.SetShowStatusBar(false)
 
 	return Menu{
-		List:  l,
-		Width: width,
+		List:   l,
+		Width:  width,
+		Height: height,
 	}
 }
 
 func (m Menu) Update(msg tea.Msg, parentHeight int) (Menu, tea.Cmd) {
-	if parentHeight > 4 {
-		m.List.SetSize(m.Width-2, parentHeight-4)
+	if m.Height == 0 && parentHeight >= minMenuHeight {
+		_, border := style.MenuBorder.GetFrameSize()
+		m.List.SetSize(m.Width, parentHeight-border)
+	}
+
+	if m.Width == 0 {
+		m.List.SetWidth(minMenuWidth)
+	}
+
+	if m.List.Width() > maxMenuWidth {
+		m.List.SetWidth(maxMenuWidth)
 	}
 
 	var cmd tea.Cmd
@@ -55,7 +72,26 @@ func (m Menu) Update(msg tea.Msg, parentHeight int) (Menu, tea.Cmd) {
 }
 
 func (m Menu) View() string {
-	return style.SidebarMenu(m.Width).Render(m.List.View())
+	return style.MenuBorder.Render(m.List.View())
+}
+
+func (m Menu) GetWidth() int {
+	w := m.List.Width()
+	if w <= 0 {
+		w = m.Width
+	}
+	if w <= 0 {
+		w = minMenuWidth
+	}
+
+	frameWidth, _ := style.MenuBorder.GetFrameSize()
+	return frameWidth + w
+}
+
+func (m Menu) GetHeight() int {
+	h := m.List.Height()
+	_, frameHeight := style.MenuBorder.GetFrameSize()
+	return frameHeight + h
 }
 
 // --- Helper Methods ---

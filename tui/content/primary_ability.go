@@ -16,7 +16,7 @@ var PrimaryAbilityConfig = shell.ShellConfig[ability.Ability]{
 	Title:     "Primary Ability",
 	MenuTitle: "Select Primary Ability",
 	Layout:    shell.LayoutSidebar,
-	Width:     32,
+	MenuWidth: 32,
 	ShowDesc:  false,
 
 	GetItems: func(c *character.Character) shell.MenuItemList {
@@ -52,7 +52,7 @@ var PrimaryAbilityConfig = shell.ShellConfig[ability.Ability]{
 		return lipgloss.JoinVertical(
 			lipgloss.Left,
 			title,
-			style.Divider(contentWidth-2),
+			style.TypesetDivider(contentWidth-2),
 			desc,
 		)
 	},

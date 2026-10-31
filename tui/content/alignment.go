@@ -16,7 +16,7 @@ var AlignmentSelectionConfig = shell.ShellConfig[alignment.Alignment]{
 	Title:     "Alignments",
 	MenuTitle: "Select Alignment",
 	Layout:    shell.LayoutSidebar,
-	Width:     32,
+	MenuWidth: 32,
 	ShowDesc:  false,
 
 	GetItems: func(c *character.Character) shell.MenuItemList {

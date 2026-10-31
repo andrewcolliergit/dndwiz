@@ -7,7 +7,7 @@ import (
 
 // Text formatting styles
 var (
-	// Panel Header
+	// Panel Title
 	Title = lipgloss.NewStyle().
 		Bold(true).
 		Foreground(lipgloss.Color("86")).
@@ -20,7 +20,7 @@ var (
 		Underline(true).
 		MarginTop(1)
 
-	// Section Labels (e.g., "Primary Abilities:")
+	// Labels (e.g., "Primary Abilities:")
 	Label = lipgloss.NewStyle().
 		Bold(true).
 		Foreground(lipgloss.Color("205"))
@@ -30,9 +30,14 @@ var (
 		Italic(true).
 		Foreground(lipgloss.Color("246"))
 
+	// Body text
+	Body = lipgloss.NewStyle().
+		Foreground(lipgloss.Color("255"))
+
+	// Subtitles
 	Subtitle = Desc.Inherit(Desc).MarginBottom(1)
 
-	// Sub-details / Badges
+	// Badges
 	Badge = lipgloss.NewStyle().
 		Background(lipgloss.Color("238")).
 		Foreground(lipgloss.Color("255")).

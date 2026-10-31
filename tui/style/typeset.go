@@ -10,14 +10,46 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-func Divider(width int) string {
+func TypesetTitle(title string, subtitle string, width int) string {
+	return lipgloss.JoinVertical(
+		lipgloss.Left,
+		Title.Render(title),
+		TypesetDesc(subtitle, width),
+	)
+}
+
+func TypesetBody(body string, width int) string {
+	return Body.Width(width).Render(body)
+}
+
+func TypesetDesc(desc string, width int) string {
+	return Desc.Width(width).Render(desc)
+}
+
+func TypesetBadges(badges []string, width int) string {
+	var list []string
+
+	for _, badge := range badges {
+		list = append(list, Badge.Render(badge))
+	}
+	str := strings.Join(list, " ")
+	return lipgloss.NewStyle().Width(width).Render(str)
+}
+
+func TypesetDivider(width int) string {
 	if width <= 0 {
 		width = 20
 	}
 	return divider.Render(strings.Repeat("─", width))
 }
 
-func RenderAbilityScoresRow(c *character.Character, selected ability.Ability, focused bool) string {
+func FullscreenMsg(title string, body string) string {
+	header := Title.Inherit(Title).Align(lipgloss.Center).Render(title)
+	text := Body.Inherit(Body).Align(lipgloss.Center).Render(body)
+	return lipgloss.JoinVertical(lipgloss.Center, header, text)
+}
+
+func TypesetScores(c *character.Character, selected ability.Ability, focused bool) string {
 	selectedAbility := int(selected) - 1
 	boxStyle := lipgloss.NewStyle().
 		Width(5).
@@ -60,15 +92,7 @@ func RenderAbilityScoresRow(c *character.Character, selected ability.Ability, fo
 	return outerBorderStyle.Render(row)
 }
 
-func RenderTitle(title string, subtitle string) string {
-	return lipgloss.JoinVertical(
-		lipgloss.Left,
-		Title.Render(title),
-		Desc.Render(subtitle),
-	)
-}
-
-func RenderAbilityRollsRow(scores *[6]int, selected int, focused bool) string {
+func TypesetRollsRow(scores *[6]int, selected int, focused bool) string {
 	boxStyle := lipgloss.NewStyle().
 		Width(5).
 		Align(lipgloss.Center)

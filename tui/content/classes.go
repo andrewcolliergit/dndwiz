@@ -20,7 +20,6 @@ var ClassSelectionConfig = shell.ShellConfig[class.Class]{
 	Title:     "Classes",
 	MenuTitle: "Select Class",
 	Layout:    shell.LayoutSidebar,
-	Width:     32,
 	ShowDesc:  false,
 
 	GetItems: func(c *character.Character) shell.MenuItemList {
@@ -57,27 +56,25 @@ var ClassSelectionConfig = shell.ShellConfig[class.Class]{
 		info := class.Get(selected)
 
 		// Header & Accents
-		title := style.Title.Render(info.Name)
-		primaryAbilities := style.Label.Render("Primary Ability: ") + style.Badge.Render(info.PrimaryAbility.String())
-		hitPointDie := style.Label.Render("Hit Point Die: ") + class.GetHitPointDieString(selected)
-		weaponProficiencies := style.Label.Render("Weapon Proficiencies: ") + info.WeaponProficiencies
-		armorTraining := style.Label.Render("Armor Training: ") + info.ArmorTraining
-		startingEquipment := style.Label.Render("Starting Equipment: ") + info.StartingEquipment.String()
-
-		// Body content
-		desc := style.Desc.Render(info.Desc)
+		// primaryAbilities := style.Label.Render("Primary Ability: ") + style.TypesetBadges([]string{info.PrimaryAbility.String()}, contentWidth)
+		// hitPointDie := style.Label.Render("Hit Point Die: ") + class.GetHitPointDieString(selected)
+		// weaponProficiencies := style.Label.Render("Weapon Proficiencies: ") + info.WeaponProficiencies
+		// armorTraining := style.Label.Render("Armor Training: ") + info.ArmorTraining
+		// startingEquipment := style.Label.Render("Starting Equipment: ") + info.StartingEquipment.String()
 
 		return lipgloss.JoinVertical(
 			lipgloss.Left,
-			style.RenderTitle(title, desc),
-			style.Divider(contentWidth-2),
-			primaryAbilities,
-			hitPointDie,
-			savingThrowStr(class.Get(selected).SavingThrow),
-			skillProficienciesStr(selected),
-			weaponProficiencies,
-			armorTraining,
-			startingEquipment,
+			style.TypesetTitle(info.Name, info.Desc, contentWidth),
+
+			// style.TypesetTitle(info.Name, info.Desc, contentWidth),
+			// style.TypesetDivider(contentWidth-2),
+			// primaryAbilities,
+			// hitPointDie,
+			// savingThrowStr(class.Get(selected).SavingThrow),
+			// skillProficienciesStr(selected),
+			// weaponProficiencies,
+			// armorTraining,
+			// startingEquipment,
 		)
 	},
 }

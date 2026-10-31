@@ -6,9 +6,15 @@ import (
 
 // Menu Styles
 
-func SidebarMenu(width int) lipgloss.Style {
-	return lipgloss.NewStyle().
-		Width(width).
-		Border(lipgloss.RoundedBorder(), true, true, true, true).
-		BorderForeground(lipgloss.Color("62"))
-}
+const (
+	Pad int = 4
+)
+
+var (
+	MenuBorder = lipgloss.NewStyle().
+			Border(lipgloss.RoundedBorder(), true, true, true, true).
+			BorderForeground(lipgloss.Color("62"))
+
+	ContentBorder = lipgloss.NewStyle().
+			Border(lipgloss.RoundedBorder(), true, true, true, true)
+)

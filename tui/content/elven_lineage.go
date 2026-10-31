@@ -15,7 +15,7 @@ var ElvenLineageConfig = shell.ShellConfig[elven.Lineage]{
 	Title:     "Elven Lineage",
 	MenuTitle: "Select Elven Lineage",
 	Layout:    shell.LayoutSidebar,
-	Width:     32,
+	MenuWidth: 32,
 	ShowDesc:  false,
 
 	GetItems: func(c *character.Character) shell.MenuItemList {
@@ -51,7 +51,7 @@ var ElvenLineageConfig = shell.ShellConfig[elven.Lineage]{
 		return lipgloss.JoinVertical(
 			lipgloss.Left,
 			title,
-			style.Divider(contentWidth-2),
+			style.TypesetDivider(contentWidth-2),
 			lvl1,
 			lvl3,
 			lvl5,

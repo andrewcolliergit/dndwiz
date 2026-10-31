@@ -16,7 +16,7 @@ var AbilityScoreMethodConfig = shell.ShellConfig[pager.CurrentView]{
 	Title:     "Ability Scores Selection Method",
 	MenuTitle: "Ability Score Allocation Method",
 	Layout:    shell.LayoutSidebar,
-	Width:     32,
+	MenuWidth: 32,
 	ShowDesc:  false,
 
 	GetItems: func(c *character.Character) shell.MenuItemList {
@@ -79,7 +79,7 @@ var AbilityScoreMethodConfig = shell.ShellConfig[pager.CurrentView]{
 		case pager.Charsheet: // Standard Array
 			tmpCharacter := character.NewCharacter()
 			tmpCharacter.AbilityScore = class.Get(c.Class).StdArray
-			box := style.RenderAbilityScoresRow(&tmpCharacter, -1, false)
+			box := style.TypesetScores(&tmpCharacter, -1, false)
 			title = "Standard Array"
 			desc = "Rather than customizing your ability scores, you may elect to take the standard score array for your chosen class. The standard skill point array for the " + class.Get(c.Class).Name + " class is:\n\n" + box
 		}

@@ -17,10 +17,10 @@ const (
 )
 
 var TitleConfig = shell.ShellConfig[TitleOption]{
-	Title:     "D&D Chararacter Sheet Wizard",
-	MenuTitle: "Main Menu",
-	Layout:    shell.LayoutCentered,
-	Width:     30,
+	Title:      "D&D Chararacter Sheet Wizard",
+	MenuTitle:  "Main Menu",
+	MenuHeight: 9,
+	Layout:     shell.LayoutCentered,
 
 	GetItems: func(c *character.Character) shell.MenuItemList {
 		return shell.MenuItemList{

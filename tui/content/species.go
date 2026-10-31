@@ -15,7 +15,7 @@ var SpeciesSelectionConfig = shell.ShellConfig[species.Species]{
 	Title:     "Species",
 	MenuTitle: "Select Species",
 	Layout:    shell.LayoutSidebar,
-	Width:     32,
+	MenuWidth: 32,
 	ShowDesc:  false,
 
 	GetItems: func(c *character.Character) shell.MenuItemList {
@@ -88,7 +88,7 @@ var SpeciesSelectionConfig = shell.ShellConfig[species.Species]{
 			lipgloss.Left,
 			title,
 			desc,
-			style.Divider(contentWidth-2),
+			style.TypesetDivider(contentWidth-2),
 			statsGroup,
 			style.Header.Render("Traits"),
 			traits,

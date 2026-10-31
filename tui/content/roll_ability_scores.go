@@ -217,7 +217,7 @@ func (m rollModel) View() string {
 
 	abilityBox := lipgloss.NewStyle().
 		Width(m.width).
-		Align(lipgloss.Center).Render(style.RenderAbilityScoresRow(m.c, m.selectedAbility, m.focus == winAbilitiesBox))
+		Align(lipgloss.Center).Render(style.TypesetScores(m.c, m.selectedAbility, m.focus == winAbilitiesBox))
 
 	var bottomSection string
 	if m.focus == winConf {
@@ -245,7 +245,7 @@ func (m rollModel) View() string {
 	} else {
 		bottomSection = lipgloss.NewStyle().
 			Width(m.width).
-			Align(lipgloss.Center).Render(style.RenderAbilityRollsRow(&m.rolled, m.selectedRoll, m.focus == winRollBox))
+			Align(lipgloss.Center).Render(style.TypesetRollsRow(&m.rolled, m.selectedRoll, m.focus == winRollBox))
 	}
 
 	return lipgloss.JoinVertical(lipgloss.Center, title, " ", abilityBox, "", bottomSection)

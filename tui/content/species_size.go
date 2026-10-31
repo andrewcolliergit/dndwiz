@@ -14,7 +14,7 @@ var SpeciesSizeConfig = shell.ShellConfig[string]{
 	Title:     "Species Size",
 	MenuTitle: "Select Species Size",
 	Layout:    shell.LayoutSidebar,
-	Width:     32,
+	MenuWidth: 32,
 	ShowDesc:  false,
 
 	GetItems: func(c *character.Character) shell.MenuItemList {

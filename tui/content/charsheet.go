@@ -25,7 +25,6 @@ var CharsheetConfig = shell.ShellConfig[pager.CurrentView]{
 	Title:     "Character Sheet",
 	MenuTitle: "Edit Character",
 	Layout:    shell.LayoutSidebar,
-	Width:     32,
 	ShowDesc:  true,
 
 	GetItems: func(c *character.Character) shell.MenuItemList {
@@ -69,7 +68,7 @@ var CharsheetConfig = shell.ShellConfig[pager.CurrentView]{
 		}
 	},
 
-	Content: func(c *character.Character, selected pager.CurrentView, width int) string {
+	Content: func(c *character.Character, selected pager.CurrentView, contentWidth int) string {
 		blankCharacter := c.Class == class.None &&
 			c.Species == species.None &&
 			c.Background == background.None &&
@@ -135,7 +134,7 @@ func abilityScoresDisplay(c *character.Character) string {
 	if !hasAbilityScores(c) {
 		return ""
 	}
-	return style.RenderAbilityScoresRow(c, ability.None, false)
+	return style.TypesetScores(c, ability.None, false)
 }
 
 func primaryAbilitiesDisplay(c *character.Character) string {
@@ -219,7 +218,7 @@ func displayCharacterOverview(c *character.Character) string {
 }
 
 func blankCharacterGreeter() string {
-	header := style.Title.Inherit(style.Title).Align(lipgloss.Center).Render("NEW CHARACTER")
-	text := lipgloss.NewStyle().Align(lipgloss.Center).Render("As you fill in the details of your new character, this character sheet will reflect the traits and choices you have selected.")
-	return lipgloss.JoinVertical(lipgloss.Center, header, text)
+	title := "NEW CHARACTER"
+	body := "As you fill in the details of your new character, this character sheet will reflect the traits and choices you have selected."
+	return style.FullscreenMsg(title, body)
 }

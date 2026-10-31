@@ -3,8 +3,10 @@ package shell
 
 import (
 	"dndwiz/character"
+	"dndwiz/tui/style"
 
 	"github.com/charmbracelet/bubbles/textinput"
+	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -22,15 +24,17 @@ type (
 		c         *character.Character
 		cfg       ShellConfig[T]
 		menu      Menu
+		content   viewport.Model
 		textInput textinput.Model
 		tX, tY    int
 	}
 
 	ShellConfig[T any] struct {
+		Layout      ShellType
 		Title       string
 		MenuTitle   string
-		Layout      ShellType
-		Width       int // menu width (defaults to 32 if 0)
+		MenuWidth   int // menu width (defaults to 32 if 0)
+		MenuHeight  int // menu height
 		ShowDesc    bool
 		Placeholder string
 		GetItems    func(*character.Character) MenuItemList
@@ -50,18 +54,15 @@ func NewShell[T any](c *character.Character, cfg ShellConfig[T]) Shell[T] {
 		ti := textinput.New()
 		ti.Placeholder = cfg.Placeholder
 		ti.Focus()
-		ti.Width = cfg.Width
+		ti.Width = cfg.MenuWidth
 		if ti.Width <= 0 {
 			ti.Width = 30
 		}
 		s.textInput = ti
 	} else {
 		items := cfg.GetItems(c)
-		menuWidth := cfg.Width
-		if menuWidth <= 0 {
-			menuWidth = 32
-		}
-		s.menu = NewMenu(cfg.MenuTitle, items, menuWidth, cfg.ShowDesc)
+		s.menu = NewMenu(cfg.MenuTitle, items, cfg.MenuWidth, cfg.MenuHeight, cfg.ShowDesc)
+		s.content = viewport.New(10, 10) // minimum, will be resized by tea.Msg in update
 	}
 
 	return s
@@ -106,6 +107,7 @@ func (m Shell[T]) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// Pass Key strokes to underlying menu model
 	if m.cfg.Layout != LayoutInput {
 		m.menu, cmd = m.menu.Update(msg, m.tY)
+		m.content.Update(msg)
 	}
 
 	return m, cmd
@@ -116,6 +118,7 @@ func (m Shell[T]) View() string {
 		m.menu.setItems(m.cfg.GetItems(m.c))
 	}
 
+	var view string
 	switch m.cfg.Layout {
 	case LayoutInput:
 		ui := lipgloss.JoinVertical(
@@ -124,32 +127,41 @@ func (m Shell[T]) View() string {
 			"",
 			m.textInput.View(),
 		)
-		return lipgloss.Place(m.tX, m.tY, lipgloss.Center, lipgloss.Center, ui)
+		view = lipgloss.Place(m.tX, m.tY, lipgloss.Center, lipgloss.Center, ui)
 
 	case LayoutSidebar:
-		menuView := m.menu.View()
 
-		menuWidth := m.cfg.Width
+		menuWidth := m.menu.GetWidth()
 		if menuWidth <= 0 {
-			menuWidth = 32
+			menuWidth = minMenuWidth
 		}
 
-		contentWidth := max(m.tX-menuWidth-4, 10)
+		_, contentFrameHeight := style.ContentBorder.GetFrameSize()
+		contentWidth := max(m.tX-menuWidth, 10)
+		contentHeight := m.tY - contentFrameHeight
 
-		var content string
+		m.content.Height = contentHeight
+		m.content.Width = contentWidth
+
 		if val, ok := getItemData[T](m.menu); ok && m.cfg.Content != nil {
-			content = m.cfg.Content(m.c, val, contentWidth)
+			rawContent := m.cfg.Content(m.c, val, contentWidth)
+			m.content.SetContent(rawContent)
 		}
 
-		return lipgloss.JoinHorizontal(lipgloss.Top, menuView, content)
+		contentView := style.ContentBorder.Render(m.content.View())
+
+		view = lipgloss.JoinHorizontal(lipgloss.Top, m.menu.View(), contentView)
 
 	case LayoutCentered:
-		return lipgloss.Place(
+		view = lipgloss.Place(
 			m.tX, m.tY,
 			lipgloss.Center, lipgloss.Center,
 			m.menu.View(),
 		)
-	}
 
-	return m.menu.View()
+	default:
+		view = m.menu.View()
+
+	}
+	return view
 }

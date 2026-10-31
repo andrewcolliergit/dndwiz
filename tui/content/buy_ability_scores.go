@@ -133,7 +133,7 @@ func (m buyModel) View() string {
 	points := fmt.Sprintf("Points: %d", m.points)
 	abilityBox := lipgloss.NewStyle().
 		Width(m.width).
-		Align(lipgloss.Center).Render(style.RenderAbilityScoresRow(m.c, m.selectedAbility, m.points > 0))
+		Align(lipgloss.Center).Render(style.TypesetScores(m.c, m.selectedAbility, m.points > 0))
 
 	var bottomSection string
 	if m.points == 0 {

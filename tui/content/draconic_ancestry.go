@@ -15,7 +15,7 @@ var DraconicAncestryConfig = shell.ShellConfig[draconic.Ancestry]{
 	Title:     "Draconic Ancestry",
 	MenuTitle: "Select Draconic Ancestry",
 	Layout:    shell.LayoutSidebar,
-	Width:     32,
+	MenuWidth: 32,
 	ShowDesc:  true,
 
 	GetItems: func(c *character.Character) shell.MenuItemList {
@@ -48,7 +48,7 @@ var DraconicAncestryConfig = shell.ShellConfig[draconic.Ancestry]{
 		return lipgloss.JoinVertical(
 			lipgloss.Left,
 			title,
-			style.Divider(contentWidth-2),
+			style.TypesetDivider(contentWidth-2),
 			dmgType,
 		)
 	},
