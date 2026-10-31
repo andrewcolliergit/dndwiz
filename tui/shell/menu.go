@@ -55,7 +55,7 @@ func (m Menu) Update(msg tea.Msg, parentHeight int) (Menu, tea.Cmd) {
 }
 
 func (m Menu) View() string {
-	return style.GetSidebarMenuStyle(m.Width).Render(m.List.View())
+	return style.SidebarMenu(m.Width).Render(m.List.View())
 }
 
 // --- Helper Methods ---
