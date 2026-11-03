@@ -22,9 +22,9 @@ var BackgroundSelectionConfig = shell.ShellConfig[background.Background]{
 	MenuWidth:    32,
 	ShowDesc:     false,
 
-	GetItems: func(c *character.Character) shell.MenuItemList {
+	GetItems: func(c *character.Character) []shell.MenuItem {
 		backgrounds := background.GetAll()
-		items := make(shell.MenuItemList, 0, len(backgrounds))
+		items := make([]shell.MenuItem, 0, len(backgrounds))
 
 		for i, bgInfo := range backgrounds {
 			items = append(items, shell.MenuItem{

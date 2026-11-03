@@ -18,9 +18,9 @@ var DraconicAncestryConfig = shell.ShellConfig[draconic.Ancestry]{
 	MenuWidth:    32,
 	ShowDesc:     true,
 
-	GetItems: func(c *character.Character) shell.MenuItemList {
+	GetItems: func(c *character.Character) []shell.MenuItem {
 		ancestries := draconic.GetAll()
-		items := make(shell.MenuItemList, 0, len(ancestries))
+		items := make([]shell.MenuItem, 0, len(ancestries))
 
 		for i, a := range ancestries {
 			items = append(items, shell.MenuItem{

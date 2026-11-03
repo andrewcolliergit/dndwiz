@@ -27,8 +27,8 @@ var CharsheetConfig = shell.ShellConfig[pager.CurrentView]{
 	Layout:       shell.LayoutSidebar,
 	ShowDesc:     true,
 
-	GetItems: func(c *character.Character) shell.MenuItemList {
-		return shell.MenuItemList{
+	GetItems: func(c *character.Character) []shell.MenuItem {
+		return []shell.MenuItem{
 			{
 				Label: "Name",
 				Desc:  c.Name,
@@ -219,7 +219,8 @@ func displayCharacterOverview(c *character.Character) string {
 
 func blankCharacterGreeter() string {
 	title := "NEW CHARACTER"
-	body := "As you fill in the details of your new character, this character sheet will reflect the traits and choices you have selected."
+	body := "As you fill in the details of your new character, " +
+		"this character sheet will reflect the traits and choices you have selected."
 	return lipgloss.JoinVertical(lipgloss.Left,
 		style.Title.Render(title),
 		style.Body.Render(body),

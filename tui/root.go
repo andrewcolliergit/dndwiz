@@ -4,6 +4,7 @@ package tui
 import (
 	"dndwiz/character"
 	"dndwiz/tui/content"
+	dialog "dndwiz/tui/dialogue"
 	"dndwiz/tui/pager"
 	"dndwiz/tui/shell"
 	"dndwiz/tui/style"
@@ -19,7 +20,6 @@ type (
 	model struct {
 		config                *Config
 		state                 pager.CurrentView
-		history               []pager.CurrentView
 		currentModel          tea.Model
 		modal                 tea.Model
 		viewCache             map[pager.CurrentView]tea.Model
@@ -103,7 +103,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, cmd
 		}
 		if msg.String() == "esc" {
-			return m, pager.Back()
+			if m.state == pager.Charsheet {
+				return m, dialog.Pause()
+			}
+			return m, pager.Up()
 		}
 
 	case tea.WindowSizeMsg:
@@ -111,8 +114,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.termHeight = msg.Height
 		m.propagateSize(msg)
 
-	case pager.GoBackMsg:
-		return m.back()
+	case pager.GoUpMsg:
+		return m.up()
 
 	case pager.SwitchViewMsg:
 		return m.switchView(pager.CurrentView(msg))
@@ -156,21 +159,16 @@ func (m *model) propagateSize(msg tea.WindowSizeMsg) {
 	}
 }
 
-func (m *model) back() (tea.Model, tea.Cmd) {
-	if len(m.history) == 0 {
+func (m *model) up() (tea.Model, tea.Cmd) {
+	p, ok := pager.Parent(m.state)
+	if !ok {
 		return m, nil
 	}
-	prevState := m.history[len(m.history)-1]
-	m.history = m.history[:len(m.history)-1]
-	m.initView(prevState)
+	m.initView(p)
 	return m, nil
 }
 
 func (m *model) switchView(page pager.CurrentView) (tea.Model, tea.Cmd) {
-	if m.state != page {
-		m.history = append(m.history, m.state)
-	}
-
 	m.initView(page)
 	return m, nil
 }

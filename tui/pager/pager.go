@@ -4,13 +4,13 @@ package pager
 import tea "github.com/charmbracelet/bubbletea"
 
 type (
-	GoBackMsg     struct{}
 	CurrentView   int
 	SwitchViewMsg CurrentView
 )
 
 const (
 	Title CurrentView = iota
+	PauseMenu
 	Charsheet
 	ClassSelection
 	ClassAbilitiesSelection
@@ -26,14 +26,42 @@ const (
 	AbilityScoresBuy
 )
 
+var parent = map[CurrentView]CurrentView{
+	// Top-level editors
+	NameTextbox:                  Charsheet,
+	ClassSelection:               Charsheet,
+	SpeciesSelection:             Charsheet,
+	BackgroundSelection:          Charsheet,
+	AlignmentSelection:           Charsheet,
+	AbilityScoresMethodSelection: Charsheet,
+
+	// Sub-pages
+	ClassAbilitiesSelection:  ClassSelection,
+	SpeciesSizeSelection:     SpeciesSelection,
+	SpeciesAncestrySelection: SpeciesSelection,
+	SpeciesLineageSelection:  SpeciesSelection,
+	AbilityScoresRoll:        AbilityScoresMethodSelection,
+	AbilityScoresBuy:         AbilityScoresMethodSelection,
+}
+
 func SwitchTo(v CurrentView) tea.Cmd {
 	return func() tea.Msg {
 		return SwitchViewMsg(v)
 	}
 }
 
-func Back() tea.Cmd {
-	return func() tea.Msg { return GoBackMsg{} }
+func Parent(v CurrentView) (CurrentView, bool) {
+	p, ok := parent[v]
+	return p, ok
+}
+
+type (
+	GoUpMsg   struct{}
+	GoBackMsg struct{}
+)
+
+func Up() tea.Cmd {
+	return func() tea.Msg { return GoUpMsg{} }
 }
 
 type (

@@ -6,7 +6,6 @@ import (
 	"dndwiz/character/score"
 	"dndwiz/tui/pager"
 	"dndwiz/tui/style"
-	"dndwiz/utils"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -86,11 +85,10 @@ func (m rollModel) leftAvailableRoll() int {
 
 func NewRollModel(c *character.Character) tea.Model {
 	c.AbilityScore = score.Ability{}
-	rolled := utils.RollAllAbilityScores()
 	return rollModel{
 		c:               c,
-		rolled:          rolled,
-		rolledCache:     rolled,
+		rolled:          c.RolledAbilityScores,
+		rolledCache:     c.RolledAbilityScores,
 		selectedAbility: ability.Strength,
 		selectedRoll:    -1,
 		rollBoxVisible:  true,
@@ -158,14 +156,14 @@ func (m *rollModel) confReset() {
 }
 
 func (m *rollModel) confNavLeft() {
-	if m.confIndex < numConf {
-		m.confIndex++
+	if m.confIndex > 0 {
+		m.confIndex--
 	}
 }
 
 func (m *rollModel) confNavRight() {
-	if m.confIndex > 0 {
-		m.confIndex--
+	if m.confIndex < numConf-1 {
+		m.confIndex++
 	}
 }
 

@@ -18,9 +18,9 @@ var SpeciesSelectionConfig = shell.ShellConfig[species.Species]{
 	MenuWidth:    32,
 	ShowDesc:     false,
 
-	GetItems: func(c *character.Character) shell.MenuItemList {
+	GetItems: func(c *character.Character) []shell.MenuItem {
 		allSpecies := species.GetAll()
-		items := make(shell.MenuItemList, 0, len(allSpecies))
+		items := make([]shell.MenuItem, 0, len(allSpecies))
 
 		for i, specInfo := range allSpecies {
 			items = append(items, shell.MenuItem{

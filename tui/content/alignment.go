@@ -19,9 +19,9 @@ var AlignmentSelectionConfig = shell.ShellConfig[alignment.Alignment]{
 	MenuWidth:    32,
 	ShowDesc:     false,
 
-	GetItems: func(c *character.Character) shell.MenuItemList {
+	GetItems: func(c *character.Character) []shell.MenuItem {
 		alignments := alignment.GetAll()
-		items := make(shell.MenuItemList, 0, len(alignments))
+		items := make([]shell.MenuItem, 0, len(alignments))
 
 		for i, alnInfo := range alignments {
 			items = append(items, shell.MenuItem{

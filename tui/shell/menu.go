@@ -4,6 +4,7 @@ package shell
 import (
 	"dndwiz/tui/style"
 
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -20,8 +21,6 @@ type MenuItem struct {
 	Data  any
 }
 
-type MenuItemList []MenuItem
-
 func (i MenuItem) Title() string       { return i.Label }
 func (i MenuItem) Description() string { return i.Desc }
 func (i MenuItem) FilterValue() string { return i.Label }
@@ -32,28 +31,74 @@ type Menu struct {
 	Height int
 }
 
-func NewMenu(title string, items MenuItemList, width int, height int, showDesc bool) Menu {
-	listItems := make([]list.Item, len(items))
-	for i, item := range items {
-		listItems[i] = item
-	}
-
+func newList(title string, items []MenuItem, showDesc bool) list.Model {
 	delegate := list.NewDefaultDelegate()
 	delegate.ShowDescription = showDesc
-	l := list.New(listItems, delegate, width, height)
+
+	l := list.New(toListItems(items), delegate, 0, 0)
 	l.Title = title
-	l.KeyMap.Quit.SetEnabled(false)
-	l.KeyMap.ForceQuit.SetEnabled(false)
 	l.SetShowHelp(true)
 	l.SetShowStatusBar(false)
 	l.SetFilteringEnabled(false)
 
-	return Menu{
-		List:   l,
-		Width:  width,
-		Height: height,
-	}
+	l.KeyMap.Quit = key.NewBinding()
+	l.KeyMap.ForceQuit = key.NewBinding()
+	l.KeyMap.ShowFullHelp = key.NewBinding()
+	l.KeyMap.CloseFullHelp = key.NewBinding()
+	return l
 }
+
+func toListItems(items []MenuItem) []list.Item {
+	out := make([]list.Item, len(items))
+	for i, it := range items {
+		out[i] = it
+	}
+	return out
+}
+
+func selectedData[T any](l list.Model) (T, bool) {
+	var zero T
+	item, ok := l.SelectedItem().(MenuItem)
+	if !ok {
+		return zero, false
+	}
+	val, ok := item.Data.(T)
+	return val, ok
+}
+
+// func NewMenu(title string, items MenuItemList, width int, height int, showDesc bool) Menu {
+// 	listItems := make([]list.Item, len(items))
+// 	for i, item := range items {
+// 		listItems[i] = item
+// 	}
+//
+// 	delegate := list.NewDefaultDelegate()
+// 	delegate.ShowDescription = showDesc
+//
+// 	l := list.New(listItems, delegate, width, height)
+// 	l.Title = title
+// 	l.SetShowHelp(true)
+// 	l.SetShowStatusBar(false)
+// 	l.SetFilteringEnabled(false)
+//
+// 	l.KeyMap.Quit = key.NewBinding()
+// 	l.KeyMap.ForceQuit = key.NewBinding()
+// 	l.KeyMap.ShowFullHelp = key.NewBinding()
+// 	l.KeyMap.CloseFullHelp = key.NewBinding()
+//
+// 	l.AdditionalShortHelpKeys = func() []key.Binding {
+// 		return []key.Binding{
+// 			key.NewBinding(key.WithKeys("J", "K"), key.WithHelp("J/K", "scroll")),
+// 			key.NewBinding(key.WithKeys("esc"), key.WithHelp("esc", "menu")),
+// 		}
+// 	}
+//
+// 	return Menu{
+// 		List:   l,
+// 		Width:  width,
+// 		Height: height,
+// 	}
+// }
 
 func (m Menu) Update(msg tea.Msg, parentHeight int) (Menu, tea.Cmd) {
 	if m.Height == 0 && parentHeight >= minMenuHeight {
@@ -74,51 +119,51 @@ func (m Menu) Update(msg tea.Msg, parentHeight int) (Menu, tea.Cmd) {
 	return m, cmd
 }
 
-func (m Menu) View() string {
-	return style.MenuBorder.Render(m.List.View())
-}
+// func (m Menu) View() string {
+// 	return style.MenuBorder.Render(m.List.View())
+// }
 
-func (m Menu) GetWidth() int {
-	w := m.List.Width()
-	if w <= 0 {
-		w = m.Width
-	}
-	if w <= 0 {
-		w = minMenuWidth
-	}
+// func (m Menu) GetWidth() int {
+// 	w := m.List.Width()
+// 	if w <= 0 {
+// 		w = m.Width
+// 	}
+// 	if w <= 0 {
+// 		w = minMenuWidth
+// 	}
+//
+// 	frameWidth, _ := style.MenuBorder.GetFrameSize()
+// 	return frameWidth + w
+// }
 
-	frameWidth, _ := style.MenuBorder.GetFrameSize()
-	return frameWidth + w
-}
-
-func (m Menu) GetHeight() int {
-	h := m.List.Height()
-	_, frameHeight := style.MenuBorder.GetFrameSize()
-	return frameHeight + h
-}
-
-// --- Helper Methods ---
-
-func (m *Menu) setItems(items MenuItemList) {
-	listItems := make([]list.Item, len(items))
-	for i, item := range items {
-		listItems[i] = item
-	}
-	m.List.SetItems(listItems)
-}
-
-func getItemData[T any](m Menu) (T, bool) {
-	var zero T
-	selected := m.List.SelectedItem()
-	if selected == nil {
-		return zero, false
-	}
-
-	item, ok := selected.(MenuItem)
-	if !ok {
-		return zero, false
-	}
-
-	val, ok := item.Data.(T)
-	return val, ok
-}
+// func (m Menu) GetHeight() int {
+// 	h := m.List.Height()
+// 	_, frameHeight := style.MenuBorder.GetFrameSize()
+// 	return frameHeight + h
+// }
+//
+// // --- Helper Methods ---
+//
+// func (m *Menu) setItems(items MenuItemList) {
+// 	listItems := make([]list.Item, len(items))
+// 	for i, item := range items {
+// 		listItems[i] = item
+// 	}
+// 	m.List.SetItems(listItems)
+// }
+//
+// func getItemData[T any](m list.Model) (T, bool) {
+// 	var zero T
+// 	selected := m.SelectedItem()
+// 	if selected == nil {
+// 		return zero, false
+// 	}
+//
+// 	item, ok := selected.(MenuItem)
+// 	if !ok {
+// 		return zero, false
+// 	}
+//
+// 	val, ok := item.Data.(T)
+// 	return val, ok
+// }

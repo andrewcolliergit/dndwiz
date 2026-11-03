@@ -22,9 +22,9 @@ var ClassSelectionConfig = shell.ShellConfig[class.Class]{
 	Layout:       shell.LayoutSidebar,
 	ShowDesc:     false,
 
-	GetItems: func(c *character.Character) shell.MenuItemList {
+	GetItems: func(c *character.Character) []shell.MenuItem {
 		classes := class.GetAll()
-		items := make(shell.MenuItemList, 0, len(classes))
+		items := make([]shell.MenuItem, 0, len(classes))
 
 		for i, clsInfo := range classes {
 			items = append(items, shell.MenuItem{

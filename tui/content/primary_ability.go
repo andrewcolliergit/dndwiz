@@ -19,9 +19,9 @@ var PrimaryAbilityConfig = shell.ShellConfig[ability.Ability]{
 	MenuWidth:    32,
 	ShowDesc:     false,
 
-	GetItems: func(c *character.Character) shell.MenuItemList {
+	GetItems: func(c *character.Character) []shell.MenuItem {
 		abilities := class.Get(c.Class).PrimaryAbility.From
-		items := make(shell.MenuItemList, 0, len(abilities))
+		items := make([]shell.MenuItem, 0, len(abilities))
 
 		for _, a := range abilities {
 			items = append(items, shell.MenuItem{

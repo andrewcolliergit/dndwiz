@@ -17,9 +17,9 @@ var SpeciesSizeConfig = shell.ShellConfig[string]{
 	MenuWidth:    32,
 	ShowDesc:     false,
 
-	GetItems: func(c *character.Character) shell.MenuItemList {
+	GetItems: func(c *character.Character) []shell.MenuItem {
 		sizes := species.Get(c.Species).Size
-		items := make(shell.MenuItemList, 0, len(sizes))
+		items := make([]shell.MenuItem, 0, len(sizes))
 
 		for _, s := range sizes {
 			items = append(items, shell.MenuItem{

@@ -18,9 +18,9 @@ var ElvenLineageConfig = shell.ShellConfig[elven.Lineage]{
 	MenuWidth:    32,
 	ShowDesc:     false,
 
-	GetItems: func(c *character.Character) shell.MenuItemList {
+	GetItems: func(c *character.Character) []shell.MenuItem {
 		lineages := elven.GetAll()
-		items := make(shell.MenuItemList, 0, len(lineages))
+		items := make([]shell.MenuItem, 0, len(lineages))
 
 		for i, l := range lineages {
 			items = append(items, shell.MenuItem{

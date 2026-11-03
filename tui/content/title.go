@@ -23,11 +23,11 @@ var TitleConfig = shell.ShellConfig[TitleOption]{
 	MenuHeight:   9,
 	Layout:       shell.LayoutCentered,
 
-	GetItems: func(c *character.Character) shell.MenuItemList {
-		return shell.MenuItemList{
-			shell.MenuItem{Label: "New Character", Data: OptionNewGame},
-			shell.MenuItem{Label: "Load Character", Data: OptionLoadGame},
-			shell.MenuItem{Label: "Quit", Data: OptionQuit},
+	GetItems: func(c *character.Character) []shell.MenuItem {
+		return []shell.MenuItem{
+			{Label: "New Character", Data: OptionNewGame},
+			{Label: "Load Character", Data: OptionLoadGame},
+			{Label: "Quit", Data: OptionQuit},
 		}
 	},
 

@@ -14,24 +14,26 @@ import (
 	"dndwiz/character/species"
 	draconic "dndwiz/character/species/draconic_ancestry"
 	elven "dndwiz/character/species/elven_lineage"
+	"dndwiz/utils"
 )
 
 type CharacterID string
 
 type Character struct {
-	ID                     CharacterID
-	Name                   string
-	Class                  class.Class
-	Species                species.Species
-	DraconicAncestry       draconic.Ancestry
-	ElvenLineage           elven.Lineage
-	Size                   string
-	Background             background.Background
-	PrimaryAbilities       ability.Abilities
-	AbilityScore           score.Ability
-	HasRolledAbilityScores bool
-	AbilityScoreMethod     score.Method
-	Alignment              alignment.Alignment
+	ID                  CharacterID
+	Name                string
+	Class               class.Class
+	Species             species.Species
+	DraconicAncestry    draconic.Ancestry
+	ElvenLineage        elven.Lineage
+	Size                string
+	Background          background.Background
+	PrimaryAbilities    ability.Abilities
+	AbilityScore        score.Ability
+	RolledAbilityScores [6]int
+	// HasRolledAbilityScores bool
+	AbilityScoreMethod score.Method
+	Alignment          alignment.Alignment
 }
 
 func generateRandomID() CharacterID {
@@ -42,8 +44,9 @@ func generateRandomID() CharacterID {
 
 func NewCharacter() Character {
 	return Character{
-		ID:   generateRandomID(),
-		Name: "New Adventurer",
+		ID:                  generateRandomID(),
+		Name:                "New Adventurer",
+		RolledAbilityScores: utils.RollAllAbilityScores(),
 	}
 }
 
