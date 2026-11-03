@@ -6,13 +6,12 @@ import (
 	"dndwiz/tui/content"
 	"dndwiz/tui/pager"
 	"dndwiz/tui/shell"
+	"dndwiz/tui/style"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
 
 type (
-	goBackMsg struct{}
-
 	Config struct {
 		Character *character.Character
 	}
@@ -22,6 +21,7 @@ type (
 		state                 pager.CurrentView
 		history               []pager.CurrentView
 		currentModel          tea.Model
+		modal                 tea.Model
 		viewCache             map[pager.CurrentView]tea.Model
 		termWidth, termHeight int
 	}
@@ -83,13 +83,27 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
+	case pager.OpenModalMsg:
+		m.modal = msg.Model
+		if m.termWidth > 0 {
+			m.modal, _ = m.modal.Update(tea.WindowSizeMsg{Width: m.termWidth, Height: m.termHeight})
+		}
+		return m, m.modal.Init()
+
+	case pager.CloseModalMsg:
+		m.modal = nil
+		return m, nil
 
 	case tea.KeyMsg:
-		switch msg.String() {
-		case "ctrl+c":
+		if msg.String() == "ctrl+c" {
 			return m, tea.Quit
-		case "esc":
-			return m, func() tea.Msg { return goBackMsg{} }
+		}
+		if m.modal != nil {
+			m.modal, cmd = m.modal.Update(msg)
+			return m, cmd
+		}
+		if msg.String() == "esc" {
+			return m, pager.Back()
 		}
 
 	case tea.WindowSizeMsg:
@@ -97,7 +111,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.termHeight = msg.Height
 		m.propagateSize(msg)
 
-	case goBackMsg:
+	case pager.GoBackMsg:
 		return m.back()
 
 	case pager.SwitchViewMsg:
@@ -116,6 +130,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m model) View() string {
+	if m.modal != nil {
+		return style.ModalStyle(m.termWidth, m.termHeight, m.modal.View())
+	}
 	if m.currentModel != nil {
 		return m.currentModel.View()
 	}

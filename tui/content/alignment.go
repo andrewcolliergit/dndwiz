@@ -13,11 +13,11 @@ import (
 )
 
 var AlignmentSelectionConfig = shell.ShellConfig[alignment.Alignment]{
-	Title:     "Alignments",
-	MenuTitle: "Select Alignment",
-	Layout:    shell.LayoutSidebar,
-	MenuWidth: 32,
-	ShowDesc:  false,
+	ContentTitle: "Alignments",
+	MenuTitle:    "Select Alignment",
+	Layout:       shell.LayoutSidebar,
+	MenuWidth:    32,
+	ShowDesc:     false,
 
 	GetItems: func(c *character.Character) shell.MenuItemList {
 		alignments := alignment.GetAll()

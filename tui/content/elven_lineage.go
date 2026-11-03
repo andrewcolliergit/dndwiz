@@ -12,11 +12,11 @@ import (
 )
 
 var ElvenLineageConfig = shell.ShellConfig[elven.Lineage]{
-	Title:     "Elven Lineage",
-	MenuTitle: "Select Elven Lineage",
-	Layout:    shell.LayoutSidebar,
-	MenuWidth: 32,
-	ShowDesc:  false,
+	ContentTitle: "Elven Lineage",
+	MenuTitle:    "Select Elven Lineage",
+	Layout:       shell.LayoutSidebar,
+	MenuWidth:    32,
+	ShowDesc:     false,
 
 	GetItems: func(c *character.Character) shell.MenuItemList {
 		lineages := elven.GetAll()

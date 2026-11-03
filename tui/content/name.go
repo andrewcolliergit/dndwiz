@@ -10,10 +10,10 @@ import (
 )
 
 var NameConfig = shell.ShellConfig[string]{
-	Title:       "Character Name",
-	Layout:      shell.LayoutInput,
-	Placeholder: "Character name...",
-	MenuWidth:   30,
+	ContentTitle: "Character Name",
+	Layout:       shell.LayoutInput,
+	Placeholder:  "Character name...",
+	MenuWidth:    30,
 	OnSubmit: func(c *character.Character, name string) tea.Cmd {
 		if name != "" {
 			c.Name = name

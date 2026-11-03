@@ -3,15 +3,14 @@ package pager
 
 import tea "github.com/charmbracelet/bubbletea"
 
-// Views
 type (
+	GoBackMsg     struct{}
 	CurrentView   int
 	SwitchViewMsg CurrentView
 )
 
 const (
-	Quit CurrentView = iota
-	Title
+	Title CurrentView = iota
 	Charsheet
 	ClassSelection
 	ClassAbilitiesSelection
@@ -31,4 +30,21 @@ func SwitchTo(v CurrentView) tea.Cmd {
 	return func() tea.Msg {
 		return SwitchViewMsg(v)
 	}
+}
+
+func Back() tea.Cmd {
+	return func() tea.Msg { return GoBackMsg{} }
+}
+
+type (
+	OpenModalMsg  struct{ Model tea.Model }
+	CloseModalMsg struct{}
+)
+
+func OpenModal(m tea.Model) tea.Cmd {
+	return func() tea.Msg { return OpenModalMsg{Model: m} }
+}
+
+func CloseModal() tea.Cmd {
+	return func() tea.Msg { return CloseModalMsg{} }
 }

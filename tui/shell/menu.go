@@ -42,8 +42,11 @@ func NewMenu(title string, items MenuItemList, width int, height int, showDesc b
 	delegate.ShowDescription = showDesc
 	l := list.New(listItems, delegate, width, height)
 	l.Title = title
-	l.SetShowHelp(false)
+	l.KeyMap.Quit.SetEnabled(false)
+	l.KeyMap.ForceQuit.SetEnabled(false)
+	l.SetShowHelp(true)
 	l.SetShowStatusBar(false)
+	l.SetFilteringEnabled(false)
 
 	return Menu{
 		List:   l,

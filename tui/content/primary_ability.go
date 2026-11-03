@@ -13,11 +13,11 @@ import (
 )
 
 var PrimaryAbilityConfig = shell.ShellConfig[ability.Ability]{
-	Title:     "Primary Ability",
-	MenuTitle: "Select Primary Ability",
-	Layout:    shell.LayoutSidebar,
-	MenuWidth: 32,
-	ShowDesc:  false,
+	ContentTitle: "Primary Ability",
+	MenuTitle:    "Select Primary Ability",
+	Layout:       shell.LayoutSidebar,
+	MenuWidth:    32,
+	ShowDesc:     false,
 
 	GetItems: func(c *character.Character) shell.MenuItemList {
 		abilities := class.Get(c.Class).PrimaryAbility.From

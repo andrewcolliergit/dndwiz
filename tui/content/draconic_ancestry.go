@@ -12,11 +12,11 @@ import (
 )
 
 var DraconicAncestryConfig = shell.ShellConfig[draconic.Ancestry]{
-	Title:     "Draconic Ancestry",
-	MenuTitle: "Select Draconic Ancestry",
-	Layout:    shell.LayoutSidebar,
-	MenuWidth: 32,
-	ShowDesc:  true,
+	ContentTitle: "Draconic Ancestry",
+	MenuTitle:    "Select Draconic Ancestry",
+	Layout:       shell.LayoutSidebar,
+	MenuWidth:    32,
+	ShowDesc:     true,
 
 	GetItems: func(c *character.Character) shell.MenuItemList {
 		ancestries := draconic.GetAll()

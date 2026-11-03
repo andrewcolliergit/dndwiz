@@ -17,10 +17,10 @@ import (
 )
 
 var ClassSelectionConfig = shell.ShellConfig[class.Class]{
-	Title:     "Classes",
-	MenuTitle: "Select Class",
-	Layout:    shell.LayoutSidebar,
-	ShowDesc:  false,
+	ContentTitle: "Classes",
+	MenuTitle:    "Select Class",
+	Layout:       shell.LayoutSidebar,
+	ShowDesc:     false,
 
 	GetItems: func(c *character.Character) shell.MenuItemList {
 		classes := class.GetAll()

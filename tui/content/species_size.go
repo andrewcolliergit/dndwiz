@@ -11,11 +11,11 @@ import (
 )
 
 var SpeciesSizeConfig = shell.ShellConfig[string]{
-	Title:     "Species Size",
-	MenuTitle: "Select Species Size",
-	Layout:    shell.LayoutSidebar,
-	MenuWidth: 32,
-	ShowDesc:  false,
+	ContentTitle: "Species Size",
+	MenuTitle:    "Select Species Size",
+	Layout:       shell.LayoutSidebar,
+	MenuWidth:    32,
+	ShowDesc:     false,
 
 	GetItems: func(c *character.Character) shell.MenuItemList {
 		sizes := species.Get(c.Species).Size

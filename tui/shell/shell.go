@@ -30,17 +30,18 @@ type (
 	}
 
 	ShellConfig[T any] struct {
-		Layout      ShellType
-		Title       string
-		MenuTitle   string
-		MenuWidth   int // menu width (defaults to 32 if 0)
-		MenuHeight  int // menu height
-		ShowDesc    bool
-		Placeholder string
-		GetItems    func(*character.Character) MenuItemList
-		OnSelect    func(*character.Character, T) tea.Cmd
-		OnSubmit    func(*character.Character, string) tea.Cmd
-		Content     func(*character.Character, T, int) string // Optional for centerd layout
+		Layout          ShellType
+		ContentTitle    string
+		ContentSubtitle string
+		MenuTitle       string
+		MenuWidth       int // menu width (defaults to 32 if 0)
+		MenuHeight      int // menu height
+		ShowDesc        bool
+		Placeholder     string
+		GetItems        func(*character.Character) MenuItemList
+		OnSelect        func(*character.Character, T) tea.Cmd
+		OnSubmit        func(*character.Character, string) tea.Cmd
+		Content         func(*character.Character, T, int) string // Optional for centerd layout
 	}
 )
 
@@ -50,7 +51,8 @@ func NewShell[T any](c *character.Character, cfg ShellConfig[T]) Shell[T] {
 		cfg: cfg,
 	}
 
-	if cfg.Layout == LayoutInput {
+	switch cfg.Layout {
+	case LayoutInput:
 		ti := textinput.New()
 		ti.Placeholder = cfg.Placeholder
 		ti.Focus()
@@ -59,10 +61,17 @@ func NewShell[T any](c *character.Character, cfg ShellConfig[T]) Shell[T] {
 			ti.Width = 30
 		}
 		s.textInput = ti
-	} else {
-		items := cfg.GetItems(c)
-		s.menu = NewMenu(cfg.MenuTitle, items, cfg.MenuWidth, cfg.MenuHeight, cfg.ShowDesc)
+
+	default:
+		s.menu = NewMenu(
+			cfg.MenuTitle,
+			cfg.GetItems(c),
+			cfg.MenuWidth,
+			cfg.MenuHeight,
+			cfg.ShowDesc,
+		)
 		s.content = viewport.New(10, 10) // minimum, will be resized by tea.Msg in update
+
 	}
 
 	return s
@@ -152,7 +161,7 @@ func (m Shell[T]) View() string {
 	case LayoutInput:
 		ui := lipgloss.JoinVertical(
 			lipgloss.Left,
-			m.cfg.Title,
+			m.cfg.ContentTitle,
 			"",
 			m.textInput.View(),
 		)
@@ -163,6 +172,7 @@ func (m Shell[T]) View() string {
 		menuView := m.menu.View()
 		contentView := style.ContentBorder.Render(m.content.View())
 		view = lipgloss.JoinHorizontal(lipgloss.Top, menuView, contentView)
+
 	case LayoutCentered:
 		view = lipgloss.Place(
 			m.tX, m.tY,

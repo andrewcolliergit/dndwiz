@@ -12,11 +12,11 @@ import (
 )
 
 var SpeciesSelectionConfig = shell.ShellConfig[species.Species]{
-	Title:     "Species",
-	MenuTitle: "Select Species",
-	Layout:    shell.LayoutSidebar,
-	MenuWidth: 32,
-	ShowDesc:  false,
+	ContentTitle: "Species",
+	MenuTitle:    "Select Species",
+	Layout:       shell.LayoutSidebar,
+	MenuWidth:    32,
+	ShowDesc:     false,
 
 	GetItems: func(c *character.Character) shell.MenuItemList {
 		allSpecies := species.GetAll()

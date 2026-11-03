@@ -13,11 +13,11 @@ import (
 )
 
 var AbilityScoreMethodConfig = shell.ShellConfig[pager.CurrentView]{
-	Title:     "Ability Scores Selection Method",
-	MenuTitle: "Ability Score Allocation Method",
-	Layout:    shell.LayoutSidebar,
-	MenuWidth: 32,
-	ShowDesc:  false,
+	ContentTitle: "Ability Scores Selection Method",
+	MenuTitle:    "Ability Score Allocation Method",
+	Layout:       shell.LayoutSidebar,
+	MenuWidth:    32,
+	ShowDesc:     false,
 
 	GetItems: func(c *character.Character) shell.MenuItemList {
 		items := shell.MenuItemList{

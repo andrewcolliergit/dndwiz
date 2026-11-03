@@ -16,11 +16,11 @@ import (
 )
 
 var BackgroundSelectionConfig = shell.ShellConfig[background.Background]{
-	Title:     "Backgrounds",
-	MenuTitle: "Select Background",
-	Layout:    shell.LayoutSidebar,
-	MenuWidth: 32,
-	ShowDesc:  false,
+	ContentTitle: "Backgrounds",
+	MenuTitle:    "Select Background",
+	Layout:       shell.LayoutSidebar,
+	MenuWidth:    32,
+	ShowDesc:     false,
 
 	GetItems: func(c *character.Character) shell.MenuItemList {
 		backgrounds := background.GetAll()

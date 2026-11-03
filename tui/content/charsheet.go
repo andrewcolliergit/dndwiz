@@ -22,10 +22,10 @@ import (
 )
 
 var CharsheetConfig = shell.ShellConfig[pager.CurrentView]{
-	Title:     "Character Sheet",
-	MenuTitle: "Edit Character",
-	Layout:    shell.LayoutSidebar,
-	ShowDesc:  true,
+	ContentTitle: "Character Sheet",
+	MenuTitle:    "Edit Character",
+	Layout:       shell.LayoutSidebar,
+	ShowDesc:     true,
 
 	GetItems: func(c *character.Character) shell.MenuItemList {
 		return shell.MenuItemList{
