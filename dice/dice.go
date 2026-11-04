@@ -1,5 +1,5 @@
-// Package utils/dice.go
-package utils
+// Package dice/dice.go
+package dice
 
 import "math/rand/v2"
 
@@ -63,7 +63,7 @@ func Roll(sides int) int {
 func RollAbilityScore() (dice [4]int, score int) {
 	lowest := 7
 	for i := range dice {
-		dice[i] = Roll(6)
+		dice[i] = D6.Roll()
 		score += dice[i]
 		if dice[i] < lowest {
 			lowest = dice[i]

@@ -15,7 +15,7 @@ import (
 
 var AbilityScoreMethodConfig = shell.ShellConfig[pager.CurrentView]{
 	ContentTitle: "Ability Scores Selection Method",
-	MenuTitle:    "Ability Score Allocation Method",
+	MenuTitle:    "Allocation Method",
 	Layout:       shell.LayoutSidebar,
 	MenuWidth:    32,
 	ShowDesc:     false,

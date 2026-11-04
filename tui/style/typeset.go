@@ -132,6 +132,40 @@ func TypesetScores(c *character.Character, selected ability.Ability, focused boo
 	return outerBorderStyle.Render(row)
 }
 
+// TypesetDice renders the four-dice box. active is the spinning die (-1 for none),
+// dropped is the die excluded from the sum (-1 for none).
+func TypesetDice(dice [4]int, active, dropped int, focused bool) string {
+	boxStyle := lipgloss.NewStyle().Width(5).Align(lipgloss.Center)
+
+	var boxes []string
+	for i, v := range dice {
+		val := fmt.Sprintf("%d", v)
+		if v == 0 {
+			val = "-"
+		}
+
+		label := fmt.Sprintf("d%d", i+1)
+		s := boxStyle
+		switch i {
+		case dropped:
+			val = Desc.Strikethrough(true).Render(val)
+		case active:
+			s = boxStyle.Inherit(Label)
+		}
+
+		boxes = append(boxes, s.Render(lipgloss.JoinVertical(lipgloss.Left, label, val)))
+	}
+
+	border := lipgloss.Color("240")
+	if focused {
+		border = lipgloss.Color("205")
+	}
+	return lipgloss.NewStyle().
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(border).
+		Render(lipgloss.JoinHorizontal(lipgloss.Top, boxes...))
+}
+
 func TypesetRollsRow(scores *[6]int, selected int, focused bool) string {
 	boxStyle := lipgloss.NewStyle().
 		Width(5).
@@ -160,6 +194,8 @@ func TypesetRollsRow(scores *[6]int, selected int, focused bool) string {
 			suffix = "st"
 		case 2:
 			suffix = "nd"
+		case 3:
+			suffix = "rd"
 		}
 
 		content := lipgloss.JoinVertical(
