@@ -6,6 +6,7 @@ import tea "github.com/charmbracelet/bubbletea"
 type (
 	CurrentView   int
 	SwitchViewMsg CurrentView
+	RefreshMsg    struct{}
 )
 
 const (

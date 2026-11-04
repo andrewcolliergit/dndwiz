@@ -90,7 +90,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case pager.CloseModalMsg:
 		m.modal = nil
-		return m, nil
+		return m, func() tea.Msg { return pager.RefreshMsg{} }
 
 	case tea.KeyMsg:
 		if msg.String() == "ctrl+c" {

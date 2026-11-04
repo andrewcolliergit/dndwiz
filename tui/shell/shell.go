@@ -3,6 +3,7 @@ package shell
 
 import (
 	"dndwiz/character"
+	"dndwiz/tui/pager"
 	"dndwiz/tui/style"
 
 	"github.com/charmbracelet/bubbles/list"
@@ -98,6 +99,9 @@ func (m Shell[T]) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
+	case pager.RefreshMsg:
+		m.refresh()
+		return m, nil
 	case tea.WindowSizeMsg:
 		m.tX, m.tY = msg.Width, msg.Height
 		m.resizeList()
