@@ -1,8 +1,9 @@
-package content
+// Package pages/title.go
+package pages
 
 import (
 	"dndwiz/character"
-	dialog "dndwiz/tui/dialogue"
+	"dndwiz/tui/modal"
 	"dndwiz/tui/pager"
 	"dndwiz/tui/shell"
 
@@ -20,7 +21,7 @@ const (
 var TitleConfig = shell.ShellConfig[TitleOption]{
 	ContentTitle: "D&D Chararacter Sheet Wizard",
 	MenuTitle:    "Main Menu",
-	MenuHeight:   9,
+	MenuHeight:   12,
 	Layout:       shell.LayoutCentered,
 
 	GetItems: func(c *character.Character) []shell.MenuItem {
@@ -39,7 +40,7 @@ var TitleConfig = shell.ShellConfig[TitleOption]{
 			// Not yet implemented
 			return nil
 		case OptionQuit:
-			return dialog.Confirm(dialog.Options{
+			return modal.Confirm(modal.Options{
 				Title:     "Quit?",
 				Body:      "Are you sure you would like to quit the program?",
 				OnConfirm: tea.Quit,

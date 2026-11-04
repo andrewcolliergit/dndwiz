@@ -1,4 +1,5 @@
-package content
+// Package pages/species.go
+package pages
 
 import (
 	"dndwiz/character"

@@ -1,4 +1,5 @@
-package content
+// Package pages/primary_ability.go
+package pages
 
 import (
 	"dndwiz/character"

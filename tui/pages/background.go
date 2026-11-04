@@ -1,5 +1,5 @@
-// Package content
-package content
+// Package pages/background.go
+package pages
 
 import (
 	"strings"

@@ -3,9 +3,9 @@ package tui
 
 import (
 	"dndwiz/character"
-	"dndwiz/tui/content"
-	dialog "dndwiz/tui/dialogue"
+	dialog "dndwiz/tui/modal"
 	"dndwiz/tui/pager"
+	content "dndwiz/tui/pages"
 	"dndwiz/tui/shell"
 	"dndwiz/tui/style"
 
@@ -41,8 +41,6 @@ func (m *model) initView(v pager.CurrentView) {
 			m.currentModel = shell.NewShell(m.config.Character, content.TitleConfig)
 		case pager.Charsheet:
 			m.currentModel = shell.NewShell(m.config.Character, content.CharsheetConfig)
-		case pager.NameTextbox:
-			m.currentModel = shell.NewShell(m.config.Character, content.NameConfig)
 		case pager.ClassSelection:
 			m.currentModel = shell.NewShell(m.config.Character, content.ClassSelectionConfig)
 		case pager.ClassAbilitiesSelection:

@@ -1,5 +1,5 @@
-// Package content/alignment
-package content
+// Package pages/alignment
+package pages
 
 import (
 	"dndwiz/character"

@@ -10,6 +10,7 @@ type (
 
 const (
 	Title CurrentView = iota
+	NameInput
 	PauseMenu
 	Charsheet
 	ClassSelection
@@ -17,7 +18,6 @@ const (
 	SpeciesSizeSelection
 	SpeciesSelection
 	BackgroundSelection
-	NameTextbox
 	AlignmentSelection
 	SpeciesAncestrySelection
 	SpeciesLineageSelection
@@ -28,7 +28,6 @@ const (
 
 var parent = map[CurrentView]CurrentView{
 	// Top-level editors
-	NameTextbox:                  Charsheet,
 	ClassSelection:               Charsheet,
 	SpeciesSelection:             Charsheet,
 	BackgroundSelection:          Charsheet,

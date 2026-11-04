@@ -1,4 +1,5 @@
-package content
+// Package species_size.go
+package pages
 
 import (
 	"dndwiz/character"

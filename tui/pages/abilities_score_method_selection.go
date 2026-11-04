@@ -1,4 +1,5 @@
-package content
+// Package pages/abilities_score_method_selection.go
+package pages
 
 import (
 	"dndwiz/character"

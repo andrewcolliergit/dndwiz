@@ -1,4 +1,5 @@
-package content
+// Packages pages/roll_ability_scores.go
+package pages
 
 import (
 	"dndwiz/character"

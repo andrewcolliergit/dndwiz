@@ -1,5 +1,5 @@
-// Package dialog/confirm.go
-package dialog
+// Package modal/confirm.go
+package modal
 
 import (
 	"dndwiz/tui/pager"

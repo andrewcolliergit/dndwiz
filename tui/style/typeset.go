@@ -7,8 +7,27 @@ import (
 	"dndwiz/character"
 	"dndwiz/character/ability"
 
+	"github.com/charmbracelet/bubbles/help"
+	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/lipgloss"
 )
+
+type Hint struct{ Key, Desc string }
+
+var helpStyles = help.New().Styles
+
+func TypesetHelp(hints ...Hint) string {
+	sep := helpStyles.ShortSeparator.Inline(true).Render(" • ")
+
+	parts := make([]string, 0, len(hints))
+	for _, h := range hints {
+		parts = append(parts,
+			helpStyles.ShortKey.Inline(true).Render(h.Key)+" "+
+				helpStyles.ShortDesc.Inline(true).Render(h.Desc),
+		)
+	}
+	return strings.Join(parts, sep)
+}
 
 func TypesetTitle(title string, subtitle string, width int) string {
 	return lipgloss.JoinVertical(
@@ -41,6 +60,33 @@ func TypesetDivider(width int) string {
 		width = 20
 	}
 	return divider.Render(strings.Repeat("─", width))
+}
+
+func TypesetTextBox(title, box string, hints ...Hint) string {
+	const (
+		width  = 50
+		fieldW = 26 // must be >= the input's rendered width
+	)
+
+	center := lipgloss.NewStyle().Width(width).Align(lipgloss.Center)
+	field := lipgloss.NewStyle().Width(fieldW).Align(lipgloss.Left).Render(box)
+
+	content := lipgloss.JoinVertical(
+		lipgloss.Left,
+		center.Render(list.DefaultStyles().Title.Render(title)),
+		"",
+		center.Render(field),
+		"",
+		center.Render(TypesetHelp(hints...)),
+	)
+
+	framed := lipgloss.NewStyle().
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(lipgloss.Color("62")).
+		Padding(1, 2).
+		Render(content)
+
+	return lipgloss.Place(width, 20, lipgloss.Center, lipgloss.Center, framed)
 }
 
 func TypesetScores(c *character.Character, selected ability.Ability, focused bool) string {

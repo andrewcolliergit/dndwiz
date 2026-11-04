@@ -1,4 +1,5 @@
-package content
+// Package pages/elven_lineage.go
+package pages
 
 import (
 	"dndwiz/character"

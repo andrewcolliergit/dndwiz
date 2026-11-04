@@ -1,4 +1,5 @@
-package content
+// Package pages/classes.go
+package pages
 
 import (
 	"fmt"

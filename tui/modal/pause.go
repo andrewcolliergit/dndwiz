@@ -1,4 +1,4 @@
-package dialog
+package modal
 
 import (
 	"dndwiz/tui/pager"

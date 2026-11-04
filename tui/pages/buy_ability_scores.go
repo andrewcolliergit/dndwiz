@@ -1,4 +1,5 @@
-package content
+// Package pages/buy_ability_scores.go
+package pages
 
 import (
 	"fmt"

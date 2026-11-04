@@ -1,4 +1,5 @@
-package content
+// Package pages/draconic_ancestry.go
+package pages
 
 import (
 	"dndwiz/character"

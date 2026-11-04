@@ -1,5 +1,5 @@
-// Package content
-package content
+// Package pages/charsheet.go
+package pages
 
 import (
 	"fmt"
@@ -13,6 +13,7 @@ import (
 	"dndwiz/character/species"
 	draconic "dndwiz/character/species/draconic_ancestry"
 	elven "dndwiz/character/species/elven_lineage"
+	"dndwiz/tui/modal"
 	"dndwiz/tui/pager"
 	"dndwiz/tui/shell"
 	"dndwiz/tui/style"
@@ -32,7 +33,7 @@ var CharsheetConfig = shell.ShellConfig[pager.CurrentView]{
 			{
 				Label: "Name",
 				Desc:  c.Name,
-				Data:  pager.NameTextbox,
+				Data:  pager.NameInput,
 			},
 			{
 				Label: "Class",
@@ -63,6 +64,15 @@ var CharsheetConfig = shell.ShellConfig[pager.CurrentView]{
 	},
 
 	OnSelect: func(c *character.Character, selected pager.CurrentView) tea.Cmd {
+		if selected == pager.NameInput {
+			return modal.Text(modal.TextInputConfig{
+				C:           c,
+				Value:       c.Name,
+				Title:       "Character Name",
+				Placeholder: "New Adventurer",
+				EnterHelp:   "submit",
+			})
+		}
 		return func() tea.Msg {
 			return pager.SwitchViewMsg(selected)
 		}
@@ -78,7 +88,6 @@ var CharsheetConfig = shell.ShellConfig[pager.CurrentView]{
 		if blankCharacter {
 			return blankCharacterGreeter()
 		}
-
 		return displayCharacterOverview(c)
 	},
 }
