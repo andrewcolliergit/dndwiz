@@ -5,7 +5,7 @@ import (
 	"dndwiz/character/ability"
 	"dndwiz/character/score"
 	"dndwiz/character/skill"
-	dice "dndwiz/utils"
+	dice "dndwiz/dice"
 )
 
 type Class int

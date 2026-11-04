@@ -14,7 +14,7 @@ import (
 	"dndwiz/character/species"
 	draconic "dndwiz/character/species/draconic_ancestry"
 	elven "dndwiz/character/species/elven_lineage"
-	"dndwiz/utils"
+	"dndwiz/dice"
 )
 
 type CharacterID string
@@ -46,7 +46,7 @@ func NewCharacter() Character {
 	return Character{
 		ID:                  generateRandomID(),
 		Name:                "New Adventurer",
-		RolledAbilityScores: utils.RollAllAbilityScores(),
+		RolledAbilityScores: dice.RollAllAbilityScores(),
 	}
 }
 
