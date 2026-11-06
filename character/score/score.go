@@ -1,8 +1,10 @@
-// Package abilityscores
+// Package score/score.go
 package score
 
 import (
 	"errors"
+	"fmt"
+	"math"
 	"strconv"
 	"strings"
 
@@ -61,5 +63,15 @@ func Modifier(score int) (int, error) {
 	if score < 3 || score > 20 {
 		return 0, errors.New("invalid score")
 	}
-	return (score - 10) / 2, nil
+	return int(math.Floor(float64(score-10) / 2)), nil
+}
+
+// ModifierString formats a score's modifier as "+2", "+0", or "-1".
+// It returns "" for unassigned or invalid scores.
+func ModifierString(score int) string {
+	m, err := Modifier(score)
+	if err != nil {
+		return ""
+	}
+	return fmt.Sprintf("%+d", m)
 }

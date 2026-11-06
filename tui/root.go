@@ -100,11 +100,16 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.modal, cmd = m.modal.Update(msg)
 			return m, cmd
 		}
+
 		if msg.String() == "esc" {
-			if m.state == pager.Charsheet {
+			switch m.state {
+			case pager.Charsheet:
 				return m, dialog.Pause()
+			case pager.AbilityScoresRoll:
+				// the roll model decides: notice first, or leave immediately
+			default:
+				return m, pager.Up()
 			}
-			return m, pager.Up()
 		}
 
 	case tea.WindowSizeMsg:

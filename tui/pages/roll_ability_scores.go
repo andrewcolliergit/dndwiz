@@ -10,6 +10,7 @@ import (
 	"dndwiz/character/ability"
 	"dndwiz/character/score"
 	"dndwiz/dice"
+	"dndwiz/tui/modal"
 	"dndwiz/tui/pager"
 	"dndwiz/tui/style"
 
@@ -300,6 +301,41 @@ func (m *rollModel) swapSelect() {
 	}
 }
 
+// hasAssignedScores reports whether any roll has been placed on an ability.
+// A zero in the pool means that roll has moved onto the character.
+func (m rollModel) hasAssignedScores() bool {
+	if m.phase != phaseAssign {
+		return false
+	}
+	for _, r := range m.rolled {
+		if r == 0 {
+			return true
+		}
+	}
+	return false
+}
+
+// handleEsc leaves the screen, showing a notice first if scores were assigned.
+// Assigned scores already live on the character, so nothing needs copying.
+func (m rollModel) handleEsc() tea.Cmd {
+	if !m.hasAssignedScores() {
+		return pager.Up()
+	}
+
+	body := "Your assigned scores have been saved. " +
+		"Choose Roll again to finish assigning the rest."
+	if m.complete() {
+		body = "Your ability scores have been saved. " +
+			"Choose Roll again to swap them or start over."
+	}
+
+	return modal.Notice(modal.NoticeOptions{
+		Title:   "Progress saved",
+		Body:    body,
+		OnClose: pager.Up(),
+	})
+}
+
 // --- Update ---
 
 func (m rollModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -315,6 +351,10 @@ func (m rollModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 	case tea.KeyMsg:
+		if msg.String() == "esc" {
+			m.swapFrom = ability.None // drop any half-finished swap
+			return m, m.handleEsc()
+		}
 		switch m.phase {
 		case phaseIntro:
 			return m.updateIntro(msg)
