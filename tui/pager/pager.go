@@ -7,6 +7,7 @@ type (
 	CurrentView   int
 	SwitchViewMsg CurrentView
 	RefreshMsg    struct{}
+	ResetViewMsg  struct{}
 )
 
 const (
@@ -75,4 +76,8 @@ func OpenModal(m tea.Model) tea.Cmd {
 
 func CloseModal() tea.Cmd {
 	return func() tea.Msg { return CloseModalMsg{} }
+}
+
+func ResetView() tea.Cmd {
+	return func() tea.Msg { return ResetViewMsg{} }
 }

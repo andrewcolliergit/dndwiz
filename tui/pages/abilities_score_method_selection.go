@@ -56,9 +56,15 @@ var AbilityScoreMethodConfig = shell.ShellConfig[pager.CurrentView]{
 			cls := class.Get(c.Class)
 			c.AbilityScore = cls.StdArray
 			c.AbilityScoreMethod = score.StdArray
+
 		case pager.AbilityScoresRoll:
-			//c.HasRolledAbilityScores = true
+			prev := c.AbilityScoreMethod
 			c.AbilityScoreMethod = score.Roll
+			if prev == score.StdArray || prev == score.PointBuy {
+				// the other method overwrote c.AbilityScore, so reset the cached roll model
+				return tea.Sequence(pager.SwitchTo(val), pager.ResetView())
+			}
+
 		case pager.AbilityScoresBuy:
 			c.AbilityScoreMethod = score.PointBuy
 		}

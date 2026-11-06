@@ -206,6 +206,7 @@ func (m *rollModel) confReset() {
 	m.c.AbilityScore = score.Ability{}
 	m.rolled = m.rolledCache
 	m.focus = winAbilitiesBox
+	m.selectedRoll = -1
 	m.rollBoxVisible = true
 	m.confIndex = confConfirm
 	m.swapFrom = ability.None
@@ -343,6 +344,11 @@ func (m rollModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
 		m.height = msg.Height
+
+	case pager.ResetViewMsg:
+		if m.phase == phaseAssign {
+			m.confReset() // same as pressing Clear
+		}
 
 	case spinMsg:
 		if m.phase == phaseDice && m.spinning && msg.gen == m.spinGen {
