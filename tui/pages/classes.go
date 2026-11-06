@@ -8,6 +8,7 @@ import (
 	"dndwiz/character"
 	"dndwiz/character/ability"
 	"dndwiz/character/class"
+	"dndwiz/character/score"
 	"dndwiz/character/skill"
 	"dndwiz/tui/pager"
 	"dndwiz/tui/shell"
@@ -41,7 +42,12 @@ var ClassSelectionConfig = shell.ShellConfig[class.Class]{
 		c.Class = selected
 		cls := class.Get(selected)
 
+		if c.AbilityScoreMethod == score.StdArray {
+			c.AbilityScore = cls.StdArray // keep the array in step with the class
+		}
+
 		if cls.PrimaryAbility.RequiresChoice() {
+			c.PrimaryAbilities = ability.Abilities{cls.PrimaryAbility.From[0]} // default; user can change
 			return func() tea.Msg {
 				return pager.SwitchViewMsg(pager.ClassAbilitiesSelection)
 			}
