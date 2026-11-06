@@ -554,6 +554,13 @@ func (m rollModel) assignView() (string, string) {
 	abilityBox := m.center(style.TypesetScoresPicked(
 		m.c, m.selectedAbility, m.swapFrom, m.focus == winAbilitiesBox))
 
+	info := ability.Get(m.selectedAbility)
+	detailW := min(max(m.width-8, 30), 64)
+	detail := m.center(lipgloss.JoinVertical(lipgloss.Center,
+		style.TypesetDesc(info.Name+": "+info.Desc, detailW),
+		style.TypesetDesc("The number under each score is its modifier, the bonus or penalty added to d20 rolls.", detailW),
+	))
+
 	var bottomSection, help string
 
 	if m.complete() {
@@ -606,6 +613,6 @@ func (m rollModel) assignView() (string, string) {
 		)
 	}
 
-	body := lipgloss.JoinVertical(lipgloss.Center, title, intro, " ", abilityBox, "", bottomSection)
+	body := lipgloss.JoinVertical(lipgloss.Center, title, intro, " ", abilityBox, detail, "", bottomSection)
 	return body, help
 }

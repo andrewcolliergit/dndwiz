@@ -6,6 +6,7 @@ import (
 
 	"dndwiz/character"
 	"dndwiz/character/ability"
+	"dndwiz/character/score"
 
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/list"
@@ -109,17 +110,17 @@ func TypesetScoresPicked(c *character.Character, selected, picked ability.Abilit
 
 	var boxes []string
 
-	for i, score := range c.AbilityScore {
+	for i, sc := range c.AbilityScore {
 		currentBoxStyle := boxStyle
 		if i == selectedAbility {
 			currentBoxStyle = boxStyle.Inherit(Label)
 		}
 		if i == pickedAbility {
-			currentBoxStyle = pickedStyle // picked wins over hover
+			currentBoxStyle = pickedStyle
 		}
 
-		scorestr := fmt.Sprintf("%d", score)
-		if score == 0 {
+		scorestr := fmt.Sprintf("%d", sc)
+		if sc == 0 {
 			scorestr = "-"
 		}
 
@@ -127,6 +128,7 @@ func TypesetScoresPicked(c *character.Character, selected, picked ability.Abilit
 			lipgloss.Left,
 			ability.Get(ability.Ability(i+1)).Abbr,
 			scorestr,
+			score.ModifierString(sc), // "" when unassigned, so box height stays constant
 		)
 
 		boxes = append(boxes, currentBoxStyle.Render(content))
