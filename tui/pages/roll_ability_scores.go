@@ -70,10 +70,11 @@ func sumDropLowest(d [4]int) (sum, dropped int) {
 }
 
 type rollModel struct {
-	c      *character.Character
-	phase  rollPhase
-	width  int
-	height int
+	c        *character.Character
+	phase    rollPhase
+	swapFrom ability.Ability
+	width    int
+	height   int
 
 	// intro
 	introIndex introChoice
@@ -190,8 +191,8 @@ func (m *rollModel) rollSelect() {
 	m.rolled[m.selectedRoll] = 0
 	m.selectedRoll = -1
 	if m.firstAvailableRoll() == -1 {
-		m.focus = winConf
 		m.rollBoxVisible = false
+		m.confIndex = confConfirm
 	}
 }
 
@@ -205,7 +206,8 @@ func (m *rollModel) confReset() {
 	m.rolled = m.rolledCache
 	m.focus = winAbilitiesBox
 	m.rollBoxVisible = true
-	m.confIndex = 0
+	m.confIndex = confConfirm
+	m.swapFrom = ability.None
 }
 
 func (m *rollModel) confNavLeft() {
@@ -281,6 +283,23 @@ func (m *rollModel) nextSet() tea.Cmd {
 	return m.beginSet()
 }
 
+// complete reports whether every roll has been assigned.
+func (m rollModel) complete() bool { return !m.rollBoxVisible }
+
+// swapSelect picks a score, swaps it with a second one, or deselects it.
+func (m *rollModel) swapSelect() {
+	switch m.swapFrom {
+	case ability.None:
+		m.swapFrom = m.selectedAbility
+	case m.selectedAbility:
+		m.swapFrom = ability.None // pressing enter on the picked score cancels
+	default:
+		i, j := m.swapFrom-1, m.selectedAbility-1
+		m.c.AbilityScore[i], m.c.AbilityScore[j] = m.c.AbilityScore[j], m.c.AbilityScore[i]
+		m.swapFrom = ability.None
+	}
+}
+
 // --- Update ---
 
 func (m rollModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -345,20 +364,21 @@ func (m rollModel) updateAssign(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case winAbilitiesBox:
 		switch msg.String() {
 		case "enter":
-			m.abilitySelect()
+			if m.complete() {
+				m.swapSelect()
+			} else {
+				m.abilitySelect()
+			}
 		case "left", "h":
 			m.abilityNavLeft()
 		case "right", "l":
 			m.abilityNavRight()
-		}
-	case winRollBox:
-		switch msg.String() {
-		case "enter":
-			m.rollSelect()
-		case "left", "h":
-			m.rollNavLeft()
-		case "right", "l":
-			m.rollNavRight()
+		case "down", "j":
+			if m.complete() {
+				m.swapFrom = ability.None
+				m.focus = winConf
+				m.confIndex = confConfirm
+			}
 		}
 	case winConf:
 		switch msg.String() {
@@ -371,7 +391,19 @@ func (m rollModel) updateAssign(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			m.confNavRight()
 		case "h", "left":
 			m.confNavLeft()
+		case "up", "k":
+			m.focus = winAbilitiesBox
 		}
+	case winRollBox:
+		switch msg.String() {
+		case "enter":
+			m.rollSelect()
+		case "left", "h":
+			m.rollNavLeft()
+		case "right", "l":
+			m.rollNavRight()
+		}
+
 	}
 	return m, nil
 }
@@ -471,35 +503,62 @@ func (m rollModel) diceView() (string, string) {
 func (m rollModel) assignView() (string, string) {
 	title := style.Title.Width(m.width).Align(lipgloss.Center).Render("Ability Points")
 
-	intro := style.Desc.Width(m.width).Align(lipgloss.Center).Render("Pick an ability, then pick a roll to assign to it. " +
-		"Assigning over an existing score returns the old one to the pool.")
+	introText := "Pick an ability, then pick a roll to assign to it. " +
+		"Assigning over an existing score returns the old one to the pool."
+	if m.complete() {
+		introText = "All rolls assigned. Pick a score, then another, to swap them. " +
+			"Confirm keeps these scores. Clear returns every score to the pool; rolls can't be rerolled."
+	}
+	intro := style.Desc.Width(m.width).Align(lipgloss.Center).Render(introText)
 
-	abilityBox := m.center(style.TypesetScores(m.c, m.selectedAbility, m.focus == winAbilitiesBox))
+	abilityBox := m.center(style.TypesetScoresPicked(
+		m.c, m.selectedAbility, m.swapFrom, m.focus == winAbilitiesBox))
 
 	var bottomSection, help string
-	switch m.focus {
-	case winConf:
-		clearStyle := lipgloss.NewStyle().Padding(0, 2)
-		confirmStyle := lipgloss.NewStyle().Padding(0, 2)
-		if m.confIndex == confConfirm {
-			clearStyle = clearStyle.Inherit(style.Label)
-		} else {
-			confirmStyle = confirmStyle.Inherit(style.Label)
+
+	if m.complete() {
+		btn := func(label string, selected bool) string {
+			s := lipgloss.NewStyle().Padding(0, 2)
+			if selected {
+				s = s.Inherit(style.Label)
+			}
+			return s.Render("[ " + label + " ]")
 		}
+		inMenu := m.focus == winConf
 		menuRow := lipgloss.JoinHorizontal(lipgloss.Center,
-			clearStyle.Render("[ Confirm ]"), "   ", confirmStyle.Render("[ Clear ]"))
-		bottomSection = m.center(lipgloss.JoinVertical(lipgloss.Center, "Are you finished?", menuRow))
-		help = style.TypesetHelp(
-			style.Hint{Key: "←/→", Desc: "choose"},
-			style.Hint{Key: "enter", Desc: "select"},
+			btn("Confirm", inMenu && m.confIndex == confConfirm),
+			"   ",
+			btn("Clear", inMenu && m.confIndex == confReset),
 		)
-	case winRollBox:
+		bottomSection = m.center(lipgloss.JoinVertical(lipgloss.Center, "Are you finished?", menuRow))
+
+		if inMenu {
+			help = style.TypesetHelp(
+				style.Hint{Key: "←/→", Desc: "choose"},
+				style.Hint{Key: "enter", Desc: "select"},
+				style.Hint{Key: "↑", Desc: "back to scores"},
+			)
+		} else {
+			enterDesc := "pick a score"
+			switch {
+			case m.swapFrom == m.selectedAbility:
+				enterDesc = "deselect"
+			case m.swapFrom != ability.None:
+				enterDesc = "swap with " + ability.Get(m.swapFrom).Abbr
+			}
+			help = style.TypesetHelp(
+				style.Hint{Key: "←/→", Desc: "choose score"},
+				style.Hint{Key: "enter", Desc: enterDesc},
+				style.Hint{Key: "↓", Desc: "menu"},
+			)
+		}
+	} else if m.focus == winRollBox {
 		bottomSection = m.center(style.TypesetRollsRow(&m.rolled, m.selectedRoll, true))
 		help = style.TypesetHelp(
 			style.Hint{Key: "←/→", Desc: "choose roll"},
 			style.Hint{Key: "enter", Desc: "assign to " + ability.Get(m.selectedAbility).Abbr},
 		)
-	default:
+	} else {
 		bottomSection = m.center(style.TypesetRollsRow(&m.rolled, m.selectedRoll, false))
 		help = style.TypesetHelp(
 			style.Hint{Key: "←/→", Desc: "choose ability"},

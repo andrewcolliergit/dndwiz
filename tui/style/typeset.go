@@ -90,18 +90,32 @@ func TypesetTextBox(title, box string, hints ...Hint) string {
 }
 
 func TypesetScores(c *character.Character, selected ability.Ability, focused bool) string {
+	return TypesetScoresPicked(c, selected, ability.None, focused)
+}
+
+// TypesetScoresPicked is TypesetScores plus a "picked" box, drawn as a filled
+// block so it reads differently from the hover highlight.
+func TypesetScoresPicked(c *character.Character, selected, picked ability.Ability, focused bool) string {
 	selectedAbility := int(selected) - 1
+	pickedAbility := int(picked) - 1
 	boxStyle := lipgloss.NewStyle().
 		Width(5).
 		Align(lipgloss.Center)
 
+	pickedStyle := boxStyle.
+		Background(lipgloss.Color("205")).
+		Foreground(lipgloss.Color("0")).
+		Bold(true)
+
 	var boxes []string
 
 	for i, score := range c.AbilityScore {
-		// Determine style based on whether this box is selected
 		currentBoxStyle := boxStyle
 		if i == selectedAbility {
-			currentBoxStyle = boxStyle.Inherit(Label) // Or apply labelStyle directly to the content/box
+			currentBoxStyle = boxStyle.Inherit(Label)
+		}
+		if i == pickedAbility {
+			currentBoxStyle = pickedStyle // picked wins over hover
 		}
 
 		scorestr := fmt.Sprintf("%d", score)
@@ -120,17 +134,58 @@ func TypesetScores(c *character.Character, selected ability.Ability, focused boo
 
 	row := lipgloss.JoinHorizontal(lipgloss.Top, boxes...)
 
-	outerBorderStyle := lipgloss.NewStyle().
-		Border(lipgloss.RoundedBorder())
-
+	outerBorderStyle := lipgloss.NewStyle().Border(lipgloss.RoundedBorder())
 	if focused {
-		outerBorderStyle = outerBorderStyle.BorderForeground(lipgloss.Color("205")) // Pink/active color
+		outerBorderStyle = outerBorderStyle.BorderForeground(lipgloss.Color("205"))
 	} else {
-		outerBorderStyle = outerBorderStyle.BorderForeground(lipgloss.Color("240")) // Muted/inactive color
+		outerBorderStyle = outerBorderStyle.BorderForeground(lipgloss.Color("240"))
 	}
 
 	return outerBorderStyle.Render(row)
 }
+
+// func TypesetScores(c *character.Character, selected ability.Ability, focused bool) string {
+// 	selectedAbility := int(selected) - 1
+// 	boxStyle := lipgloss.NewStyle().
+// 		Width(5).
+// 		Align(lipgloss.Center)
+//
+// 	var boxes []string
+//
+// 	for i, score := range c.AbilityScore {
+// 		// Determine style based on whether this box is selected
+// 		currentBoxStyle := boxStyle
+// 		if i == selectedAbility {
+// 			currentBoxStyle = boxStyle.Inherit(Label) // Or apply labelStyle directly to the content/box
+// 		}
+//
+// 		scorestr := fmt.Sprintf("%d", score)
+// 		if score == 0 {
+// 			scorestr = "-"
+// 		}
+//
+// 		content := lipgloss.JoinVertical(
+// 			lipgloss.Left,
+// 			ability.Get(ability.Ability(i+1)).Abbr,
+// 			scorestr,
+// 		)
+//
+// 		boxes = append(boxes, currentBoxStyle.Render(content))
+// 	}
+//
+// 	row := lipgloss.JoinHorizontal(lipgloss.Top, boxes...)
+//
+// 	outerBorderStyle := lipgloss.NewStyle().
+// 		Border(lipgloss.RoundedBorder())
+//
+// 	if focused {
+// 		outerBorderStyle = outerBorderStyle.BorderForeground(lipgloss.Color("205")) // Pink/active color
+// 	} else {
+// 		outerBorderStyle = outerBorderStyle.BorderForeground(lipgloss.Color("240")) // Muted/inactive color
+// 	}
+//
+// 	return outerBorderStyle.Render(row)
+// }
 
 // TypesetDice renders the four-dice box. active is the spinning die (-1 for none),
 // dropped is the die excluded from the sum (-1 for none).
