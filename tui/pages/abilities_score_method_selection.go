@@ -71,13 +71,24 @@ var AbilityScoreMethodConfig = shell.ShellConfig[pager.CurrentView]{
 		var title, desc string
 
 		switch view {
+
 		case pager.AbilityScoresRoll:
 			title = "Roll"
-			desc = "You may opt to roll for your skill points. Using this method, 6 scores will be rolled and you may assign them to the abilities of your choice.\nNote that once you have rolled, you will not have the option to roll again. You may, however, elect to Point Buy or take the standard array after rolling."
+			desc = "Roll six random scores, then choose which ability gets each one. " +
+				"Best for players who enjoy a bit of chance and want a character shaped by the dice.\n\n" +
+				"Your scores may come out higher or lower than the standard array. " +
+				"You only get one set of rolls, so you can't roll again. " +
+				"You can still switch to Point Buy or Standard Array later, " +
+				"but that replaces the scores you assigned. " +
+				"If you switch to Point Buy or Standard Array later, " +
+				"you can switch back to your rolled scores again if you change your mind, and will be able to reassign them at any time."
+
 		case pager.AbilityScoresBuy:
 			title = "Point Buy"
 			desc = "You may elect to customize your skill points as you see fit using Point Buy. With this method, you will be given a budget of 27 points to spend on skill point levels, where each level purchased becomes increasingly expensive."
-		case pager.Charsheet: // Standard Array
+
+		// Standard Array
+		case pager.Charsheet:
 			tmpCharacter := character.NewCharacter()
 			tmpCharacter.AbilityScore = class.Get(c.Class).StdArray
 			box := style.TypesetScores(&tmpCharacter, -1, false)

@@ -471,6 +471,9 @@ func (m rollModel) diceView() (string, string) {
 func (m rollModel) assignView() (string, string) {
 	title := style.Title.Width(m.width).Align(lipgloss.Center).Render("Ability Points")
 
+	intro := style.Desc.Width(m.width).Align(lipgloss.Center).Render("Pick an ability, then pick a roll to assign to it. " +
+		"Assigning over an existing score returns the old one to the pool.")
+
 	abilityBox := m.center(style.TypesetScores(m.c, m.selectedAbility, m.focus == winAbilitiesBox))
 
 	var bottomSection, help string
@@ -504,6 +507,6 @@ func (m rollModel) assignView() (string, string) {
 		)
 	}
 
-	body := lipgloss.JoinVertical(lipgloss.Center, title, " ", abilityBox, "", bottomSection)
+	body := lipgloss.JoinVertical(lipgloss.Center, title, intro, " ", abilityBox, "", bottomSection)
 	return body, help
 }
