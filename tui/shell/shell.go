@@ -143,8 +143,17 @@ func (m Shell[T]) View() string {
 			style.ContentBorder.Render(m.content.View()),
 		)
 	case LayoutCentered:
-		return lipgloss.Place(m.tX, m.tY, lipgloss.Center, lipgloss.Center,
-			style.MenuBorder.Render(m.menu.View()))
+
+		if m.cfg.ContentTitle == "" {
+			return lipgloss.Place(m.tX, m.tY, lipgloss.Center, lipgloss.Center,
+				style.MenuBorder.Render(m.menu.View()))
+		} else {
+			return lipgloss.Place(m.tX, m.tY, lipgloss.Center, lipgloss.Center,
+				lipgloss.JoinVertical(lipgloss.Center,
+					style.Title.Render(m.cfg.ContentTitle),
+					style.MenuBorder.Render(m.menu.View()),
+				))
+		}
 	}
 	return ""
 }
