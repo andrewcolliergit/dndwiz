@@ -170,7 +170,16 @@ var CharsheetConfig = shell.ShellConfig[pager.CurrentView]{
 		}
 
 		if selected == pager.AbilityScoresMethodSelection && c.Class == class.None {
-			return modal.Choice(modal.ChoiceOptions{})
+			return modal.Choice(modal.ChoiceOptions{
+				Title: "No class yet",
+				Body: "You haven't chosen a class, so the Standard Array won't be offered. " +
+					"It depends on your class. Pick a class first to unlock it.",
+				Options: []modal.ChoiceOption{
+					{Label: "Pick a class", Cmd: pager.SwitchTo(pager.ClassSelection)},
+					{Label: "Stand aside!", Cmd: pager.SwitchTo(pager.AbilityScoresMethodSelection)},
+					{Label: "Back"},
+				},
+			})
 		}
 
 		return func() tea.Msg {
