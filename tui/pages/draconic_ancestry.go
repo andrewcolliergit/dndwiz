@@ -45,10 +45,12 @@ var DraconicAncestryConfig = shell.ShellConfig[draconic.Ancestry]{
 
 		title := style.Title.Render(dai.Name)
 		dmgType := style.Label.Render("Damage Type: ") + style.Badge.Render(dai.DamageType)
+		desc := style.Desc.Width(contentWidth).Render(dai.Desc)
 
 		return lipgloss.JoinVertical(
 			lipgloss.Left,
 			title,
+			desc,
 			style.TypesetDivider(contentWidth-2),
 			dmgType,
 		)
