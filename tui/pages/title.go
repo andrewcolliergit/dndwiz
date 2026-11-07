@@ -20,7 +20,7 @@ const (
 
 var TitleConfig = shell.ShellConfig[TitleOption]{
 	ContentTitle: "D&D Chararacter Sheet Wizard",
-	MenuTitle:    "Main Menu",
+	MenuTitle:    "D&D Chararacter Sheet Wizard",
 	MenuHeight:   12,
 	Layout:       shell.LayoutCentered,
 
