@@ -36,7 +36,10 @@ type (
 		MenuWidth       int // menu width (defaults to 32 if 0)
 		MenuHeight      int // menu height
 		ShowDesc        bool
+		HelpContent     func(width int) string // body of the "?" help page; empty means no help page
 		Placeholder     string
+		EnterDesc       string // Label for help: enter (default: "select")
+		EscDesc         string // Label for help: esc (default: "back")
 		GetItems        func(*character.Character) []MenuItem
 		OnSelect        func(*character.Character, T) tea.Cmd
 		OnSubmit        func(*character.Character, string) tea.Cmd
@@ -152,4 +155,35 @@ func (m *Shell[T]) refresh() {
 	}
 	m.menu.SetItems(toListItems(m.cfg.GetItems(m.c)))
 	m.syncContent()
+}
+
+func (m Shell[T]) Help() []style.Hint {
+	enter, esc := m.cfg.EnterDesc, m.cfg.EscDesc
+	if enter == "" {
+		enter = "select"
+	}
+	if esc == "" {
+		esc = "back"
+	}
+
+	hints := []style.Hint{{Key: "↑/↓", Desc: "move"}, {Key: "enter", Desc: enter}}
+	if m.cfg.Layout == LayoutSidebar && m.content.TotalLineCount() > m.content.Height {
+		hints = append(hints, style.Hint{Key: "shift+↑/↓", Desc: "scroll"})
+	}
+
+	if m.cfg.HelpContent != nil {
+		hints = append(hints, style.Hint{Key: "?", Desc: "help"})
+	}
+
+	if m.cfg.Layout == LayoutSidebar { // Esc does nothing on the title screen
+		hints = append(hints, style.Hint{Key: "esc", Desc: esc})
+	}
+	return hints
+}
+
+func (m Shell[T]) HelpPage() (string, func(int) string, bool) {
+	if m.cfg.HelpContent == nil {
+		return "", nil, false
+	}
+	return m.cfg.ContentTitle + " Help", m.cfg.HelpContent, true
 }

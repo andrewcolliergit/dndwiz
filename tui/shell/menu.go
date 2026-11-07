@@ -37,7 +37,7 @@ func newList(title string, items []MenuItem, showDesc bool) list.Model {
 
 	l := list.New(toListItems(items), delegate, 0, 0)
 	l.Title = title
-	l.SetShowHelp(true)
+	l.SetShowHelp(false)
 	l.SetShowStatusBar(false)
 	l.SetFilteringEnabled(false)
 

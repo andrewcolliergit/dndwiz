@@ -27,7 +27,101 @@ var CharsheetConfig = shell.ShellConfig[pager.CurrentView]{
 	MenuTitle:    "Edit Character",
 	Layout:       shell.LayoutSidebar,
 	ShowDesc:     true,
+	EscDesc:      "options",
+	HelpContent: func(w int) string {
+		p := func(s string) string { return style.TypesetBody(s, w) }
+		term := func(name, text string) string {
+			return lipgloss.JoinVertical(lipgloss.Left,
+				style.Label.Render(name),
+				p(text),
+				"",
+			)
+		}
 
+		return lipgloss.JoinVertical(lipgloss.Left,
+			style.Header.Render("Welcome to the character sheet"),
+			p("A character sheet is a summary of your adventurer: who they are, what they are good "+
+				"at, and what they can do in the game. This screen is your home base. Everything "+
+				"you choose is shown on the right, and the menu on the left lets you change any part "+
+				"of it."),
+			"",
+			p("You do not need to know the game to use this. Each screen you open has its own "+
+				"help page, which you can open by pressing ? on it."),
+			style.TypesetDivider(w),
+
+			style.Header.Render("How to use this screen"),
+			p("Move the cursor up and down the menu. Press Enter or Space on an item to edit it. "+
+				"When you finish, you return here and the sheet updates to show your choices."),
+			"",
+			p("Press Esc to open the pause menu, where you can resume, or quit to the title "+
+				"screen or the program. Save and Export are listed but not available yet, so "+
+				"unsaved characters are lost when you quit."),
+			"",
+			p("If the sheet is longer than the screen, scroll it with Shift+↑/↓."),
+			style.TypesetDivider(w),
+
+			style.Header.Render("The menu items"),
+			term("Name",
+				"Opens a box where you type your character's name. Press Enter to keep it, or "+
+					"Esc to cancel."),
+			term("Class",
+				"What your character does: fight, cast spells, sneak, or heal. This is the "+
+					"biggest choice, and it sets your primary ability. Fighters are asked to choose "+
+					"between Strength and Dexterity."),
+			term("Species",
+				"What kind of person your character is: human, elf, dwarf, and so on. It sets "+
+					"your size and speed. Some species ask a follow-up question about size, "+
+					"ancestry, or lineage."),
+			term("Background",
+				"What your character did before adventuring. It gives you a feat, a tool, "+
+					"and three abilities."),
+			term("Ability Scores",
+				"Six numbers that describe your strengths and weaknesses. You can roll for them, "+
+					"spend points to buy them, or take a standard set suited to your class. The "+
+					"Standard Array option appears once you have chosen a class."),
+			term("Alignment",
+				"A short description of your character's moral outlook. It is a guide for "+
+					"roleplaying and does not change your abilities."),
+			style.TypesetDivider(w),
+
+			style.Header.Render("Reading the sheet"),
+			term("Tagline",
+				"The line under your name that sums you up, such as your background, species, "+
+					"and class."),
+			term("Ability scores",
+				"The six boxes (STR, DEX, CON, INT, WIS, CHA). The large number is the score and "+
+					"the smaller number below it is its modifier, the bonus or penalty it gives to "+
+					"your rolls."),
+			term("Primary Abilities",
+				"The scores that matter most for your class. Put your best numbers here."),
+			term("Species Attributes",
+				"Your creature type, size, and speed (how many feet you can move on your turn)."),
+			term("Background Highlights",
+				"Your background's feat, tool, and abilities, along with your alignment."),
+			p("Sections appear as you make choices. A new character starts with a short welcome "+
+				"message instead of a full sheet."),
+			style.TypesetDivider(w),
+
+			style.Header.Render("A suggested order"),
+			p("There is no required order, and you can change anything at any time. If you are "+
+				"new, this order works well:"),
+			"",
+			p("1. Class: it affects the most. If you are unsure, read its help page first."),
+			p("2. Species: pick a story you like."),
+			p("3. Background: this adds a little history."),
+			p("4. Ability Scores: choosing a class first unlocks the Standard Array, an easy "+
+				"option for beginners."),
+			p("5. Alignment and Name: these are about personality, so do them last."),
+			style.TypesetDivider(w),
+
+			style.Header.Render("Not sure where to start?"),
+			p("Open Class, read about two or three, and pick the one that sounds like fun. "+
+				"Everything else can follow from that, and you can always come back and change "+
+				"your mind."),
+			"",
+			style.Desc.Render("Press Esc or ? to close."),
+		)
+	},
 	GetItems: func(c *character.Character) []shell.MenuItem {
 		return []shell.MenuItem{
 			{

@@ -61,10 +61,9 @@ func (m textInputModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m textInputModel) View() string {
-	return style.TypesetTextBox(
-		m.cfg.Title,
-		m.ti.View(),
-		style.Hint{Key: "enter", Desc: m.cfg.EnterHelp},
-		style.Hint{Key: "esc", Desc: "cancel"},
-	)
+	return style.TypesetTextBox(m.cfg.Title, m.ti.View())
+}
+
+func (m textInputModel) Help() []style.Hint {
+	return []style.Hint{{Key: "enter", Desc: m.cfg.EnterHelp}, {Key: "esc", Desc: "cancel"}}
 }

@@ -19,7 +19,92 @@ var AbilityScoreMethodConfig = shell.ShellConfig[pager.CurrentView]{
 	Layout:       shell.LayoutSidebar,
 	MenuWidth:    32,
 	ShowDesc:     false,
+	HelpContent: func(w int) string {
+		p := func(s string) string { return style.TypesetBody(s, w) }
+		term := func(name, text string) string {
+			return lipgloss.JoinVertical(lipgloss.Left,
+				style.Label.Render(name),
+				p(text),
+				"",
+			)
+		}
 
+		return lipgloss.JoinVertical(lipgloss.Left,
+			style.Header.Render("What are ability scores?"),
+			p("Ability scores are six numbers that describe your character's natural talents: "+
+				"how strong, quick, tough, smart, perceptive, and charming they are. Almost "+
+				"everything your character attempts in the game, from swinging a sword to "+
+				"persuading a guard, is based on one of these six."),
+			"",
+			p("This screen is where you choose how to generate them. The three methods give "+
+				"you the same kind of result, a set of six numbers, but they feel different to use."),
+			style.TypesetDivider(w),
+
+			style.Header.Render("How to use this screen"),
+			p("Move the cursor up and down to read about each method. Nothing happens until you "+
+				"press Enter or Space. Each method then opens its own screen, except Standard "+
+				"Array, which applies immediately and returns you to the character sheet."),
+			"",
+			p("You can come back and switch methods at any time. Switching replaces the scores "+
+				"you currently have."),
+			style.TypesetDivider(w),
+
+			style.Header.Render("The six abilities"),
+			term("Strength (STR)",
+				"Physical power. Used for lifting, climbing, and hitting hard with heavy weapons."),
+			term("Dexterity (DEX)",
+				"Reflexes, balance, and aim. Used for dodging, sneaking, and shooting."),
+			term("Constitution (CON)",
+				"Health and stamina. Gives you more hit points, so everyone benefits from it."),
+			term("Intelligence (INT)",
+				"Reasoning and memory. Used for knowledge, investigation, and Wizard spells."),
+			term("Wisdom (WIS)",
+				"Awareness and intuition. Used for noticing things, reading people, and Cleric "+
+					"and Druid spells."),
+			term("Charisma (CHA)",
+				"Force of personality. Used for persuading, performing, and Bard, Sorcerer, and "+
+					"Warlock spells."),
+			style.TypesetDivider(w),
+
+			style.Header.Render("Scores and modifiers"),
+			p("Each score has a modifier, the bonus or penalty it adds to your rolls. A score of "+
+				"10 or 11 gives +0. Every two points above that adds +1, and every two points "+
+				"below subtracts 1. For example, 15 gives +2 and 8 gives -1."),
+			"",
+			p("Starting scores usually fall between 8 and 15. Higher is better, but it is more "+
+				"useful to be great at what your class needs than to be average at everything."),
+			style.TypesetDivider(w),
+
+			style.Header.Render("The three methods"),
+			term("Point Buy",
+				"You get 27 points to spend. Every score starts at 8, and raising a score costs "+
+					"points: the higher it goes, the more each step costs. Scores cannot go above 15. "+
+					"You have full control and no luck is involved, so it is the most predictable "+
+					"method. Best if you already know which abilities you want high."),
+			term("Standard Array",
+				"A ready-made set of six scores (15, 14, 13, 12, 10, 8) arranged for your class, "+
+					"so the best numbers land in the abilities your class cares about. It is instant "+
+					"and balanced, which makes it the easiest choice for a first character. This "+
+					"option appears only after you choose a class, because the arrangement depends "+
+					"on it."),
+			term("Roll",
+				"You roll dice to generate the scores. For each score you roll four six-sided dice "+
+					"and add the highest three, then you choose which ability gets each result. "+
+					"Scores can come out higher or lower than the other methods, so it adds an "+
+					"element of luck. You get only one set of rolls, and they cannot be rerolled."),
+			style.TypesetDivider(w),
+
+			style.Header.Render("Which should I pick?"),
+			p("If you are new, take the Standard Array. It is quick and gives your class a solid "+
+				"start. If you like planning and want control, try Point Buy. If you enjoy "+
+				"surprises and your table uses dice, try Roll."),
+			"",
+			p("You can try the methods in any order. Switching replaces your scores, but Roll "+
+				"keeps your original six rolls, so you can return to them."),
+			"",
+			style.Desc.Render("Press Esc or ? to close."),
+		)
+	},
 	GetItems: func(c *character.Character) []shell.MenuItem {
 		items := []shell.MenuItem{
 			{

@@ -10,6 +10,7 @@ import (
 	"dndwiz/tui/style"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type (
@@ -73,7 +74,7 @@ func (m *model) initView(v pager.CurrentView) {
 	m.viewCache[v] = m.currentModel
 
 	if m.termWidth > 0 && m.termHeight > 0 {
-		m.propagateSize(tea.WindowSizeMsg{Width: m.termWidth, Height: m.termHeight})
+		m.propagateSize()
 	}
 }
 
@@ -84,7 +85,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case pager.OpenModalMsg:
 		m.modal = msg.Model
 		if m.termWidth > 0 {
-			m.modal, _ = m.modal.Update(tea.WindowSizeMsg{Width: m.termWidth, Height: m.termHeight})
+			m.modal, _ = m.modal.Update(m.bodySize())
 		}
 		return m, m.modal.Init()
 
@@ -96,9 +97,19 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg.String() == "ctrl+c" {
 			return m, tea.Quit
 		}
+
 		if m.modal != nil {
 			m.modal, cmd = m.modal.Update(msg)
 			return m, cmd
+		}
+
+		if msg.String() == "?" {
+			if hp, ok := m.currentModel.(helpPager); ok {
+				if title, body, ok := hp.HelpPage(); ok {
+					return m, dialog.HelpPage(title, body)
+				}
+			}
+			return m, nil
 		}
 
 		if msg.String() == "esc" {
@@ -113,9 +124,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 	case tea.WindowSizeMsg:
-		m.termWidth = msg.Width
-		m.termHeight = msg.Height
-		m.propagateSize(msg)
+		m.termWidth, m.termHeight = msg.Width, msg.Height
+		m.propagateSize()
+		return m, nil
 
 	case pager.GoUpMsg:
 		return m.up()
@@ -136,13 +147,27 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m model) View() string {
-	if m.modal != nil {
-		return style.ModalStyle(m.termWidth, m.termHeight, m.modal.View())
+	bodyH := max(m.termHeight-helpHeight, 1)
+
+	var body string
+	var src tea.Model
+	switch {
+	case m.modal != nil:
+		body, src = style.ModalStyle(m.termWidth, bodyH, m.modal.View()), m.modal
+	case m.currentModel != nil:
+		body, src = m.currentModel.View(), m.currentModel
+	default:
+		return "UNKNOWN VIEW"
 	}
-	if m.currentModel != nil {
-		return m.currentModel.View()
+
+	var hints []style.Hint
+	if h, ok := src.(helper); ok {
+		hints = h.Help()
 	}
-	return "UNKNOWN VIEW"
+
+	// Pad the body to full height so the bar is pinned to the last row.
+	body = lipgloss.NewStyle().Height(bodyH).Render(body)
+	return lipgloss.JoinVertical(lipgloss.Left, body, style.TypesetHelpBar(m.termWidth, hints))
 }
 
 func NewProgram(cfg *Config) *tea.Program {
@@ -156,9 +181,33 @@ func NewProgram(cfg *Config) *tea.Program {
 
 // -- Helper Methods --
 
-func (m *model) propagateSize(msg tea.WindowSizeMsg) {
+// func (m *model) propagateSize(msg tea.WindowSizeMsg) {
+// 	if m.currentModel != nil {
+// 		m.currentModel, _ = m.currentModel.Update(msg)
+// 	}
+// }
+
+const helpHeight = 1
+
+// helper is implemented by any view or modal that wants hints in the bar.
+type helper interface{ Help() []style.Hint }
+
+// helpPager is implemented by views that have a help page.
+type helpPager interface {
+	HelpPage() (title string, build func(width int) string, ok bool)
+}
+
+// bodySize is what children see: the terminal minus the help bar.
+func (m model) bodySize() tea.WindowSizeMsg {
+	return tea.WindowSizeMsg{Width: m.termWidth, Height: max(m.termHeight-helpHeight, 1)}
+}
+
+func (m *model) propagateSize() {
 	if m.currentModel != nil {
-		m.currentModel, _ = m.currentModel.Update(msg)
+		m.currentModel, _ = m.currentModel.Update(m.bodySize())
+	}
+	if m.modal != nil {
+		m.modal, _ = m.modal.Update(m.bodySize())
 	}
 }
 

@@ -45,3 +45,12 @@ func (m notice) View() string {
 	)
 	return style.Popup.Render(body)
 }
+
+func (m notice) Help() []style.Hint {
+	return []style.Hint{
+		{
+			Key:  "enter",
+			Desc: "ok",
+		},
+	}
+}

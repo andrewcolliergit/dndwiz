@@ -81,3 +81,11 @@ func (m pause) View() string {
 
 	return style.Popup.Render(lipgloss.JoinVertical(lipgloss.Left, rows...))
 }
+
+func (m pause) Help() []style.Hint {
+	return []style.Hint{
+		{Key: "↑/↓", Desc: "move"},
+		{Key: "enter", Desc: "select"},
+		{Key: "esc", Desc: "resume"},
+	}
+}

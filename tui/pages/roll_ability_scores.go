@@ -3,7 +3,6 @@ package pages
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	"dndwiz/character"
@@ -460,26 +459,33 @@ func (m rollModel) center(s string) string {
 	return lipgloss.NewStyle().Width(m.width).Align(lipgloss.Center).Render(s)
 }
 
-// withHelp pins the help line to the bottom row of the terminal.
-func (m rollModel) withHelp(body, help string) string {
-	gap := max(m.height-lipgloss.Height(body), 1)
-	return body + strings.Repeat("\n", gap) + m.center(help)
-}
-
 func (m rollModel) View() string {
-	var body, help string
+	var body string
 	switch m.phase {
 	case phaseIntro:
-		body, help = m.introView()
+		body, _ = m.introView()
 	case phaseDice:
-		body, help = m.diceView()
+		body, _ = m.diceView()
 	default:
-		body, help = m.assignView()
+		body, _ = m.assignView()
 	}
-	return m.withHelp(body, help)
+	return body
 }
 
-func (m rollModel) introView() (string, string) {
+func (m rollModel) Help() []style.Hint {
+	switch m.phase {
+	case phaseIntro:
+		_, h := m.introView()
+		return h
+	case phaseDice:
+		_, h := m.diceView()
+		return h
+	}
+	_, h := m.assignView()
+	return h
+}
+
+func (m rollModel) introView() (string, []style.Hint) {
 	title := style.Title.Width(m.width).Align(lipgloss.Center).Render("Roll Ability Scores")
 
 	text := "You will roll six scores. Each score is made by rolling four six-sided dice " +
@@ -503,17 +509,28 @@ func (m rollModel) introView() (string, string) {
 	))
 
 	body := lipgloss.JoinVertical(lipgloss.Center, title, " ", desc, "", options)
-	help := style.TypesetHelp(
-		style.Hint{Key: "←/→", Desc: "choose"},
-		style.Hint{Key: "enter", Desc: "select"},
-		style.Hint{Key: "esc", Desc: "back"},
-	)
+	help := []style.Hint{
+		{Key: "←/→", Desc: "choose"},
+		{Key: "enter", Desc: "select"},
+		{Key: "esc", Desc: "back"},
+		{Key: "?", Desc: "help"},
+	}
 	return body, help
 }
 
-func (m rollModel) diceView() (string, string) {
-	title := style.Title.Width(m.width).Align(lipgloss.Center).Render("Ability Points")
-	progress := m.center(style.Label.Render(fmt.Sprintf("Rolling score %d of %d", m.rollCount+1, len(m.rolled))))
+func (m rollModel) diceView() (string, []style.Hint) {
+	title := style.Title.
+		Width(m.width).
+		Align(lipgloss.Center).
+		Render("Ability Points")
+
+	progress := m.
+		center(
+			style.Label.
+				Render(
+					fmt.Sprintf("Rolling score %d of %d", m.rollCount+1, len(m.rolled)),
+				),
+		)
 
 	active := -1
 	if m.spinning {
@@ -522,23 +539,26 @@ func (m rollModel) diceView() (string, string) {
 	diceBox := m.center(style.TypesetDice(m.dice, active, m.dropped, true))
 	rollsRow := m.center(style.TypesetRollsRow(&m.rolled, m.rollCount, false))
 
-	var status, help string
+	var status string
+	var help []style.Hint
 	if m.spinning {
 		status = style.Desc.Render(fmt.Sprintf("Press enter to stop die %d", m.dieIndex+1))
-		help = style.TypesetHelp(
-			style.Hint{Key: "enter", Desc: "stop die"},
-			style.Hint{Key: "esc", Desc: "back"},
-		)
+		help = []style.Hint{
+			{Key: "enter", Desc: "stop die"},
+			{Key: "esc", Desc: "back"},
+			{Key: "?", Desc: "help"},
+		}
 	} else {
 		status = fmt.Sprintf("Dropped the lowest die. Total: %s", style.Label.Render(fmt.Sprint(m.rolled[m.rollCount])))
 		next := "next roll"
 		if m.rollCount == len(m.rolled)-1 {
 			next = "assign scores"
 		}
-		help = style.TypesetHelp(
-			style.Hint{Key: "enter", Desc: next},
-			style.Hint{Key: "esc", Desc: "back"},
-		)
+		help = []style.Hint{
+			{Key: "enter", Desc: next},
+			{Key: "esc", Desc: "back"},
+			{Key: "?", Desc: "help"},
+		}
 	}
 
 	body := lipgloss.JoinVertical(lipgloss.Center,
@@ -546,7 +566,7 @@ func (m rollModel) diceView() (string, string) {
 	return body, help
 }
 
-func (m rollModel) assignView() (string, string) {
+func (m rollModel) assignView() (string, []style.Hint) {
 	title := style.Title.Width(m.width).Align(lipgloss.Center).Render("Ability Points")
 
 	introText := "Pick an ability, then pick a roll to assign to it. " +
@@ -557,68 +577,250 @@ func (m rollModel) assignView() (string, string) {
 	}
 	intro := style.Desc.Width(m.width).Align(lipgloss.Center).Render(introText)
 
+	// Roll box: always visible, above the scores. Highlighted only when focused.
+	rollBox := m.center(style.TypesetRollsRow(&m.rolled, m.selectedRoll, m.focus == winRollBox))
+
 	abilityBox := m.center(style.TypesetScoresPicked(
 		m.c, m.selectedAbility, m.swapFrom, m.focus == winAbilitiesBox))
 
 	info := ability.Get(m.selectedAbility)
 	detailW := min(max(m.width-8, 30), 64)
 	detail := m.center(lipgloss.JoinVertical(lipgloss.Center,
-		style.TypesetDesc(info.Name+": "+info.Desc, detailW),
-		style.TypesetDesc("The number under each score is its modifier, the bonus or penalty added to d20 rolls.", detailW),
+		style.Label.Render(info.Name),
+		style.TypesetDesc(info.Desc, detailW, lipgloss.Center),
 	))
 
-	var bottomSection, help string
+	// Confirm/Clear menu: always visible, dimmed until it can be used.
+	enabled := m.complete()
+	inMenu := enabled && m.focus == winConf
+	btn := func(label string, selected bool) string {
+		s := lipgloss.NewStyle().Padding(0, 2)
+		switch {
+		case !enabled:
+			s = s.Foreground(lipgloss.Color("240")) // grayed out
+		case selected:
+			s = s.Inherit(style.Label)
+		}
+		return s.Render("[ " + label + " ]")
+	}
+	menu := m.center(lipgloss.JoinHorizontal(lipgloss.Center,
+		btn("Confirm", inMenu && m.confIndex == confConfirm),
+		"   ",
+		btn("Clear", inMenu && m.confIndex == confReset),
+	))
+
+	var help []style.Hint
+	switch {
+	case inMenu:
+		help = []style.Hint{
+			{Key: "←/→", Desc: "choose"},
+			{Key: "enter", Desc: "select"},
+			{Key: "↑", Desc: "back to scores"},
+			{Key: "?", Desc: "help"},
+		}
+	case enabled:
+		enterDesc := "pick a score"
+		switch {
+		case m.swapFrom == m.selectedAbility:
+			enterDesc = "deselect"
+		case m.swapFrom != ability.None:
+			enterDesc = "swap with " + ability.Get(m.swapFrom).Abbr
+		}
+		help = []style.Hint{
+			{Key: "←/→", Desc: "choose score"},
+			{Key: "enter", Desc: enterDesc},
+			{Key: "↓", Desc: "menu"},
+			{Key: "?", Desc: "help"},
+		}
+	case m.focus == winRollBox:
+		help = []style.Hint{
+			{Key: "←/→", Desc: "choose roll"},
+			{Key: "enter", Desc: "assign to " + ability.Get(m.selectedAbility).Abbr},
+			{Key: "?", Desc: "help"},
+		}
+	default:
+		help = []style.Hint{
+			{Key: "←/→", Desc: "choose ability"},
+			{Key: "enter", Desc: "pick"},
+			{Key: "?", Desc: "help"},
+		}
+	}
+
+	body := lipgloss.JoinVertical(lipgloss.Center,
+		title, intro, " ", rollBox, abilityBox, detail, "", menu)
+	return body, help
+}
+
+// HelpPage implements the "?" help for the roll screen. The content depends on
+// the current phase, and on whether every roll has been assigned.
+func (m rollModel) HelpPage() (string, func(int) string, bool) {
+	switch m.phase {
+	case phaseIntro:
+		return "Rolling Help", m.introHelp, true
+	case phaseDice:
+		return "Rolling Help", m.diceHelp, true
+	}
+	return "Assigning Help", m.assignHelp, true
+}
+
+func helpP(w int) func(string) string {
+	return func(s string) string { return style.TypesetBody(s, w) }
+}
+
+func helpTerm(w int, name, text string) string {
+	return lipgloss.JoinVertical(lipgloss.Left,
+		style.Label.Render(name),
+		style.TypesetBody(text, w),
+		"",
+	)
+}
+
+// rollBasics explains what rolling is. It's shared by the intro and dice help.
+func rollBasics(w int) string {
+	p := helpP(w)
+	return lipgloss.JoinVertical(lipgloss.Left,
+		style.Header.Render("What is rolling?"),
+		p("Ability scores are six numbers that describe your character's natural talents. "+
+			"Rolling is the traditional way to get them: you throw dice and let chance "+
+			"decide. It is the most surprising of the three methods."),
+		"",
+		p("To make one score, you roll four six-sided dice, throw away the lowest one, and "+
+			"add up the other three. That gives a number from 3 to 18, and most results land "+
+			"in the middle. You do this six times to get six scores."),
+		"",
+		p("You get only one set of six, and they cannot be rerolled. Once you reach the "+
+			"assigning step, those are your numbers for the rest of this character. You can "+
+			"still switch to Point Buy or Standard Array from the method screen, but your "+
+			"rolled set stays available if you come back."),
+		style.TypesetDivider(w),
+	)
+}
+
+func (m rollModel) introHelp(w int) string {
+	p := helpP(w)
+	return lipgloss.JoinVertical(lipgloss.Left,
+		rollBasics(w),
+
+		style.Header.Render("Roll or Auto-roll?"),
+		helpTerm(w, "Roll",
+			"You stop each die yourself. A die spins on screen, and you press Enter to "+
+				"stop it. It is just for fun, since the result is still random. Pick this if "+
+				"you like the feeling of rolling dice."),
+		helpTerm(w, "Auto-roll",
+			"Skips the dice and goes straight to assigning. Your six scores are already "+
+				"rolled, so nothing is lost, and the result is just as random. Pick this if "+
+				"you just want to get on with it."),
+		style.TypesetDivider(w),
+
+		style.Header.Render("How to use this screen"),
+		p("Press ←/→ (or h/l) to choose Roll or Auto-roll, then press Enter. Esc takes you "+
+			"back to the method screen. Nothing is lost by leaving at this stage."),
+		"",
+		style.Desc.Render("Press Esc or ? to close."),
+	)
+}
+
+func (m rollModel) diceHelp(w int) string {
+	p := helpP(w)
+	return lipgloss.JoinVertical(lipgloss.Left,
+		rollBasics(w),
+
+		style.Header.Render("How to use this screen"),
+		p("The screen shows four dice, labeled d1 to d4, and one of them spins. Press Enter "+
+			"to stop it, and the next one starts spinning. After the fourth die stops, the "+
+			"lowest is struck through and the other three are added. That total is one of "+
+			"your six scores."),
+		"",
+		p("The title shows which score you are on, for example \"Rolling score 2 of 6.\" The "+
+			"row at the bottom collects your results as you go. Press Enter again to start "+
+			"the next score. After the sixth, you move on to assigning."),
+		"",
+		p("Esc takes you back to the method screen. Your six scores are not lost if you do."),
+		style.TypesetDivider(w),
+
+		style.Header.Render("A note on fairness"),
+		p("It does not matter when you press Enter. The dice are random, so you cannot "+
+			"aim for a high number. Spend as long as you like, or none at all."),
+		"",
+		style.Desc.Render("Press Esc or ? to close."),
+	)
+}
+
+func (m rollModel) assignHelp(w int) string {
+	p := helpP(w)
+
+	body := []string{
+		style.Header.Render("What is this step?"),
+		p("You now have six numbers, but they do not belong to any ability yet. Here you " +
+			"decide which ability gets which number. This is the most important choice " +
+			"you make with rolled scores, because the same six numbers can make very " +
+			"different characters."),
+		"",
+		p("A good rule of thumb is to put your highest numbers in the abilities your class " +
+			"depends on most. The character sheet lists them as Primary Abilities, so choose " +
+			"a class first if you want to know. Constitution helps everyone, since it adds " +
+			"hit points."),
+		style.TypesetDivider(w),
+	}
 
 	if m.complete() {
-		btn := func(label string, selected bool) string {
-			s := lipgloss.NewStyle().Padding(0, 2)
-			if selected {
-				s = s.Inherit(style.Label)
-			}
-			return s.Render("[ " + label + " ]")
-		}
-		inMenu := m.focus == winConf
-		menuRow := lipgloss.JoinHorizontal(lipgloss.Center,
-			btn("Confirm", inMenu && m.confIndex == confConfirm),
-			"   ",
-			btn("Clear", inMenu && m.confIndex == confReset),
-		)
-		bottomSection = m.center(lipgloss.JoinVertical(lipgloss.Center, "Are you finished?", menuRow))
-
-		if inMenu {
-			help = style.TypesetHelp(
-				style.Hint{Key: "←/→", Desc: "choose"},
-				style.Hint{Key: "enter", Desc: "select"},
-				style.Hint{Key: "↑", Desc: "back to scores"},
-			)
-		} else {
-			enterDesc := "pick a score"
-			switch {
-			case m.swapFrom == m.selectedAbility:
-				enterDesc = "deselect"
-			case m.swapFrom != ability.None:
-				enterDesc = "swap with " + ability.Get(m.swapFrom).Abbr
-			}
-			help = style.TypesetHelp(
-				style.Hint{Key: "←/→", Desc: "choose score"},
-				style.Hint{Key: "enter", Desc: enterDesc},
-				style.Hint{Key: "↓", Desc: "menu"},
-			)
-		}
-	} else if m.focus == winRollBox {
-		bottomSection = m.center(style.TypesetRollsRow(&m.rolled, m.selectedRoll, true))
-		help = style.TypesetHelp(
-			style.Hint{Key: "←/→", Desc: "choose roll"},
-			style.Hint{Key: "enter", Desc: "assign to " + ability.Get(m.selectedAbility).Abbr},
+		body = append(body,
+			style.Header.Render("All rolls are assigned"),
+			p("Every score now belongs to an ability, and you can keep rearranging them before "+
+				"you finish."),
+			"",
+			helpTerm(w, "Swap two scores",
+				"With the cursor on the score box, press Enter on one score to pick it up. It "+
+					"turns into a filled block. Move to another score with ←/→ and press Enter "+
+					"again, and the two exchange places. Press Enter on the picked score "+
+					"itself to put it back without changing anything."),
+			helpTerm(w, "Go to the menu",
+				"Press ↓ (or j) to reach Confirm and Clear. Any score you had picked up is "+
+					"put back first. Press ↑ (or k) to return to the scores."),
+			helpTerm(w, "Confirm",
+				"Keeps these scores and returns to the character sheet."),
+			helpTerm(w, "Clear",
+				"Takes every score off the abilities and returns all six to the pool so you "+
+					"can assign them from scratch. This does not reroll them. It is the only "+
+					"action here that undoes your arrangement."),
 		)
 	} else {
-		bottomSection = m.center(style.TypesetRollsRow(&m.rolled, m.selectedRoll, false))
-		help = style.TypesetHelp(
-			style.Hint{Key: "←/→", Desc: "choose ability"},
-			style.Hint{Key: "enter", Desc: "pick"},
+		body = append(body,
+			style.Header.Render("How to use this screen"),
+			helpTerm(w, "1. Pick an ability",
+				"Use ←/→ (or h/l) to move the highlight along the six abilities, then press "+
+					"Enter. The description under the scores tells you what the highlighted "+
+					"ability does."),
+			helpTerm(w, "2. Pick a roll",
+				"Focus moves to the row of unassigned rolls. Use ←/→ to choose one and press "+
+					"Enter to assign it. It leaves the pool and appears on the ability."),
+			helpTerm(w, "3. Repeat",
+				"Continue until all six are assigned. Then the row of rolls disappears and "+
+					"you can fine-tune the arrangement."),
+			helpTerm(w, "Changing your mind",
+				"Assign a different roll to an ability that already has one. The old number "+
+					"goes back to the pool, so nothing is lost or duplicated."),
 		)
 	}
 
-	body := lipgloss.JoinVertical(lipgloss.Center, title, intro, " ", abilityBox, detail, "", bottomSection)
-	return body, help
+	body = append(body,
+		style.TypesetDivider(w),
+		style.Header.Render("Reading the scores"),
+		helpTerm(w, "Score and modifier",
+			"The big number is the score. The smaller number under it is the modifier, the "+
+				"bonus or penalty it adds to your rolls. A score of 10 or 11 gives +0, 15 "+
+				"gives +2, and 8 gives -1."),
+		style.TypesetDivider(w),
+
+		style.Header.Render("Leaving this screen"),
+		p("Esc saves the scores you have assigned and shows a notice before returning to the "+
+			"method screen. Choose Roll again to continue where you left off. If you pick "+
+			"Point Buy or Standard Array in between, those methods replace your assigned "+
+			"scores, but choosing Roll afterward gives you back the same six original rolls, "+
+			"unassigned."),
+		"",
+		style.Desc.Render("Press Esc or ? to close."),
+	)
+
+	return lipgloss.JoinVertical(lipgloss.Left, body...)
 }

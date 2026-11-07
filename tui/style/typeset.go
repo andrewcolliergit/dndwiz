@@ -30,11 +30,19 @@ func TypesetHelp(hints ...Hint) string {
 	return strings.Join(parts, sep)
 }
 
+func TypesetHelpBar(width int, hints []Hint) string {
+	return lipgloss.NewStyle().
+		Width(width).
+		MaxWidth(width).
+		Align(lipgloss.Center).
+		Render(TypesetHelp(hints...))
+}
+
 func TypesetTitle(title string, subtitle string, width int) string {
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
 		Title.Render(title),
-		TypesetDesc(subtitle, width),
+		TypesetDesc(subtitle, width, lipgloss.Left),
 	)
 }
 
@@ -42,8 +50,8 @@ func TypesetBody(body string, width int) string {
 	return Body.Width(width).Render(body)
 }
 
-func TypesetDesc(desc string, width int) string {
-	return Desc.Width(width).Render(desc)
+func TypesetDesc(desc string, width int, pos lipgloss.Position) string {
+	return Desc.Width(width).Align(pos).Render(desc)
 }
 
 func TypesetBadges(badges []string, width int) string {
@@ -63,7 +71,7 @@ func TypesetDivider(width int) string {
 	return divider.Render(strings.Repeat("─", width))
 }
 
-func TypesetTextBox(title, box string, hints ...Hint) string {
+func TypesetTextBox(title, box string) string {
 	const (
 		width  = 50
 		fieldW = 26 // must be >= the input's rendered width
@@ -77,8 +85,6 @@ func TypesetTextBox(title, box string, hints ...Hint) string {
 		center.Render(list.DefaultStyles().Title.Render(title)),
 		"",
 		center.Render(field),
-		"",
-		center.Render(TypesetHelp(hints...)),
 	)
 
 	framed := lipgloss.NewStyle().
@@ -88,10 +94,6 @@ func TypesetTextBox(title, box string, hints ...Hint) string {
 		Render(content)
 
 	return lipgloss.Place(width, 20, lipgloss.Center, lipgloss.Center, framed)
-}
-
-func TypesetScores(c *character.Character, selected ability.Ability, focused bool) string {
-	return TypesetScoresPicked(c, selected, ability.None, focused)
 }
 
 // TypesetScoresPicked is TypesetScores plus a "picked" box, drawn as a filled
@@ -144,6 +146,10 @@ func TypesetScoresPicked(c *character.Character, selected, picked ability.Abilit
 	}
 
 	return outerBorderStyle.Render(row)
+}
+
+func TypesetScores(c *character.Character, selected ability.Ability, focused bool) string {
+	return TypesetScoresPicked(c, selected, ability.None, focused)
 }
 
 // func TypesetScores(c *character.Character, selected ability.Ability, focused bool) string {

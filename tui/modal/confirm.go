@@ -76,3 +76,11 @@ func (m confirm) View() string {
 	)
 	return style.Popup.Render(body)
 }
+
+func (m confirm) Help() []style.Hint {
+	return []style.Hint{
+		{Key: "←/→", Desc: "choose"},
+		{Key: "enter", Desc: "select"},
+		{Key: "y/n", Desc: "yes/no"},
+	}
+}

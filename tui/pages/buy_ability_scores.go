@@ -134,11 +134,24 @@ func (m buyModel) View() string {
 	points := fmt.Sprintf("Points: %d", m.points)
 	abilityBox := lipgloss.NewStyle().
 		Width(m.width).
-		Align(lipgloss.Center).Render(style.TypesetScores(m.c, m.selectedAbility, m.points > 0))
+		Align(lipgloss.Center).Render(style.TypesetScoresPicked(m.c, m.selectedAbility, m.selectedAbility, m.points > 0))
 
 	var bottomSection string
 	if m.points == 0 {
 		bottomSection = style.Label.Render("Press enter to continue")
 	}
 	return lipgloss.JoinVertical(lipgloss.Center, title, " ", points, abilityBox, "", bottomSection)
+}
+
+func (m buyModel) Help() []style.Hint {
+	hints := []style.Hint{{Key: "←/→", Desc: "choose ability"}, {Key: "↑/↓", Desc: "buy/refund"}}
+	if m.points == 0 {
+		hints = append(hints, style.Hint{Key: "enter", Desc: "continue"})
+	}
+	return append(hints, style.Hint{Key: "esc", Desc: "back"})
+}
+
+func (m buyModel) HelpPage() (string, string, bool) {
+	return "Point Buy Help", "You have 27 points to spend. Every score starts at 8 and can go up to 15. Higher scores cost more: 14 costs 7 points and 15 costs 9.\n\n" +
+		"Use ←/→ to choose an ability and ↑/↓ to buy or refund points. Press Enter when you've spent all 27.", true
 }
