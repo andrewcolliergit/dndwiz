@@ -158,17 +158,19 @@ var CharsheetConfig = shell.ShellConfig[pager.CurrentView]{
 	},
 
 	OnSelect: func(c *character.Character, selected pager.CurrentView) tea.Cmd {
-		if selected == pager.AbilityScoresMethodSelection && c.Class == class.None {
-			return modal.Choice(modal.ChoiceOptions{
-				Title: "No class yet",
-				Body: "You haven't chosen a class, so the Standard Array won't be offered. " +
-					"It depends on your class. Pick a class first to unlock it.",
-				Options: []modal.ChoiceOption{
-					{Label: "Pick a class", Cmd: pager.SwitchTo(pager.ClassSelection)},
-					{Label: "Continue", Cmd: pager.SwitchTo(pager.AbilityScoresMethodSelection)},
-					{Label: "Back"},
-				},
+		if selected == pager.NameInput {
+			return modal.Text(modal.TextInputConfig{
+				C:           c,
+				Title:       "Character Name",
+				Value:       c.Name,
+				Placeholder: "Enter a name",
+				Width:       30,
+				EnterHelp:   "save",
 			})
+		}
+
+		if selected == pager.AbilityScoresMethodSelection && c.Class == class.None {
+			return modal.Choice(modal.ChoiceOptions{})
 		}
 
 		return func() tea.Msg {
