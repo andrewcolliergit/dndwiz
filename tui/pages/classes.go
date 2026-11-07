@@ -23,7 +23,6 @@ var ClassSelectionConfig = shell.ShellConfig[class.Class]{
 	MenuTitle:    "Select Class",
 	Layout:       shell.LayoutSidebar,
 	ShowDesc:     false,
-	// HelpContent:  helpText(),
 	HelpContent: func(w int) string {
 		p := func(s string) string { return style.TypesetBody(s, w) }
 		term := func(name, text string) string {
