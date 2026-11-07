@@ -177,16 +177,7 @@ var CharsheetConfig = shell.ShellConfig[pager.CurrentView]{
 	},
 
 	Content: func(c *character.Character, selected pager.CurrentView, contentWidth int) string {
-		blankCharacter := c.Class == class.None &&
-			c.Species == species.None &&
-			c.Background == background.None &&
-			c.Alignment == alignment.None &&
-			!hasAbilityScores(c)
-
-		if blankCharacter {
-			return blankCharacterGreeter()
-		}
-		return displayCharacterOverview(c)
+		return displayCharacterOverview(c, contentWidth)
 	},
 }
 
@@ -320,24 +311,39 @@ func backgroundDisplay(c *character.Character) string {
 	return lipgloss.JoinVertical(lipgloss.Left, header, bgStr, alnStr)
 }
 
-func displayCharacterOverview(c *character.Character) string {
-	return lipgloss.JoinVertical(
-		lipgloss.Left,
-		headerDisplay(c),
-		taglineDisplay(c),
-		abilityScoresDisplay(c),
-		primaryAbilitiesDisplay(c),
-		speciesAttributesDisplay(c),
-		backgroundDisplay(c),
-	)
-}
+func displayCharacterOverview(c *character.Character, w int) string {
+	blankCharacter := c.Class == class.None &&
+		c.Species == species.None &&
+		c.Background == background.None &&
+		c.Alignment == alignment.None &&
+		!hasAbilityScores(c)
 
-func blankCharacterGreeter() string {
-	title := "NEW CHARACTER"
-	body := "As you fill in the details of your new character, " +
-		"this character sheet will reflect the traits and choices you have selected."
-	return lipgloss.JoinVertical(lipgloss.Left,
-		style.Title.Render(title),
-		style.Body.Render(body),
-	)
+	if blankCharacter {
+		flavor := "The tavern fire crackles, the ink is still wet, and somewhere out in the dark " +
+			"a story is waiting for someone brave, clever, or foolish enough to step into it.\n\n" +
+			"That someone has no name yet. No past, no calling, no scars. " +
+			"They are whatever you decide they will be."
+
+		nudge := "Choose an item from the menu to begin. Start with Class if you like, or follow " +
+			"whatever sparks your imagination. Nothing is final, and every choice can be changed " +
+			"later. Press ? on any screen if you want a guide."
+
+		return lipgloss.JoinVertical(
+			lipgloss.Left,
+			headerDisplay(c),
+			style.Desc.Render(flavor),
+			style.TypesetDivider(w),
+			style.Body.Render(nudge),
+		)
+	} else {
+		return lipgloss.JoinVertical(
+			lipgloss.Left,
+			headerDisplay(c),
+			taglineDisplay(c),
+			abilityScoresDisplay(c),
+			primaryAbilitiesDisplay(c),
+			speciesAttributesDisplay(c),
+			backgroundDisplay(c),
+		)
+	}
 }
