@@ -197,35 +197,43 @@ func headerDisplay(c *character.Character) string {
 }
 
 func taglineDisplay(c *character.Character) string {
-	cls := class.Get(c.Class)
-	spec := species.Get(c.Species)
-	bg := background.Get(c.Background)
-
-	var s string
+	var species_ string
 	switch c.Species {
+	case species.None:
+		// nothing chosen yet
 	case species.Dragonborn:
-		s = draconic.Get(c.DraconicAncestry).Name + " " + spec.Name
+		if c.DraconicAncestry != draconic.None {
+			species_ = draconic.Get(c.DraconicAncestry).Name + " "
+		}
+		species_ += species.Get(c.Species).Name
 	case species.Elf:
-		s = elven.Get(c.ElvenLineage).Name
+		if c.ElvenLineage != elven.None {
+			species_ = elven.Get(c.ElvenLineage).Name
+		} else {
+			species_ = species.Get(c.Species).Name
+		}
 	default:
-		s = spec.Name
+		species_ = species.Get(c.Species).Name
 	}
 
-	var output string
+	var parts []string
 	if c.Background != background.None {
-		output = bg.Name
-		if c.Species != species.None && c.Class != class.None {
-			output += " • "
-		}
+		parts = append(parts, background.Get(c.Background).Name)
 	}
-	if c.Species != species.None {
-		output += s + " "
+
+	// Species and class read as one phrase ("Gold Dragonborn Wizard").
+	var identity []string
+	if species_ != "" {
+		identity = append(identity, species_)
 	}
 	if c.Class != class.None {
-		output += cls.Name
+		identity = append(identity, class.Get(c.Class).Name)
+	}
+	if len(identity) > 0 {
+		parts = append(parts, strings.Join(identity, " "))
 	}
 
-	return style.Tagline.Render(output)
+	return style.Tagline.Render(strings.Join(parts, " • "))
 }
 
 func hasAbilityScores(c *character.Character) bool {
